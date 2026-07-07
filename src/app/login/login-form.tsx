@@ -7,6 +7,15 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { createClient } from "@/lib/supabase/client";
 
+function getSupabaseClient() {
+  try {
+    return createClient();
+  } catch (e) {
+    const message = e instanceof Error ? e.message : "Could not connect to auth.";
+    throw new Error(message);
+  }
+}
+
 export default function LoginForm() {
   const searchParams = useSearchParams();
   const next = searchParams.get("next") ?? "/dashboard";
@@ -14,39 +23,60 @@ export default function LoginForm() {
   const [email, setEmail] = useState("");
   const [sent, setSent] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [googleLoading, setGoogleLoading] = useState(false);
   const [error, setError] = useState(urlError ?? "");
 
   async function signInWithMagicLink(e: React.FormEvent) {
     e.preventDefault();
     setLoading(true);
     setError("");
-    const supabase = createClient();
-    const redirectTo = `${window.location.origin}/auth/callback?next=${encodeURIComponent(next)}`;
-    const { error: otpError } = await supabase.auth.signInWithOtp({
-      email: email.trim(),
-      options: {
-        emailRedirectTo: redirectTo,
-        shouldCreateUser: true,
-      },
-    });
-    setLoading(false);
-    if (otpError) {
-      setError(otpError.message);
-      return;
+    try {
+      const supabase = getSupabaseClient();
+      const redirectTo = `${window.location.origin}/auth/callback?next=${encodeURIComponent(next)}`;
+      const { error: otpError } = await supabase.auth.signInWithOtp({
+        email: email.trim(),
+        options: {
+          emailRedirectTo: redirectTo,
+          shouldCreateUser: true,
+        },
+      });
+      if (otpError) {
+        setError(otpError.message);
+        return;
+      }
+      setSent(true);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Sign-in failed.");
+    } finally {
+      setLoading(false);
     }
-    setSent(true);
   }
 
   async function signInWithGoogle() {
     setError("");
-    const supabase = createClient();
-    const { error: oauthError } = await supabase.auth.signInWithOAuth({
-      provider: "google",
-      options: {
-        redirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent(next)}`,
-      },
-    });
-    if (oauthError) setError(oauthError.message);
+    setGoogleLoading(true);
+    try {
+      const supabase = getSupabaseClient();
+      const { data, error: oauthError } = await supabase.auth.signInWithOAuth({
+        provider: "google",
+        options: {
+          redirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent(next)}`,
+        },
+      });
+      if (oauthError) {
+        setError(oauthError.message);
+        return;
+      }
+      if (data?.url) {
+        window.location.href = data.url;
+        return;
+      }
+      setError("Google sign-in could not start. Is Google enabled in Supabase?");
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Google sign-in failed.");
+    } finally {
+      setGoogleLoading(false);
+    }
   }
 
   return (
@@ -59,8 +89,12 @@ export default function LoginForm() {
         </p>
       ) : (
         <>
-          <Button onClick={signInWithGoogle} className="mb-4 w-full">
-            Continue with Google
+          <Button
+            onClick={signInWithGoogle}
+            className="mb-4 w-full"
+            disabled={googleLoading || loading}
+          >
+            {googleLoading ? "Redirecting…" : "Continue with Google"}
           </Button>
           <div className="relative my-4 text-center text-sm text-muted-foreground">
             or
@@ -77,7 +111,12 @@ export default function LoginForm() {
               />
             </div>
             {error && <p className="text-sm text-destructive">{error}</p>}
-            <Button type="submit" variant="outline" className="w-full" disabled={loading}>
+            <Button
+              type="submit"
+              variant="outline"
+              className="w-full"
+              disabled={loading || googleLoading}
+            >
               {loading ? "Sending…" : "Send magic link"}
             </Button>
           </form>
