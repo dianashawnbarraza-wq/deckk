@@ -41,7 +41,14 @@ export default function LoginForm() {
         },
       });
       if (otpError) {
-        setError(otpError.message);
+        const message = otpError.message.toLowerCase();
+        if (message.includes("rate limit")) {
+          setError(
+            "Too many sign-in emails sent recently. Supabase limits built-in email to about 2 per hour — wait an hour, or set up custom SMTP in Supabase (Resend) for higher limits."
+          );
+        } else {
+          setError(otpError.message);
+        }
         return;
       }
       setSent(true);
