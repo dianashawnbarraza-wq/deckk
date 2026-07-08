@@ -48,7 +48,7 @@ export async function GET(request: NextRequest) {
 
   const { data: profile } = await admin
     .from("profiles")
-    .select("id")
+    .select("id, handle, is_published")
     .eq("user_id", user.id)
     .maybeSingle();
 
@@ -77,6 +77,11 @@ export async function GET(request: NextRequest) {
         );
       }
     }
+  } else if (!profile.is_published) {
+    await admin
+      .from("profiles")
+      .update({ is_published: true })
+      .eq("id", profile.id);
   }
 
   const { data: linkData, error: linkError } = await admin.auth.admin.generateLink({

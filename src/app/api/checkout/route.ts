@@ -5,6 +5,7 @@ import { rateLimitCheckout } from "@/lib/rate-limit";
 import { calculateApplicationFeeCents } from "@/lib/platform-fee";
 import { checkoutExpiresAt, getStripe } from "@/lib/stripe";
 import { env } from "@/lib/env";
+import { publicDeckPath } from "@/lib/paths";
 
 const TIP_MIN_CENTS = 100;
 const TIP_MAX_CENTS = 50_000;
@@ -84,8 +85,8 @@ export async function POST(request: Request) {
         handle: profile.handle,
       },
     },
-    success_url: `${appUrl}/@${profile.handle}?checkout=success`,
-    cancel_url: `${appUrl}/@${profile.handle}?checkout=cancelled`,
+    success_url: `${appUrl}${publicDeckPath(profile.handle, { checkout: "success" })}`,
+    cancel_url: `${appUrl}${publicDeckPath(profile.handle, { checkout: "cancelled" })}`,
   };
 
   if (input.type === "tip") {

@@ -59,6 +59,8 @@ export async function getProfileByUserId(userId: string) {
   return data;
 }
 
+export { publicDeckPath } from "@/lib/paths";
+
 export async function getCreatorEmail(userId: string): Promise<string | null> {
   const supabase = createAdminClient();
   const { data } = await supabase.auth.admin.getUserById(userId);

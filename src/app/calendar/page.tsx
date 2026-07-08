@@ -6,6 +6,7 @@ import { CommunityNav } from "@/components/community/community-nav";
 import { ReportButton } from "@/components/community/report-button";
 import { Badge } from "@/components/ui/badge";
 import { buttonVariants } from "@/components/ui/button";
+import { publicDeckPath } from "@/lib/paths";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { getCommunityCities, getCommunityEvents } from "@/lib/community";
 import { formatEventWhen } from "@/lib/events";
@@ -98,7 +99,7 @@ export default async function CalendarPage({ searchParams }: PageProps) {
                       <div>
                         <CardTitle className="text-lg">
                           <Link
-                            href={`/@${event.profile.handle}?tab=events`}
+                            href={publicDeckPath(event.profile.handle, { tab: "events" })}
                             className="hover:underline"
                           >
                             {event.title}
@@ -107,7 +108,7 @@ export default async function CalendarPage({ searchParams }: PageProps) {
                         <p className="mt-1 text-sm text-muted-foreground">
                           by{" "}
                           <Link
-                            href={`/@${event.profile.handle}`}
+                            href={publicDeckPath(event.profile.handle)}
                             className="underline-offset-4 hover:underline"
                           >
                             {event.profile.display_name}
@@ -153,7 +154,7 @@ export default async function CalendarPage({ searchParams }: PageProps) {
                     )}
                     <div className="flex flex-wrap gap-2 pt-1">
                       <Link
-                        href={`/@${event.profile.handle}?tab=events`}
+                        href={publicDeckPath(event.profile.handle, { tab: "events" })}
                         className={cn(buttonVariants({ variant: "outline", size: "sm" }))}
                       >
                         View deck

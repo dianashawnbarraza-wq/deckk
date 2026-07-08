@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
+import { publicDeckPath } from "@/lib/paths";
 
 const createSchema = z.object({
   profileId: z.string().uuid(),
@@ -127,7 +128,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 
-  revalidatePath(`/@${profile.handle}`);
+  revalidatePath(publicDeckPath(profile.handle));
   revalidatePath("/calendar");
   return NextResponse.json({ event });
 }

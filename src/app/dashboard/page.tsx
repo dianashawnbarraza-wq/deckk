@@ -4,6 +4,7 @@ import { CommunityOptInToggle } from "@/components/community/community-opt-in-to
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { devAuthEnabled } from "@/lib/dev-auth";
+import { publicDeckPath } from "@/lib/paths";
 import { createClient } from "@/lib/supabase/server";
 
 export default async function DashboardPage() {
@@ -44,7 +45,7 @@ export default async function DashboardPage() {
           Events
         </Link>
         <Link
-          href={`/@${profile.handle}`}
+          href={publicDeckPath(profile.handle)}
           className={cn(buttonVariants({ variant: "outline" }), "w-full justify-start")}
         >
           View public deck

@@ -1,5 +1,6 @@
 import { Resend } from "resend";
 import { env } from "@/lib/env";
+import { publicDeckPath } from "@/lib/paths";
 
 let resendClient: Resend | null = null;
 
@@ -29,7 +30,7 @@ export async function sendOrderConfirmationEmails(params: {
   const resend = getResend();
   const from = env.resendFromEmail();
   const amount = formatUsd(params.amountCents);
-  const deckUrl = `${env.appUrl}/@${params.handle}`;
+  const deckUrl = `${env.appUrl}${publicDeckPath(params.handle)}`;
 
   await Promise.all([
     resend.emails.send({

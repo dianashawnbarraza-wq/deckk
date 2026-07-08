@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
+import { publicDeckPath } from "@/lib/paths";
 
 const updateSchema = z.object({
   title: z.string().min(1).max(100).optional(),
@@ -109,7 +110,7 @@ export async function PATCH(
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 
-  revalidatePath(`/@${owned.profile.handle}`);
+  revalidatePath(publicDeckPath(owned.profile.handle));
   revalidatePath("/calendar");
   return NextResponse.json({ event });
 }
@@ -137,7 +138,7 @@ export async function DELETE(
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 
-  revalidatePath(`/@${owned.profile.handle}`);
+  revalidatePath(publicDeckPath(owned.profile.handle));
   revalidatePath("/calendar");
   return NextResponse.json({ ok: true });
 }

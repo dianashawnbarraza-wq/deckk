@@ -4,6 +4,7 @@ import { CommunityNav } from "@/components/community/community-nav";
 import { DiscoverSearch } from "@/components/community/discover-search";
 import { ReportButton } from "@/components/community/report-button";
 import { getDirectoryProfiles } from "@/lib/community";
+import { publicDeckPath } from "@/lib/paths";
 
 export const revalidate = 300;
 
@@ -68,7 +69,7 @@ export default async function DiscoverPage({ searchParams }: PageProps) {
                     <div className="min-w-0 flex-1">
                       <h2 className="truncate font-semibold">
                         <Link
-                          href={`/@${profile.handle}`}
+                          href={publicDeckPath(profile.handle)}
                           className="hover:underline"
                         >
                           {profile.display_name}
@@ -90,7 +91,7 @@ export default async function DiscoverPage({ searchParams }: PageProps) {
                     </p>
                   )}
                   <Link
-                    href={`/@${profile.handle}`}
+                    href={publicDeckPath(profile.handle)}
                     className="mt-4 text-sm font-medium underline-offset-4 hover:underline"
                   >
                     View deck →

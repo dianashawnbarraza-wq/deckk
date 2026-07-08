@@ -4,6 +4,7 @@ import { StripeConnectBanner } from "@/components/payments/stripe-connect-banner
 import { buttonVariants } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { createClient } from "@/lib/supabase/server";
+import { publicDeckPath } from "@/lib/paths";
 import { ProductForm } from "@/components/payments/product-form";
 import { PaymentLinkForm } from "@/components/payments/payment-link-form";
 
@@ -120,7 +121,7 @@ export default async function PaymentsDashboardPage({ searchParams }: PageProps)
 
         <p className="text-sm text-muted-foreground">
           Preview your deck:{" "}
-          <Link href={`/@${profile.handle}`} className="underline">
+          <Link href={publicDeckPath(profile.handle)} className="underline">
             deckk.me/@{profile.handle}
           </Link>
         </p>

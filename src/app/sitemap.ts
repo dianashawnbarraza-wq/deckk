@@ -1,6 +1,7 @@
 import type { MetadataRoute } from "next";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { env } from "@/lib/env";
+import { publicDeckPath } from "@/lib/paths";
 
 export const dynamic = "force-dynamic";
 
@@ -21,7 +22,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       .eq("is_published", true);
 
     const deckUrls: MetadataRoute.Sitemap = (profiles ?? []).map((p) => ({
-      url: `${base}/@${p.handle}`,
+      url: `${base}${publicDeckPath(p.handle)}`,
       lastModified: p.updated_at,
       changeFrequency: "weekly",
       priority: 0.8,

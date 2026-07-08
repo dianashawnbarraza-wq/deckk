@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { DashboardEventList } from "@/components/events/dashboard-event-list";
 import { buttonVariants } from "@/components/ui/button";
 import { createClient } from "@/lib/supabase/server";
+import { publicDeckPath } from "@/lib/paths";
 
 export default async function EventsDashboardPage() {
   const supabase = await createClient();
@@ -46,7 +47,7 @@ export default async function EventsDashboardPage() {
 
       <p className="mt-8 text-sm text-muted-foreground">
         Preview:{" "}
-        <Link href={`/@${profile.handle}?tab=events`} className="underline">
+        <Link href={publicDeckPath(profile.handle, { tab: "events" })} className="underline">
           deckk.me/@{profile.handle}?tab=events
         </Link>
       </p>

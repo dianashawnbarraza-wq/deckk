@@ -9,6 +9,7 @@ import {
   ProductPaymentCard,
   TipJarCard,
 } from "@/components/deck/payment-cards";
+import { publicDeckPath } from "@/lib/paths";
 import { cn } from "@/lib/utils";
 
 export const revalidate = 60;
@@ -49,7 +50,7 @@ export default async function PublicDeckPage({ params, searchParams }: PageProps
       .select("handle")
       .eq("id", redirectRow.profile_id)
       .single();
-    if (targetProfile) redirect(`/@${targetProfile.handle}`);
+    if (targetProfile) redirect(publicDeckPath(targetProfile.handle));
   }
 
   const deck = await getPublicDeck(handle);
@@ -83,11 +84,10 @@ export default async function PublicDeckPage({ params, searchParams }: PageProps
     blocks.filter((b) => b.category !== "social").length > 0;
 
   function tabHref(nextTab: Tab, nextArchive = false) {
-    const params = new URLSearchParams();
-    if (nextTab !== "all") params.set("tab", nextTab);
-    if (nextArchive) params.set("archive", "1");
-    const q = params.toString();
-    return q ? `/@${profile.handle}?${q}` : `/@${profile.handle}`;
+    return publicDeckPath(profile.handle, {
+      ...(nextTab !== "all" ? { tab: nextTab } : {}),
+      ...(nextArchive ? { archive: "1" } : {}),
+    });
   }
 
   return (

@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
+import { publicDeckPath } from "@/lib/paths";
 
 const schema = z.object({
   communityOptIn: z.boolean(),
@@ -41,6 +42,6 @@ export async function PATCH(request: Request) {
   }
 
   revalidatePath("/discover");
-  revalidatePath(`/@${profile.handle}`);
+  revalidatePath(publicDeckPath(profile.handle));
   return NextResponse.json({ ok: true });
 }
