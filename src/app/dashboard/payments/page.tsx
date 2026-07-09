@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { StripeConnectBanner } from "@/components/payments/stripe-connect-banner";
-import { buttonVariants } from "@/components/ui/button";
+import { EditorShell } from "@/components/layout/editor-shell";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { createClient } from "@/lib/supabase/server";
 import { publicDeckPath } from "@/lib/paths";
@@ -46,22 +46,15 @@ export default async function PaymentsDashboardPage({ searchParams }: PageProps)
   const links = linksRes.data ?? [];
 
   return (
-    <main className="mx-auto max-w-2xl px-4 py-8">
-      <div className="mb-6 flex items-center justify-between">
-        <h1 className="text-2xl font-bold">Payments</h1>
-        <Link href="/dashboard" className={buttonVariants({ variant: "outline" })}>
-          ← Dashboard
-        </Link>
-      </div>
-
+    <EditorShell title="Payments" backHref="/dashboard" backLabel="Dashboard">
       {stripeParam === "pending" && (
-        <p className="mb-4 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm">
+        <p className="mb-4 rounded-[1rem] border border-line bg-paper-sunken px-4 py-3 text-base">
           Stripe is reviewing your account. Payment cards stay hidden until
           charges are enabled.
         </p>
       )}
       {stripeParam === "resume" && (
-        <p className="mb-4 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm">
+        <p className="mb-4 rounded-[1rem] border border-line bg-paper-sunken px-4 py-3 text-base">
           Your onboarding link expired. Click below to resume where you left off.
         </p>
       )}
@@ -72,17 +65,17 @@ export default async function PaymentsDashboardPage({ searchParams }: PageProps)
         returnTo="/dashboard/payments"
       />
 
-      <div className="space-y-8">
+      <div className="space-y-10">
         <section>
-          <h2 className="mb-4 text-lg font-semibold">Products</h2>
+          <h2 className="mb-4 font-display text-xl text-ink">Products</h2>
           <ProductForm profileId={profile.id} />
           <div className="mt-4 space-y-3">
             {products.map((product) => (
               <Card key={product.id}>
                 <CardHeader className="pb-2">
-                  <CardTitle className="text-base">{product.title}</CardTitle>
+                  <CardTitle className="text-lg">{product.title}</CardTitle>
                 </CardHeader>
-                <CardContent className="text-sm text-muted-foreground">
+                <CardContent className="text-base text-muted-foreground">
                   ${(product.price_cents / 100).toFixed(2)}
                   {product.inventory_qty !== null &&
                     ` · ${product.inventory_qty} in stock`}
@@ -94,20 +87,20 @@ export default async function PaymentsDashboardPage({ searchParams }: PageProps)
         </section>
 
         <section>
-          <h2 className="mb-4 text-lg font-semibold">Payment links</h2>
+          <h2 className="mb-4 font-display text-xl text-ink">Payment links</h2>
           <PaymentLinkForm profileId={profile.id} />
           <div className="mt-4 space-y-3">
             {links.map((link) => (
               <Card key={link.id}>
                 <CardHeader className="pb-2">
-                  <CardTitle className="text-base">
+                  <CardTitle className="text-lg">
                     {link.title}{" "}
-                    <span className="text-sm font-normal text-muted-foreground">
+                    <span className="text-base font-normal text-muted-foreground">
                       ({link.kind})
                     </span>
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="text-sm text-muted-foreground">
+                <CardContent className="text-base text-muted-foreground">
                   {link.kind === "fixed" && link.amount_cents
                     ? `$${(link.amount_cents / 100).toFixed(2)}`
                     : link.kind === "tip"
@@ -119,13 +112,16 @@ export default async function PaymentsDashboardPage({ searchParams }: PageProps)
           </div>
         </section>
 
-        <p className="text-sm text-muted-foreground">
+        <p className="text-base text-muted-foreground">
           Preview your deck:{" "}
-          <Link href={publicDeckPath(profile.handle)} className="underline">
-            deckk.me/@{profile.handle}
+          <Link
+            href={publicDeckPath(profile.handle)}
+            className="text-brand-accent-strong underline-offset-4 hover:underline"
+          >
+            deckk.me/{profile.handle}
           </Link>
         </p>
       </div>
-    </main>
+    </EditorShell>
   );
 }

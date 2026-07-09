@@ -1,21 +1,24 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Instrument_Serif, Manrope } from "next/font/google";
 import "./globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const instrumentSerif = Instrument_Serif({
+  variable: "--font-instrument-serif",
   subsets: ["latin"],
+  weight: "400",
+  style: ["normal", "italic"],
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+const manrope = Manrope({
+  variable: "--font-manrope",
   subsets: ["latin"],
+  weight: ["400", "500", "600", "700", "800"],
 });
 
 export const metadata: Metadata = {
-  title: "deckk.me — Your whole deck, dealt in one link",
+  title: "deckk.me — your whole deck, dealt in one link",
   description:
-    "The easiest way for creators to manage one link, promote everything, and get paid — with 0% platform fees.",
+    "Drop your links, shop, events, and support in one page — 0% platform fees.",
 };
 
 export default function RootLayout({
@@ -24,10 +27,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html
-      lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
-    >
+    <html lang="en" className={`${instrumentSerif.variable} ${manrope.variable} h-full`}>
       <body className="min-h-full flex flex-col">{children}</body>
     </html>
   );

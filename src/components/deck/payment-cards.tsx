@@ -50,9 +50,9 @@ export function ProductPaymentCard({
   }
 
   return (
-    <Card className="overflow-hidden shadow-sm">
+    <Card className="overflow-hidden">
       {product.images[0] && (
-        <div className="relative aspect-square w-full bg-muted">
+        <div className="relative aspect-[16/10] w-full bg-paper-sunken">
           <Image
             src={product.images[0]}
             alt={product.title}
@@ -63,14 +63,17 @@ export function ProductPaymentCard({
         </div>
       )}
       <CardHeader className="pb-2">
-        <CardTitle className="text-lg">{product.title}</CardTitle>
+        <p className="mb-1 text-[0.6875rem] font-semibold uppercase tracking-[0.14em] text-brand-accent-strong">
+          Shop
+        </p>
+        <CardTitle>{product.title}</CardTitle>
       </CardHeader>
-      <CardContent className="space-y-3">
+      <CardContent className="space-y-4">
         {product.description && (
-          <p className="text-sm text-muted-foreground">{product.description}</p>
+          <p className="text-base text-muted-foreground">{product.description}</p>
         )}
         <div className="flex items-center justify-between gap-2">
-          <span className="font-semibold">{formatUsd(product.price_cents)}</span>
+          <span className="font-display text-2xl text-ink">{formatUsd(product.price_cents)}</span>
           {product.inventory_qty !== null && (
             <Badge variant="secondary">
               {soldOut ? "Sold out" : `${product.inventory_qty} left`}
@@ -127,12 +130,15 @@ export function TipJarCard({
   }
 
   return (
-    <Card className="shadow-sm">
+    <Card>
       <CardHeader>
-        <CardTitle className="text-lg">{link.title}</CardTitle>
+        <p className="mb-1 text-[0.6875rem] font-semibold uppercase tracking-[0.14em] text-brand-accent-strong">
+          Support
+        </p>
+        <CardTitle>{link.title}</CardTitle>
       </CardHeader>
-      <CardContent className="space-y-3">
-        <p className="text-sm text-muted-foreground">
+      <CardContent className="space-y-4">
+        <p className="text-base text-muted-foreground">
           Support with any amount from $1 to $500
         </p>
         {!chargesEnabled ? (
@@ -190,13 +196,16 @@ export function FixedPaymentLinkCard({
   }
 
   return (
-    <Card className="shadow-sm">
+    <Card>
       <CardHeader>
-        <CardTitle className="text-lg">{link.title}</CardTitle>
+        <p className="mb-1 text-[0.6875rem] font-semibold uppercase tracking-[0.14em] text-brand-accent-strong">
+          Support
+        </p>
+        <CardTitle>{link.title}</CardTitle>
       </CardHeader>
-      <CardContent className="space-y-3">
+      <CardContent className="space-y-4">
         {link.amount_cents && (
-          <p className="font-semibold">{formatUsd(link.amount_cents)}</p>
+          <p className="font-display text-2xl text-ink">{formatUsd(link.amount_cents)}</p>
         )}
         {!chargesEnabled ? (
           <Button disabled className="w-full">

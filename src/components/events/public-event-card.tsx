@@ -26,12 +26,12 @@ export function PublicEventCard({
 
   return (
     <Card
-      className={`overflow-hidden shadow-sm ${
+      className={`overflow-hidden ${
         event.is_canceled ? "border-destructive/40 bg-destructive/5" : ""
       }`}
     >
       {event.cover_url && (
-        <div className="relative aspect-[2/1] w-full overflow-hidden bg-muted">
+        <div className="relative aspect-[16/10] w-full overflow-hidden bg-paper-sunken">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={event.cover_url}

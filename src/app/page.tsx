@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { buttonVariants } from "@/components/ui/button";
+import { Wordmark } from "@/components/brand/wordmark";
 import { devAuthEnabled } from "@/lib/dev-auth";
+import { cn } from "@/lib/utils";
 
 export const dynamic = "force-dynamic";
 
@@ -8,35 +10,44 @@ export default function HomePage() {
   const skipLogin = devAuthEnabled();
 
   return (
-    <main className="mx-auto flex min-h-screen max-w-lg flex-col items-center justify-center px-4 text-center">
-      <h1 className="text-4xl font-bold tracking-tight">deckk.me</h1>
-      <p className="mt-4 text-lg text-muted-foreground">
-        Your whole deck, dealt in one link.
+    <main className="mx-auto flex min-h-screen max-w-hub flex-col justify-center px-5 py-16">
+      <Wordmark className="text-[3.5rem] sm:text-[4.5rem]" />
+      <h1 className="mt-6 font-display text-[2.5rem] leading-[1.02] tracking-tight text-ink sm:text-[3rem]">
+        your whole deck, dealt in one link
+      </h1>
+      <p className="mt-4 max-w-md text-base leading-relaxed text-muted-foreground">
+        Drop your links, shop, events, and support in one page — 0% platform fees.
       </p>
-      <p className="mt-2 text-sm text-muted-foreground">
-        Manage one link, promote everything, get paid — 0% platform fees.
-      </p>
-      <div className="mt-8 flex flex-wrap justify-center gap-3">
+      <div className="mt-10 flex flex-wrap gap-3">
         {skipLogin ? (
-          <Link href="/dev/enter" className={buttonVariants()}>
+          <Link href="/dev/enter" className={buttonVariants({ size: "lg" })}>
             Enter app (demo)
           </Link>
         ) : (
-          <Link href="/login" className={buttonVariants()}>
+          <Link href="/login" className={buttonVariants({ size: "lg" })}>
             Get started
           </Link>
         )}
         {!skipLogin && (
-          <Link href="/login" className={buttonVariants({ variant: "outline" })}>
+          <Link
+            href="/login"
+            className={cn(buttonVariants({ variant: "outline", size: "lg" }))}
+          >
             Sign in
           </Link>
         )}
       </div>
-      <div className="mt-10 flex flex-wrap justify-center gap-4 text-sm">
-        <Link href="/calendar" className="text-muted-foreground underline-offset-4 hover:underline">
+      <div className="mt-14 flex flex-wrap gap-6 text-base">
+        <Link
+          href="/calendar"
+          className="text-muted-foreground underline-offset-4 hover:text-ink hover:underline"
+        >
           Community calendar
         </Link>
-        <Link href="/discover" className="text-muted-foreground underline-offset-4 hover:underline">
+        <Link
+          href="/discover"
+          className="text-muted-foreground underline-offset-4 hover:text-ink hover:underline"
+        >
           Discover creators
         </Link>
       </div>
