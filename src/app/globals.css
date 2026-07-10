@@ -133,4 +133,51 @@
   .deck-logo-levitate {
     animation: none;
   }
+  .deck-ripple-name__echo {
+    animation: none;
+    opacity: 0;
+  }
+}
+
+/* Deck hero header */
+.deck-hero-noise {
+  opacity: 0.14;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  mix-blend-mode: overlay;
+  pointer-events: none;
+}
+
+.deck-ripple-name__text {
+  text-shadow: 0 0 48px rgba(255, 255, 255, 0.18);
+}
+
+.deck-ripple-name__echo {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  font: inherit;
+  letter-spacing: inherit;
+  color: rgba(255, 255, 255, 0.45);
+  filter: blur(3px);
+  animation: deck-name-ripple 5s cubic-bezier(0.16, 1, 0.3, 1) infinite;
+  pointer-events: none;
+  user-select: none;
+}
+
+.deck-ripple-name__echo--delay {
+  animation-delay: -2.5s;
+  opacity: 0.25;
+  filter: blur(8px);
+}
+
+@keyframes deck-name-ripple {
+  0%,
+  100% {
+    transform: scale(1) translateY(0);
+    opacity: 0.2;
+  }
+  50% {
+    transform: scale(1.045) translateY(-3px);
+    opacity: 0.55;
+  }
 }

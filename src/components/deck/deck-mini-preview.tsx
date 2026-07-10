@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { ArrowUpRight } from "lucide-react";
-import { Avatar } from "@/components/profile/avatar";
+import { DeckHeroHeader } from "@/components/deck/deck-hero-header";
 import { publicDeckPath } from "@/lib/paths";
 import { partitionEvents } from "@/lib/events";
 import { accentStyle, resolveAccentPreset } from "@/lib/theme";
@@ -71,7 +71,7 @@ function PreviewRow({ item }: { item: PreviewItem }) {
 interface DeckMiniPreviewProps {
   profile: Pick<
     Profile,
-    "handle" | "display_name" | "bio" | "avatar_url" | "theme" | "is_published"
+    "handle" | "display_name" | "bio" | "avatar_url" | "header_url" | "theme" | "is_published"
   >;
   blocks: Block[];
   products: Product[];
@@ -112,24 +112,15 @@ export function DeckMiniPreview({
           className="pointer-events-none absolute left-1/2 top-0 w-[400px] -translate-x-1/2 origin-top scale-[0.56]"
           style={accentStyle(accent)}
         >
-          <div className="px-5 pb-6 pt-5 text-center">
-            <div className="mb-3 flex justify-center">
-              <Avatar src={profile.avatar_url} size="lg" className="size-14" />
-            </div>
-            <h2 className="font-display text-[1.65rem] leading-[1.02] tracking-tight text-ink">
-              {profile.display_name}
-            </h2>
-            <p className="mt-1 text-xs font-medium text-brand-accent-strong">
-              deckk.me/{profile.handle}
-            </p>
-            {profile.bio ? (
-              <p className="mx-auto mt-2 line-clamp-2 max-w-[280px] text-xs leading-relaxed text-muted-foreground">
-                {profile.bio}
-              </p>
-            ) : (
-              <p className="mx-auto mt-2 text-xs text-muted-foreground/70">Add a bio in your profile</p>
-            )}
-          </div>
+          <DeckHeroHeader
+            displayName={profile.display_name}
+            handle={profile.handle}
+            bio={profile.bio}
+            avatarUrl={profile.avatar_url}
+            headerUrl={profile.header_url}
+            compact
+            className="mb-3"
+          />
 
           <div className="mb-3 flex gap-1.5 overflow-hidden px-5 pb-1">
             <span className="shrink-0 rounded-full bg-ink px-2.5 py-1 text-[10px] font-medium text-paper">

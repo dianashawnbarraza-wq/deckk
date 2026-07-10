@@ -18,6 +18,7 @@ export interface Profile {
   display_name: string;
   bio: string;
   avatar_url: string | null;
+  header_url: string | null;
   primary_cta_type: PrimaryCtaType;
   primary_cta_ref: string | null;
   theme: Record<string, unknown>;

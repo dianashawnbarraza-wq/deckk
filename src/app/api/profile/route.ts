@@ -11,6 +11,7 @@ const schema = z.object({
   displayName: z.string().min(1).max(50).optional(),
   bio: z.string().max(500).optional(),
   avatarUrl: z.string().url().nullable().optional(),
+  headerUrl: z.string().url().nullable().optional(),
   theme: z.object({ accent: accentSchema }).optional(),
 });
 
@@ -48,10 +49,23 @@ export async function PATCH(request: Request) {
     }
   }
 
+  let safeHeader: string | null | undefined = undefined;
+  if (input.headerUrl !== undefined) {
+    try {
+      safeHeader = validateHttpsUrl(input.headerUrl);
+      if (input.headerUrl && !safeHeader) {
+        return NextResponse.json({ error: "Header URL must use https" }, { status: 400 });
+      }
+    } catch {
+      return NextResponse.json({ error: "Invalid header URL" }, { status: 400 });
+    }
+  }
+
   const updates: Record<string, string | null | { accent: AccentPreset }> = {};
   if (input.displayName !== undefined) updates.display_name = input.displayName;
   if (input.bio !== undefined) updates.bio = input.bio;
   if (safeAvatar !== undefined) updates.avatar_url = safeAvatar;
+  if (safeHeader !== undefined) updates.header_url = safeHeader;
   if (input.theme !== undefined) updates.theme = input.theme;
 
   if (Object.keys(updates).length === 0) {
@@ -62,7 +76,7 @@ export async function PATCH(request: Request) {
     .from("profiles")
     .update(updates)
     .eq("user_id", user.id)
-    .select("id, handle, display_name, bio, avatar_url")
+    .select("id, handle, display_name, bio, avatar_url, header_url")
     .single();
 
   if (error || !profile) {

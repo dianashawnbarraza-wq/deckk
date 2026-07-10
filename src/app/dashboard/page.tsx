@@ -25,7 +25,7 @@ export default async function DashboardPage({ searchParams }: PageProps) {
 
   const { data: profile } = await supabase
     .from("profiles")
-    .select("id, handle, display_name, bio, avatar_url, theme, is_published, community_opt_in")
+    .select("id, handle, display_name, bio, avatar_url, header_url, theme, is_published, community_opt_in")
     .eq("user_id", user.id)
     .single();
 
@@ -119,6 +119,7 @@ export default async function DashboardPage({ searchParams }: PageProps) {
           initialDisplayName={profile.display_name}
           initialBio={profile.bio}
           initialAvatarUrl={profile.avatar_url}
+          initialHeaderUrl={profile.header_url}
         />
 
         <div className="flex flex-wrap gap-3">

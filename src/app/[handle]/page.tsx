@@ -7,9 +7,9 @@ import { partitionEvents } from "@/lib/events";
 import { publicDeckPath } from "@/lib/paths";
 import { resolveAccentPreset } from "@/lib/theme";
 import { Wordmark } from "@/components/brand/wordmark";
+import { DeckHeroHeader } from "@/components/deck/deck-hero-header";
 import { DeckOwnerToolbar } from "@/components/deck/deck-owner-toolbar";
 import { HubShell } from "@/components/layout/hub-shell";
-import { Avatar } from "@/components/profile/avatar";
 import { Eyebrow } from "@/components/profile/eyebrow";
 import { LinkCard } from "@/components/profile/link-card";
 import { PublicEventCard } from "@/components/events/public-event-card";
@@ -112,22 +112,13 @@ export default async function PublicDeckPage({ params, searchParams }: PageProps
       {isOwner && (
         <DeckOwnerToolbar shareUrl={shareUrl} title={profile.display_name} />
       )}
-      <header className="mb-10 text-center">
-        <div className="mb-6 flex justify-center">
-          <Avatar src={profile.avatar_url} size="xl" />
-        </div>
-        <h1 className="font-display text-[2.75rem] leading-[1.02] tracking-tight text-ink">
-          {profile.display_name}
-        </h1>
-        <p className="mt-2 text-base font-medium text-brand-accent-strong">
-          deckk.me/{profile.handle}
-        </p>
-        {profile.bio && (
-          <p className="mx-auto mt-4 max-w-md text-base leading-relaxed text-muted-foreground">
-            {profile.bio}
-          </p>
-        )}
-      </header>
+      <DeckHeroHeader
+        displayName={profile.display_name}
+        handle={profile.handle}
+        bio={profile.bio}
+        avatarUrl={profile.avatar_url}
+        headerUrl={profile.header_url}
+      />
 
       <nav className="sticky top-0 z-10 -mx-5 mb-8 flex gap-2 overflow-x-auto border-b border-line bg-paper px-5 pb-3 pt-1">
         {tabs
