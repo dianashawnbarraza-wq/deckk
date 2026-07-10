@@ -72,12 +72,30 @@ export async function PATCH(request: Request) {
     return NextResponse.json({ error: "Nothing to update" }, { status: 400 });
   }
 
-  const { data: profile, error } = await supabase
+  let { data: profile, error } = await supabase
     .from("profiles")
     .update(updates)
     .eq("user_id", user.id)
     .select("id, handle, display_name, bio, avatar_url, header_url")
     .single();
+
+  if (error?.message?.includes("header_url")) {
+    const { header_url: _drop, ...updatesWithoutHeader } = updates as Record<string, unknown>;
+    if (Object.keys(updatesWithoutHeader).length === 0) {
+      return NextResponse.json(
+        { error: "Run the header_url migration in Supabase to save header images." },
+        { status: 400 }
+      );
+    }
+    const retry = await supabase
+      .from("profiles")
+      .update(updatesWithoutHeader)
+      .eq("user_id", user.id)
+      .select("id, handle, display_name, bio, avatar_url")
+      .single();
+    profile = retry.data ? { ...retry.data, header_url: null } : null;
+    error = retry.error;
+  }
 
   if (error || !profile) {
     return NextResponse.json({ error: error?.message ?? "Update failed" }, { status: 500 });

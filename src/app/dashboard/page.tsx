@@ -9,6 +9,7 @@ import { ProfileEditor } from "@/components/profile/profile-editor";
 import { buttonVariants } from "@/components/ui/button";
 import { devAuthEnabled } from "@/lib/dev-auth";
 import { publicDeckPath } from "@/lib/paths";
+import { getProfileByUserId } from "@/lib/profile-query";
 import { createClient } from "@/lib/supabase/server";
 import { cn } from "@/lib/utils";
 
@@ -23,11 +24,7 @@ export default async function DashboardPage({ searchParams }: PageProps) {
   } = await supabase.auth.getUser();
   if (!user) redirect("/login");
 
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("id, handle, display_name, bio, avatar_url, header_url, theme, is_published, community_opt_in")
-    .eq("user_id", user.id)
-    .single();
+  const profile = await getProfileByUserId(supabase, user.id);
 
   if (!profile) redirect("/onboarding");
 
@@ -119,7 +116,7 @@ export default async function DashboardPage({ searchParams }: PageProps) {
           initialDisplayName={profile.display_name}
           initialBio={profile.bio}
           initialAvatarUrl={profile.avatar_url}
-          initialHeaderUrl={profile.header_url}
+          initialHeaderUrl={profile.header_url ?? null}
         />
 
         <div className="flex flex-wrap gap-3">
