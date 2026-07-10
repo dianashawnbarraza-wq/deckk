@@ -12,7 +12,11 @@ import { publicDeckPath } from "@/lib/paths";
 import { createClient } from "@/lib/supabase/server";
 import { cn } from "@/lib/utils";
 
-export default async function DashboardPage() {
+interface PageProps {
+  searchParams: Promise<{ theme?: string }>;
+}
+
+export default async function DashboardPage({ searchParams }: PageProps) {
   const supabase = await createClient();
   const {
     data: { user },
@@ -26,6 +30,8 @@ export default async function DashboardPage() {
     .single();
 
   if (!profile) redirect("/onboarding");
+
+  const { theme: themeParam } = await searchParams;
 
   const [blocksRes, productsRes, linksRes, eventsRes] = await Promise.all([
     supabase
@@ -65,6 +71,12 @@ export default async function DashboardPage() {
         <DashboardHeaderActions shareUrl={shareUrl} displayName={profile.display_name} />
       }
     >
+      {themeParam === "saved" && (
+        <p className="mb-6 rounded-[1rem] border border-line bg-paper-sunken px-4 py-3 text-sm text-ink">
+          Theme saved — your deck accent is updated.
+        </p>
+      )}
+
       {devAuthEnabled() && (
         <p className="mb-6 rounded-[1rem] border border-line bg-paper-sunken px-4 py-3 text-sm text-ink">
           Demo mode — login bypass is on. Remove <code className="text-xs">BYPASS_AUTH</code> on

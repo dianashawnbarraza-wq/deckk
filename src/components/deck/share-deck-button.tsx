@@ -1,21 +1,19 @@
 "use client";
 
 import { useState } from "react";
-import { Check, Share2 } from "lucide-react";
+import { Check, Share } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
 interface ShareDeckButtonProps {
   shareUrl: string;
   title?: string;
-  size?: "default" | "sm";
   variant?: "default" | "outline" | "ghost";
 }
 
 export function ShareDeckButton({
   shareUrl,
   title,
-  size = "sm",
   variant = "outline",
 }: ShareDeckButtonProps) {
   const [copied, setCopied] = useState(false);
@@ -47,22 +45,12 @@ export function ShareDeckButton({
     <Button
       type="button"
       variant={variant}
-      size={size}
+      size="icon"
       onClick={share}
       className={cn(copied && "border-ink text-ink")}
       aria-label={copied ? "Link copied" : "Share deck"}
     >
-      {copied ? (
-        <>
-          <Check className="size-4" />
-          Copied
-        </>
-      ) : (
-        <>
-          <Share2 className="size-4" />
-          Share
-        </>
-      )}
+      {copied ? <Check className="size-4" /> : <Share className="size-4" />}
     </Button>
   );
 }

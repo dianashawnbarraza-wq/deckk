@@ -29,10 +29,9 @@ export function ThemePicker({
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error ?? "Could not save theme");
-      router.refresh();
+      router.push("/dashboard?theme=saved");
     } catch (e) {
       setError(e instanceof Error ? e.message : "Save failed");
-    } finally {
       setSaving(false);
     }
   }
@@ -72,7 +71,7 @@ export function ThemePicker({
       </div>
 
       <Button type="button" onClick={save} disabled={saving || selected === initialAccent}>
-        {saving ? "Saving…" : "Apply theme"}
+        {saving ? "Saving…" : "Save"}
       </Button>
 
       {error && <p className="text-sm text-destructive">{error}</p>}

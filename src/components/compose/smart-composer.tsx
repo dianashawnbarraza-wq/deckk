@@ -316,9 +316,9 @@ export function SmartComposer({
         onChange={(e) => onPickFile(e.target.files?.[0] ?? null)}
       />
 
-      <div className="overflow-hidden rounded-[1.25rem] border border-line bg-paper shadow-[0_1px_0_rgba(25,21,18,0.04)]">
+      <div className="rounded-[1.25rem] border border-line bg-paper shadow-[0_1px_0_rgba(25,21,18,0.04)]">
         {previewUrl && (
-          <div className="relative border-b border-line bg-paper-sunken/30 p-3">
+          <div className="relative overflow-hidden border-b border-line bg-paper-sunken/30 p-3">
             <div className="relative mx-auto aspect-[16/9] max-h-48 w-full max-w-md overflow-hidden rounded-[0.75rem] ring-1 ring-line">
               <Image src={previewUrl} alt="Attached" fill className="object-cover" unoptimized />
             </div>
@@ -347,7 +347,7 @@ export function SmartComposer({
               <Plus className={cn("size-5 transition", menuOpen && "rotate-45")} />
             </Button>
             {menuOpen && (
-              <div className="absolute bottom-full left-0 z-20 mb-2 w-56 overflow-hidden rounded-[1rem] border border-line bg-paper py-1 shadow-lg">
+              <div className="absolute left-0 top-full z-20 mt-2 w-56 overflow-hidden rounded-[1rem] border border-line bg-paper py-1 shadow-lg">
                 {ADD_MENU.map(({ id, label, icon: Icon }) => (
                   <button
                     key={id}

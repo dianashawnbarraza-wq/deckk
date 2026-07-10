@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { ArrowLeft } from "lucide-react";
 import { DeckLogo } from "@/components/brand/deck-logo";
 import { cn } from "@/lib/utils";
 
@@ -8,6 +9,8 @@ export function EditorShell({
   subtitle,
   backHref,
   backLabel = "Back",
+  contentBackHref,
+  contentBackLabel = "Back",
   hideTitle = false,
   wide = false,
   headerActions,
@@ -18,6 +21,8 @@ export function EditorShell({
   subtitle?: string;
   backHref?: string;
   backLabel?: string;
+  contentBackHref?: string;
+  contentBackLabel?: string;
   hideTitle?: boolean;
   wide?: boolean;
   headerActions?: React.ReactNode;
@@ -56,6 +61,15 @@ export function EditorShell({
       >
         {!hideTitle && title && (
           <>
+            {contentBackHref && (
+              <Link
+                href={contentBackHref}
+                className="mb-6 inline-flex items-center gap-2 text-sm font-medium text-muted-foreground transition-colors hover:text-ink"
+              >
+                <ArrowLeft className="size-4" />
+                {contentBackLabel}
+              </Link>
+            )}
             <h1 className="font-display text-[2rem] leading-[1.05] tracking-tight text-ink">
               {title}
             </h1>

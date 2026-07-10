@@ -20,7 +20,11 @@ export default async function ThemesPage() {
   if (!profile) redirect("/onboarding");
 
   return (
-    <EditorShell title="Explore themes" backHref="/dashboard" backLabel="Dashboard">
+    <EditorShell
+      title="Explore themes"
+      contentBackHref="/dashboard"
+      contentBackLabel="Dashboard"
+    >
       <ThemePicker
         initialAccent={resolveAccentPreset(profile.theme)}
         handle={profile.handle}

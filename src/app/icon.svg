@@ -8,7 +8,6 @@
   </g>
   <g transform="translate(24 2)">
     <rect x="0" y="0" width="28" height="38" rx="3" fill="#191512" stroke="#191512" stroke-width="1.35"/>
-    <path d="M14 10 C11.8 10 10 11.9 10 14.2 C10 16.5 11.8 18.2 14 18.2 C12.4 16.9 11.7 15.2 12 13.5 C12.3 11.8 13.1 10.6 14 10 Z" fill="#f7f1e7"/>
-    <text x="14" y="30.5" text-anchor="middle" fill="#f7f1e7" font-family="Georgia, 'Times New Roman', serif" font-style="italic" font-size="17">d</text>
+    <text x="14" y="23.5" text-anchor="middle" dominant-baseline="middle" fill="#f7f1e7" font-family="Georgia, 'Times New Roman', serif" font-style="italic" font-size="20">d</text>
   </g>
 </svg>
