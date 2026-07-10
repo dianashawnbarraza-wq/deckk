@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Wordmark } from "@/components/brand/wordmark";
+import { DeckLogo } from "@/components/brand/deck-logo";
 import { cn } from "@/lib/utils";
 
 export function EditorShell({
@@ -23,8 +23,8 @@ export function EditorShell({
     <div className={cn("min-h-screen bg-paper", className)}>
       <header className="border-b border-line">
         <div className="mx-auto flex max-w-editor items-center justify-between gap-4 px-5 py-4">
-          <Link href="/dashboard">
-            <Wordmark className="text-xl" />
+          <Link href="/dashboard" className="inline-flex items-center" aria-label="deckk home">
+            <DeckLogo size={34} />
           </Link>
           {backHref && (
             <Link

@@ -1,6 +1,6 @@
 import Link from "next/link";
+import { DeckLogo } from "@/components/brand/deck-logo";
 import { buttonVariants } from "@/components/ui/button";
-import { Wordmark } from "@/components/brand/wordmark";
 import { cn } from "@/lib/utils";
 
 interface CommunityNavProps {
@@ -11,8 +11,8 @@ export function CommunityNav({ active }: CommunityNavProps) {
   return (
     <header className="border-b border-line bg-paper">
       <div className="mx-auto flex max-w-editor items-center justify-between px-5 py-4">
-        <Link href="/">
-          <Wordmark className="text-xl" />
+        <Link href="/" className="inline-flex items-center" aria-label="deckk home">
+          <DeckLogo size={34} />
         </Link>
         <nav className="flex items-center gap-2">
           <Link

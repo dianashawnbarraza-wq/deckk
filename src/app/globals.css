@@ -113,4 +113,24 @@
   .text-brand-accent-strong {
     color: var(--brand-accent-strong);
   }
+  .deck-logo-levitate {
+    animation: deck-logo-levitate 3.5s var(--ease-out-editorial) infinite;
+    will-change: transform;
+  }
+}
+
+@keyframes deck-logo-levitate {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-3px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .deck-logo-levitate {
+    animation: none;
+  }
 }
