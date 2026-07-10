@@ -2,12 +2,11 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { CommunityOptInToggle } from "@/components/community/community-opt-in-toggle";
 import { SmartComposer } from "@/components/compose/smart-composer";
+import { DeckMiniPreview } from "@/components/deck/deck-mini-preview";
 import { EditorShell } from "@/components/layout/editor-shell";
 import { ProfileEditor } from "@/components/profile/profile-editor";
-import { LinkCard } from "@/components/profile/link-card";
 import { buttonVariants } from "@/components/ui/button";
 import { devAuthEnabled } from "@/lib/dev-auth";
-import { publicDeckPath } from "@/lib/paths";
 import { createClient } from "@/lib/supabase/server";
 import { cn } from "@/lib/utils";
 
@@ -20,11 +19,38 @@ export default async function DashboardPage() {
 
   const { data: profile } = await supabase
     .from("profiles")
-    .select("id, handle, display_name, bio, avatar_url, is_published, community_opt_in")
+    .select("id, handle, display_name, bio, avatar_url, theme, is_published, community_opt_in")
     .eq("user_id", user.id)
     .single();
 
   if (!profile) redirect("/onboarding");
+
+  const [blocksRes, productsRes, linksRes, eventsRes] = await Promise.all([
+    supabase
+      .from("blocks")
+      .select("*")
+      .eq("profile_id", profile.id)
+      .eq("is_active", true)
+      .order("position"),
+    supabase
+      .from("products")
+      .select("*")
+      .eq("profile_id", profile.id)
+      .eq("is_active", true)
+      .order("created_at", { ascending: false }),
+    supabase
+      .from("payment_links")
+      .select("*")
+      .eq("profile_id", profile.id)
+      .eq("is_active", true)
+      .order("created_at", { ascending: false }),
+    supabase
+      .from("events")
+      .select("*")
+      .eq("profile_id", profile.id)
+      .eq("is_active", true)
+      .order("starts_at", { ascending: true }),
+  ]);
 
   return (
     <EditorShell hideTitle>
@@ -55,15 +81,15 @@ export default async function DashboardPage() {
         />
 
         <section>
-          <p className="mb-3 text-[0.6875rem] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
+          <p className="mb-3 text-center text-[0.6875rem] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
             Preview
           </p>
-          <LinkCard
-            title="View public deck"
-            subtitle={`deckk.me/${profile.handle}`}
-            href={publicDeckPath(profile.handle)}
-            variant="row"
-            external={false}
+          <DeckMiniPreview
+            profile={profile}
+            blocks={blocksRes.data ?? []}
+            products={productsRes.data ?? []}
+            paymentLinks={linksRes.data ?? []}
+            events={eventsRes.data ?? []}
           />
         </section>
 

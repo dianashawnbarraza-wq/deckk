@@ -8,5 +8,5 @@ export function devAuthEmail(): string {
 }
 
 export function devAuthHandle(): string {
-  return process.env.BYPASS_AUTH_HANDLE ?? "demo";
+  return process.env.BYPASS_AUTH_HANDLE ?? "shawn";
 }

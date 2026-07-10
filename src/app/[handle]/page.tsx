@@ -1,11 +1,13 @@
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { createClient } from "@/lib/supabase/server";
 import { getPublicDeck } from "@/lib/deck";
 import { partitionEvents } from "@/lib/events";
 import { publicDeckPath } from "@/lib/paths";
 import { resolveAccentPreset } from "@/lib/theme";
 import { Wordmark } from "@/components/brand/wordmark";
+import { DeckOwnerToolbar } from "@/components/deck/deck-owner-toolbar";
 import { HubShell } from "@/components/layout/hub-shell";
 import { Avatar } from "@/components/profile/avatar";
 import { Eyebrow } from "@/components/profile/eyebrow";
@@ -63,6 +65,15 @@ export default async function PublicDeckPage({ params, searchParams }: PageProps
   if (!deck) notFound();
 
   const { profile, blocks, products, paymentLinks, events } = deck;
+
+  const userClient = await createClient();
+  const {
+    data: { user },
+  } = await userClient.auth.getUser();
+  const isOwner = Boolean(user && user.id === profile.user_id);
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://deckk.me";
+  const shareUrl = `${appUrl.replace(/\/$/, "")}${publicDeckPath(profile.handle)}`;
+
   const accent = resolveAccentPreset(profile.theme);
   const { upcoming, past } = partitionEvents(events);
 
@@ -98,8 +109,13 @@ export default async function PublicDeckPage({ params, searchParams }: PageProps
 
   return (
     <HubShell accent={accent}>
-      <header className="mb-10">
-        <Avatar src={profile.avatar_url} size="xl" className="mb-6" />
+      {isOwner && (
+        <DeckOwnerToolbar shareUrl={shareUrl} title={profile.display_name} />
+      )}
+      <header className="mb-10 text-center">
+        <div className="mb-6 flex justify-center">
+          <Avatar src={profile.avatar_url} size="xl" />
+        </div>
         <h1 className="font-display text-[2.75rem] leading-[1.02] tracking-tight text-ink">
           {profile.display_name}
         </h1>
@@ -107,7 +123,9 @@ export default async function PublicDeckPage({ params, searchParams }: PageProps
           deckk.me/{profile.handle}
         </p>
         {profile.bio && (
-          <p className="mt-4 text-base leading-relaxed text-muted-foreground">{profile.bio}</p>
+          <p className="mx-auto mt-4 max-w-md text-base leading-relaxed text-muted-foreground">
+            {profile.bio}
+          </p>
         )}
       </header>
 

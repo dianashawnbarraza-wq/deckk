@@ -82,13 +82,11 @@ export function ProfileEditor({
   const showAvatar = previewUrl ?? avatarUrl;
 
   return (
-    <section className="rounded-[1rem] border border-line bg-paper p-5">
-      <div className="mb-4 flex items-center justify-between gap-3">
+    <section className="rounded-[1rem] border border-line bg-paper p-5 text-center">
+      <div className="mb-6 flex flex-col items-center gap-4">
         <div>
           <h2 className="font-display text-xl leading-tight text-ink">Your profile</h2>
-          <p className="mt-1 text-sm text-muted-foreground">
-            deckk.me/{handle}
-          </p>
+          <p className="mt-1 text-sm text-muted-foreground">deckk.me/{handle}</p>
         </div>
         <Button type="button" variant="outline" size="sm" onClick={save} disabled={saving || uploading}>
           {saving ? "Saving…" : "Save profile"}
@@ -103,11 +101,11 @@ export function ProfileEditor({
         onChange={(e) => onPickAvatar(e.target.files?.[0] ?? null)}
       />
 
-      <div className="flex flex-col gap-5 sm:flex-row sm:items-start">
+      <div className="mx-auto flex max-w-md flex-col items-center gap-5">
         <button
           type="button"
           onClick={() => fileRef.current?.click()}
-          className="group relative shrink-0 self-start"
+          className="group relative shrink-0"
           aria-label="Change profile photo"
         >
           {showAvatar ? (
@@ -133,7 +131,7 @@ export function ProfileEditor({
           )}
         </button>
 
-        <div className="min-w-0 flex-1 space-y-4">
+        <div className="w-full space-y-4 text-left">
           <div>
             <Label htmlFor="profile-name">Display name</Label>
             <Input

@@ -21,7 +21,7 @@ export default function HomePage() {
       <div className="mt-10 flex flex-wrap gap-3">
         {skipLogin ? (
           <Link href="/dev/enter" className={buttonVariants({ size: "lg" })}>
-            Enter app (demo)
+            Enter app
           </Link>
         ) : (
           <Link href="/login" className={buttonVariants({ size: "lg" })}>

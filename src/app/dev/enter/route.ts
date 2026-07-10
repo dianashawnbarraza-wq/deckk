@@ -46,6 +46,8 @@ export async function GET(request: NextRequest) {
     user = created.user;
   }
 
+  const targetHandle = devAuthHandle();
+
   const { data: profile } = await admin
     .from("profiles")
     .select("id, handle, is_published")
@@ -53,20 +55,19 @@ export async function GET(request: NextRequest) {
     .maybeSingle();
 
   if (!profile) {
-    const baseHandle = devAuthHandle();
     const { error: profileError } = await admin.from("profiles").insert({
       user_id: user.id,
-      handle: baseHandle,
-      display_name: "Demo",
+      handle: targetHandle,
+      display_name: "Shawn",
       bio: "Welcome to my deck — events, shop, and links all in one place.",
       is_published: true,
     });
     if (profileError) {
-      const fallbackHandle = `${baseHandle}-${user.id.slice(0, 8)}`;
+      const fallbackHandle = `${targetHandle}-${user.id.slice(0, 8)}`;
       const { error: retryError } = await admin.from("profiles").insert({
         user_id: user.id,
         handle: fallbackHandle,
-        display_name: "Demo",
+        display_name: "Shawn",
         bio: "Welcome to my deck — events, shop, and links all in one place.",
         is_published: true,
       });
@@ -79,24 +80,53 @@ export async function GET(request: NextRequest) {
         );
       }
     }
-  } else if (!profile.is_published) {
-    await admin
-      .from("profiles")
-      .update({ is_published: true })
-      .eq("id", profile.id);
   } else {
-    const { data: full } = await admin
-      .from("profiles")
-      .select("bio")
-      .eq("id", profile.id)
-      .single();
-    if (!full?.bio) {
+    if (profile.handle !== targetHandle) {
+      const { data: conflict } = await admin
+        .from("profiles")
+        .select("id")
+        .eq("handle", targetHandle)
+        .neq("id", profile.id)
+        .maybeSingle();
+
+      if (!conflict) {
+        await admin.from("handle_redirects").upsert(
+          {
+            old_handle: profile.handle,
+            profile_id: profile.id,
+            expires_at: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString(),
+          },
+          { onConflict: "old_handle" }
+        );
+        await admin
+          .from("profiles")
+          .update({ handle: targetHandle, display_name: "Shawn" })
+          .eq("id", profile.id);
+      }
+    }
+
+    if (!profile.is_published) {
       await admin
         .from("profiles")
-        .update({
-          bio: "Welcome to my deck — events, shop, and links all in one place.",
-        })
+        .update({ is_published: true })
         .eq("id", profile.id);
+    }
+
+    const { data: full } = await admin
+      .from("profiles")
+      .select("bio, display_name")
+      .eq("id", profile.id)
+      .single();
+
+    const updates: Record<string, string> = {};
+    if (!full?.bio) {
+      updates.bio = "Welcome to my deck — events, shop, and links all in one place.";
+    }
+    if (!full?.display_name || full.display_name === "Demo") {
+      updates.display_name = "Shawn";
+    }
+    if (Object.keys(updates).length > 0) {
+      await admin.from("profiles").update(updates).eq("id", profile.id);
     }
   }
 
