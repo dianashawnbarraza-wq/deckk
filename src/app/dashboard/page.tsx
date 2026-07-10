@@ -13,7 +13,7 @@ import { createClient } from "@/lib/supabase/server";
 import { cn } from "@/lib/utils";
 
 interface PageProps {
-  searchParams: Promise<{ theme?: string }>;
+  searchParams: Promise<{ theme?: string; settings?: string }>;
 }
 
 export default async function DashboardPage({ searchParams }: PageProps) {
@@ -31,7 +31,7 @@ export default async function DashboardPage({ searchParams }: PageProps) {
 
   if (!profile) redirect("/onboarding");
 
-  const { theme: themeParam } = await searchParams;
+  const { theme: themeParam, settings: settingsParam } = await searchParams;
 
   const [blocksRes, productsRes, linksRes, eventsRes] = await Promise.all([
     supabase
@@ -71,9 +71,9 @@ export default async function DashboardPage({ searchParams }: PageProps) {
         <DashboardHeaderActions shareUrl={shareUrl} displayName={profile.display_name} />
       }
     >
-      {themeParam === "saved" && (
+      {(themeParam === "saved" || settingsParam === "saved") && (
         <p className="mb-6 rounded-[1rem] border border-line bg-paper-sunken px-4 py-3 text-sm text-ink">
-          Theme saved — your deck accent is updated.
+          Deck settings saved — your name and accent are updated.
         </p>
       )}
 
@@ -123,6 +123,9 @@ export default async function DashboardPage({ searchParams }: PageProps) {
         />
 
         <div className="flex flex-wrap gap-3">
+          <Link href="/dashboard/settings" className={cn(buttonVariants({ variant: "outline" }))}>
+            Deck settings
+          </Link>
           <Link href="/dashboard/payments" className={cn(buttonVariants({ variant: "outline" }))}>
             Payments
           </Link>

@@ -29,7 +29,7 @@ export function ThemePicker({
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error ?? "Could not save theme");
-      router.push("/dashboard?theme=saved");
+      router.push("/dashboard/settings?saved=1");
     } catch (e) {
       setError(e instanceof Error ? e.message : "Save failed");
       setSaving(false);

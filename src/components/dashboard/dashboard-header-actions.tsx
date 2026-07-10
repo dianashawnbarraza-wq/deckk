@@ -19,11 +19,11 @@ export function DashboardHeaderActions({
     <div className="flex items-center gap-2">
       <ShareDeckButton shareUrl={shareUrl} title={displayName} />
       <Link
-        href="/dashboard/themes"
+        href="/dashboard/settings"
         className={cn(buttonVariants({ variant: "outline", size: "sm" }))}
       >
         <Palette className="size-4" />
-        Explore themes
+        Deck settings
       </Link>
     </div>
   );
