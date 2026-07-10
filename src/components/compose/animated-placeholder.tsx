@@ -34,7 +34,7 @@ export function AnimatedPlaceholder({ active }: { active: boolean }) {
     <span
       aria-hidden
       className={cn(
-        "pointer-events-none absolute left-0 top-3 text-base text-muted-foreground transition-opacity duration-300",
+        "pointer-events-none absolute left-0 top-1/2 -translate-y-1/2 text-base text-muted-foreground transition-opacity duration-300",
         visible ? "opacity-100" : "opacity-0"
       )}
     >

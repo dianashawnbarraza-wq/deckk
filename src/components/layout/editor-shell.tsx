@@ -9,6 +9,8 @@ export function EditorShell({
   backHref,
   backLabel = "Back",
   hideTitle = false,
+  wide = false,
+  headerActions,
   className,
 }: {
   children: React.ReactNode;
@@ -17,26 +19,41 @@ export function EditorShell({
   backHref?: string;
   backLabel?: string;
   hideTitle?: boolean;
+  wide?: boolean;
+  headerActions?: React.ReactNode;
   className?: string;
 }) {
   return (
     <div className={cn("min-h-screen bg-paper", className)}>
       <header className="border-b border-line">
-        <div className="mx-auto flex max-w-editor items-center justify-between gap-4 px-5 py-4">
+        <div
+          className={cn(
+            "mx-auto flex items-center justify-between gap-4 px-5 py-4",
+            wide ? "max-w-6xl" : "max-w-editor"
+          )}
+        >
           <Link href="/dashboard" className="inline-flex items-center" aria-label="deckk home">
             <DeckLogo size={34} />
           </Link>
-          {backHref && (
-            <Link
-              href={backHref}
-              className="text-sm text-muted-foreground underline-offset-4 hover:text-ink hover:underline"
-            >
-              {backLabel}
-            </Link>
-          )}
+          <div className="flex items-center gap-3">
+            {headerActions}
+            {backHref && (
+              <Link
+                href={backHref}
+                className="text-sm text-muted-foreground underline-offset-4 hover:text-ink hover:underline"
+              >
+                {backLabel}
+              </Link>
+            )}
+          </div>
         </div>
       </header>
-      <main className="mx-auto max-w-editor px-5 py-8">
+      <main
+        className={cn(
+          "mx-auto px-5 py-8",
+          wide ? "max-w-6xl" : "max-w-editor"
+        )}
+      >
         {!hideTitle && title && (
           <>
             <h1 className="font-display text-[2rem] leading-[1.05] tracking-tight text-ink">

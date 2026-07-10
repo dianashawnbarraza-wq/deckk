@@ -78,6 +78,7 @@ interface DeckMiniPreviewProps {
   paymentLinks: PaymentLink[];
   events: Event[];
   className?: string;
+  variant?: "default" | "sidebar";
 }
 
 export function DeckMiniPreview({
@@ -87,6 +88,7 @@ export function DeckMiniPreview({
   paymentLinks,
   events,
   className,
+  variant = "default",
 }: DeckMiniPreviewProps) {
   const accent = resolveAccentPreset(profile.theme);
   const href = publicDeckPath(profile.handle);
@@ -100,7 +102,8 @@ export function DeckMiniPreview({
     <Link
       href={href}
       className={cn(
-        "group mx-auto block max-w-[240px] overflow-hidden rounded-[1.25rem] border border-line bg-paper shadow-[0_1px_0_rgba(25,21,18,0.04)] ring-1 ring-line transition-[transform,box-shadow] duration-200 hover:-translate-y-1 hover:shadow-md",
+        "group block overflow-hidden rounded-[1.25rem] border border-line bg-paper shadow-[0_1px_0_rgba(25,21,18,0.04)] ring-1 ring-line transition-[transform,box-shadow] duration-200 hover:-translate-y-1 hover:shadow-md",
+        variant === "default" ? "mx-auto max-w-[240px]" : "w-full",
         className
       )}
     >

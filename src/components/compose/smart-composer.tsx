@@ -28,6 +28,7 @@ interface SmartComposerProps {
   profileId: string;
   variant?: "chat" | "card";
   hint?: string;
+  showHint?: boolean;
   onPublished?: () => void;
 }
 
@@ -55,6 +56,7 @@ export function SmartComposer({
   profileId,
   variant = "chat",
   hint,
+  showHint = true,
   onPublished,
 }: SmartComposerProps) {
   const router = useRouter();
@@ -331,7 +333,7 @@ export function SmartComposer({
           </div>
         )}
 
-        <div className="flex items-end gap-2 p-3">
+        <div className="flex items-center gap-3 p-4">
           <div className="relative shrink-0" ref={menuRef}>
             <Button
               type="button"
@@ -361,7 +363,7 @@ export function SmartComposer({
             )}
           </div>
 
-          <div className="relative min-h-[52px] min-w-0 flex-1">
+          <div className="relative flex min-h-[52px] min-w-0 flex-1 items-center">
             <AnimatedPlaceholder active={showPlaceholder} />
             <textarea
               ref={textareaRef}
@@ -372,10 +374,10 @@ export function SmartComposer({
               onKeyDown={onKeyDown}
               rows={1}
               className={cn(
-                "block w-full resize-none border-0 bg-transparent py-3 text-base leading-relaxed text-ink outline-none",
+                "block w-full resize-none border-0 bg-transparent px-1 py-2 text-base leading-relaxed text-ink outline-none",
                 showPlaceholder && "text-transparent caret-ink"
               )}
-              style={{ minHeight: "52px", maxHeight: "160px" }}
+              style={{ minHeight: "44px", maxHeight: "160px" }}
               aria-label="Describe what you want to add"
             />
           </div>
@@ -397,10 +399,9 @@ export function SmartComposer({
         </div>
       </div>
 
-      <p className="mt-3 text-center text-sm text-muted-foreground">
-        {hint ??
-          "Drop a photo, paste a link, or describe what you want — press enter to fill it out"}
-      </p>
+      {showHint && hint && (
+        <p className="mt-3 text-center text-sm text-muted-foreground">{hint}</p>
+      )}
 
       {draft && (
         <ComposeDraftPanel

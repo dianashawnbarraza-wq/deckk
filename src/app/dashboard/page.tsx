@@ -3,10 +3,12 @@ import { redirect } from "next/navigation";
 import { CommunityOptInToggle } from "@/components/community/community-opt-in-toggle";
 import { SmartComposer } from "@/components/compose/smart-composer";
 import { DeckMiniPreview } from "@/components/deck/deck-mini-preview";
+import { DashboardHeaderActions } from "@/components/dashboard/dashboard-header-actions";
 import { EditorShell } from "@/components/layout/editor-shell";
 import { ProfileEditor } from "@/components/profile/profile-editor";
 import { buttonVariants } from "@/components/ui/button";
 import { devAuthEnabled } from "@/lib/dev-auth";
+import { publicDeckPath } from "@/lib/paths";
 import { createClient } from "@/lib/supabase/server";
 import { cn } from "@/lib/utils";
 
@@ -52,8 +54,17 @@ export default async function DashboardPage() {
       .order("starts_at", { ascending: true }),
   ]);
 
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://deckk.me";
+  const shareUrl = `${appUrl.replace(/\/$/, "")}${publicDeckPath(profile.handle)}`;
+
   return (
-    <EditorShell hideTitle>
+    <EditorShell
+      hideTitle
+      wide
+      headerActions={
+        <DashboardHeaderActions shareUrl={shareUrl} displayName={profile.display_name} />
+      }
+    >
       {devAuthEnabled() && (
         <p className="mb-6 rounded-[1rem] border border-line bg-paper-sunken px-4 py-3 text-sm text-ink">
           Demo mode — login bypass is on. Remove <code className="text-xs">BYPASS_AUTH</code> on
@@ -61,27 +72,22 @@ export default async function DashboardPage() {
         </p>
       )}
 
-      <div className="mb-10 text-center">
-        <h1 className="font-display text-[2.25rem] leading-[1.02] tracking-tight text-ink sm:text-[2.75rem]">
-          What are we adding?
-        </h1>
-        <p className="mx-auto mt-3 max-w-md text-base text-muted-foreground">
-          Upload, describe, publish — your deck updates in seconds.
-        </p>
-      </div>
+      <div className="grid items-start gap-8 lg:grid-cols-[minmax(0,1fr)_220px] lg:gap-10">
+        <div className="min-w-0">
+          <div className="mb-8">
+            <h1 className="font-display text-[2.25rem] leading-[1.02] tracking-tight text-ink sm:text-[2.75rem]">
+              What are we adding?
+            </h1>
+            <p className="mt-3 max-w-md text-base text-muted-foreground">
+              Upload, describe, publish — your deck updates in seconds.
+            </p>
+          </div>
 
-      <SmartComposer profileId={profile.id} variant="chat" />
+          <SmartComposer profileId={profile.id} variant="chat" showHint={false} />
+        </div>
 
-      <div className="mt-12 space-y-6">
-        <ProfileEditor
-          handle={profile.handle}
-          initialDisplayName={profile.display_name}
-          initialBio={profile.bio}
-          initialAvatarUrl={profile.avatar_url}
-        />
-
-        <section>
-          <p className="mb-3 text-center text-[0.6875rem] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
+        <aside className="mx-auto w-full max-w-[220px] lg:sticky lg:top-6 lg:mx-0">
+          <p className="mb-3 text-center text-[0.6875rem] font-semibold uppercase tracking-[0.14em] text-muted-foreground lg:text-left">
             Preview
           </p>
           <DeckMiniPreview
@@ -90,8 +96,18 @@ export default async function DashboardPage() {
             products={productsRes.data ?? []}
             paymentLinks={linksRes.data ?? []}
             events={eventsRes.data ?? []}
+            variant="sidebar"
           />
-        </section>
+        </aside>
+      </div>
+
+      <div className="mt-12 space-y-6">
+        <ProfileEditor
+          handle={profile.handle}
+          initialDisplayName={profile.display_name}
+          initialBio={profile.bio}
+          initialAvatarUrl={profile.avatar_url}
+        />
 
         <div className="flex flex-wrap gap-3">
           <Link href="/dashboard/payments" className={cn(buttonVariants({ variant: "outline" }))}>

@@ -1,11 +1,10 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
+import { FloatingField } from "@/components/ui/floating-field";
 import { COMMON_TIMEZONES } from "@/lib/events";
 import type { ComposeResult } from "@/lib/ai/types";
+import { cn } from "@/lib/utils";
 
 interface ComposeDraftPanelProps {
   draft: ComposeResult;
@@ -30,61 +29,56 @@ export function ComposeDraftPanel({
 
       {draft.intent === "event" && draft.event && (
         <div className="space-y-3">
-          <div>
-            <Label>Title</Label>
-            <Input
-              value={draft.event.title}
-              onChange={(e) =>
-                onUpdate((d) => ({
-                  ...d,
-                  event: { ...d.event!, title: e.target.value },
-                }))
-              }
-            />
-          </div>
-          <div>
-            <Label>Description</Label>
-            <Textarea
-              value={draft.event.description ?? ""}
-              onChange={(e) =>
-                onUpdate((d) => ({
-                  ...d,
-                  event: { ...d.event!, description: e.target.value },
-                }))
-              }
-              rows={4}
-            />
-          </div>
+          <FloatingField
+            label="Title"
+            placeholder="Event title"
+            value={draft.event.title}
+            onChange={(title) =>
+              onUpdate((d) => ({
+                ...d,
+                event: { ...d.event!, title },
+              }))
+            }
+          />
+          <FloatingField
+            label="Description"
+            placeholder="What's happening?"
+            value={draft.event.description ?? ""}
+            onChange={(description) =>
+              onUpdate((d) => ({
+                ...d,
+                event: { ...d.event!, description },
+              }))
+            }
+            multiline
+            rows={4}
+          />
           <div className="grid gap-3 sm:grid-cols-2">
-            <div>
-              <Label>Starts</Label>
-              <Input
-                type={draft.event.isAllDay ? "date" : "datetime-local"}
-                value={draft.event.startsAtLocal ?? ""}
-                onChange={(e) =>
-                  onUpdate((d) => ({
-                    ...d,
-                    event: { ...d.event!, startsAtLocal: e.target.value },
-                  }))
-                }
-              />
-            </div>
-            <div>
-              <Label>Ends (optional)</Label>
-              <Input
-                type={draft.event.isAllDay ? "date" : "datetime-local"}
-                value={draft.event.endsAtLocal ?? ""}
-                onChange={(e) =>
-                  onUpdate((d) => ({
-                    ...d,
-                    event: { ...d.event!, endsAtLocal: e.target.value },
-                  }))
-                }
-              />
-            </div>
+            <FloatingField
+              label="Starts"
+              type={draft.event.isAllDay ? "date" : "datetime-local"}
+              value={draft.event.startsAtLocal ?? ""}
+              onChange={(startsAtLocal) =>
+                onUpdate((d) => ({
+                  ...d,
+                  event: { ...d.event!, startsAtLocal },
+                }))
+              }
+            />
+            <FloatingField
+              label="Ends (optional)"
+              type={draft.event.isAllDay ? "date" : "datetime-local"}
+              value={draft.event.endsAtLocal ?? ""}
+              onChange={(endsAtLocal) =>
+                onUpdate((d) => ({
+                  ...d,
+                  event: { ...d.event!, endsAtLocal },
+                }))
+              }
+            />
           </div>
           <div>
-            <Label>Timezone</Label>
+            <label className="mb-1.5 block px-1 text-xs font-medium text-ink">Timezone</label>
             <select
               value={draft.event.timezone ?? timezone}
               onChange={(e) =>
@@ -93,7 +87,7 @@ export function ComposeDraftPanel({
                   event: { ...d.event!, timezone: e.target.value },
                 }))
               }
-              className="flex h-11 w-full rounded-[0.625rem] border border-line bg-paper px-4 text-base"
+              className="flex h-11 w-full rounded-[0.625rem] border border-line bg-paper px-4 text-base focus-visible:border-brand-accent focus-visible:outline-none"
             >
               {COMMON_TIMEZONES.map((tz) => (
                 <option key={tz} value={tz}>
@@ -115,33 +109,29 @@ export function ComposeDraftPanel({
             />
             All-day event
           </label>
-          <div>
-            <Label>Location</Label>
-            <Input
-              value={draft.event.location ?? ""}
-              onChange={(e) =>
-                onUpdate((d) => ({
-                  ...d,
-                  event: { ...d.event!, location: e.target.value },
-                }))
-              }
-              placeholder="Venue or address"
-            />
-          </div>
-          <div>
-            <Label>Ticket or info URL</Label>
-            <Input
-              type="url"
-              value={draft.event.url ?? ""}
-              onChange={(e) =>
-                onUpdate((d) => ({
-                  ...d,
-                  event: { ...d.event!, url: e.target.value },
-                }))
-              }
-              placeholder="https://"
-            />
-          </div>
+          <FloatingField
+            label="Location"
+            placeholder="Venue or address"
+            value={draft.event.location ?? ""}
+            onChange={(location) =>
+              onUpdate((d) => ({
+                ...d,
+                event: { ...d.event!, location },
+              }))
+            }
+          />
+          <FloatingField
+            label="Ticket or info URL"
+            placeholder="https://"
+            type="url"
+            value={draft.event.url ?? ""}
+            onChange={(url) =>
+              onUpdate((d) => ({
+                ...d,
+                event: { ...d.event!, url },
+              }))
+            }
+          />
           <label className="flex items-center gap-2 text-base">
             <input
               type="checkbox"
@@ -160,129 +150,121 @@ export function ComposeDraftPanel({
 
       {draft.intent === "product" && draft.product && (
         <div className="space-y-3">
-          <div>
-            <Label>Title</Label>
-            <Input
-              value={draft.product.title}
-              onChange={(e) =>
-                onUpdate((d) => ({
-                  ...d,
-                  product: { ...d.product!, title: e.target.value },
-                }))
-              }
-            />
-          </div>
-          <div>
-            <Label>Description</Label>
-            <Textarea
-              value={draft.product.description ?? ""}
-              onChange={(e) =>
-                onUpdate((d) => ({
-                  ...d,
-                  product: { ...d.product!, description: e.target.value },
-                }))
-              }
-              rows={4}
-            />
-          </div>
-          <div>
-            <Label>Price (USD)</Label>
-            <Input
-              type="number"
-              min={0.01}
-              step={0.01}
-              value={
-                draft.product.priceCents
-                  ? (draft.product.priceCents / 100).toFixed(2)
-                  : ""
-              }
-              onChange={(e) =>
-                onUpdate((d) => ({
-                  ...d,
-                  product: {
-                    ...d.product!,
-                    priceCents: Math.round(Number.parseFloat(e.target.value) * 100),
-                  },
-                }))
-              }
-            />
-          </div>
+          <FloatingField
+            label="Title"
+            placeholder="Product name"
+            value={draft.product.title}
+            onChange={(title) =>
+              onUpdate((d) => ({
+                ...d,
+                product: { ...d.product!, title },
+              }))
+            }
+          />
+          <FloatingField
+            label="Description"
+            placeholder="Describe your item"
+            value={draft.product.description ?? ""}
+            onChange={(description) =>
+              onUpdate((d) => ({
+                ...d,
+                product: { ...d.product!, description },
+              }))
+            }
+            multiline
+            rows={4}
+          />
+          <FloatingField
+            label="Price (USD)"
+            placeholder="0.00"
+            type="number"
+            value={
+              draft.product.priceCents
+                ? (draft.product.priceCents / 100).toFixed(2)
+                : ""
+            }
+            onChange={(raw) =>
+              onUpdate((d) => ({
+                ...d,
+                product: {
+                  ...d.product!,
+                  priceCents: Math.round(Number.parseFloat(raw || "0") * 100),
+                },
+              }))
+            }
+            inputClassName={cn("[appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none")}
+          />
         </div>
       )}
 
       {draft.intent === "link" && draft.link && (
         <div className="space-y-3">
-          <div>
-            <Label>Link title</Label>
-            <Input
-              value={draft.link.title}
-              onChange={(e) =>
-                onUpdate((d) => ({
-                  ...d,
-                  link: { ...d.link!, title: e.target.value },
-                }))
-              }
-            />
-          </div>
-          <div>
-            <Label>URL</Label>
-            <Input
-              type="url"
-              value={draft.link.url}
-              onChange={(e) =>
-                onUpdate((d) => ({
-                  ...d,
-                  link: { ...d.link!, url: e.target.value },
-                }))
-              }
-            />
-          </div>
+          <FloatingField
+            label="Link title"
+            placeholder="My link"
+            value={draft.link.title}
+            onChange={(title) =>
+              onUpdate((d) => ({
+                ...d,
+                link: { ...d.link!, title },
+              }))
+            }
+          />
+          <FloatingField
+            label="URL"
+            placeholder="https://"
+            type="url"
+            value={draft.link.url}
+            onChange={(url) =>
+              onUpdate((d) => ({
+                ...d,
+                link: { ...d.link!, url },
+              }))
+            }
+          />
         </div>
       )}
 
       {draft.intent === "payment_link" && draft.paymentLink && (
         <div className="space-y-3">
-          <div>
-            <Label>Title</Label>
-            <Input
-              value={draft.paymentLink.title}
-              onChange={(e) =>
+          <FloatingField
+            label="Title"
+            placeholder="Support link title"
+            value={draft.paymentLink.title}
+            onChange={(title) =>
+              onUpdate((d) => ({
+                ...d,
+                paymentLink: { ...d.paymentLink!, title },
+              }))
+            }
+          />
+          {draft.paymentLink.kind === "fixed" && (
+            <FloatingField
+              label="Amount (USD)"
+              placeholder="0.00"
+              type="number"
+              value={
+                draft.paymentLink.amountCents
+                  ? (draft.paymentLink.amountCents / 100).toFixed(2)
+                  : ""
+              }
+              onChange={(raw) =>
                 onUpdate((d) => ({
                   ...d,
-                  paymentLink: { ...d.paymentLink!, title: e.target.value },
+                  paymentLink: {
+                    ...d.paymentLink!,
+                    amountCents: Math.round(Number.parseFloat(raw || "0") * 100),
+                  },
                 }))
               }
+              inputClassName={cn("[appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none")}
             />
-          </div>
-          {draft.paymentLink.kind === "fixed" && (
-            <div>
-              <Label>Amount (USD)</Label>
-              <Input
-                type="number"
-                min={0.01}
-                step={0.01}
-                value={
-                  draft.paymentLink.amountCents
-                    ? (draft.paymentLink.amountCents / 100).toFixed(2)
-                    : ""
-                }
-                onChange={(e) =>
-                  onUpdate((d) => ({
-                    ...d,
-                    paymentLink: {
-                      ...d.paymentLink!,
-                      amountCents: Math.round(Number.parseFloat(e.target.value) * 100),
-                    },
-                  }))
-                }
-              />
-            </div>
           )}
         </div>
       )}
 
       <Button type="button" className="w-full" onClick={onPublish} disabled={publishing}>
-        {publishing ? "Publishing…" : "Publish to deck"}
+        {publishing ? "Publishing…" : "Publish"}
       </Button>
     </div>
   );

@@ -5,9 +5,7 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { Camera, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
+import { FloatingField } from "@/components/ui/floating-field";
 import { Avatar } from "@/components/profile/avatar";
 
 interface ProfileEditorProps {
@@ -131,28 +129,25 @@ export function ProfileEditor({
           )}
         </button>
 
-        <div className="w-full space-y-4 text-left">
-          <div>
-            <Label htmlFor="profile-name">Display name</Label>
-            <Input
-              id="profile-name"
-              value={displayName}
-              onChange={(e) => setDisplayName(e.target.value)}
-              placeholder="How you appear on your deck"
-              maxLength={50}
-            />
-          </div>
-          <div>
-            <Label htmlFor="profile-bio">Bio</Label>
-            <Textarea
-              id="profile-bio"
-              value={bio}
-              onChange={(e) => setBio(e.target.value)}
-              placeholder="A line or two about you — shows on your public deck"
-              rows={3}
-              maxLength={500}
-            />
-          </div>
+        <div className="w-full space-y-4">
+          <FloatingField
+            id="profile-name"
+            label="Display name"
+            placeholder="How you appear on your deck"
+            value={displayName}
+            onChange={setDisplayName}
+            maxLength={50}
+          />
+          <FloatingField
+            id="profile-bio"
+            label="Bio"
+            placeholder="A line or two about you"
+            value={bio}
+            onChange={setBio}
+            multiline
+            rows={3}
+            maxLength={500}
+          />
         </div>
       </div>
 

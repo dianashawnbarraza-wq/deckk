@@ -3,11 +3,15 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
 import { publicDeckPath } from "@/lib/paths";
+import type { AccentPreset } from "@/lib/theme";
+
+const accentSchema = z.enum(["poppy", "lime", "cobalt", "grape", "ink"]);
 
 const schema = z.object({
   displayName: z.string().min(1).max(50).optional(),
   bio: z.string().max(500).optional(),
   avatarUrl: z.string().url().nullable().optional(),
+  theme: z.object({ accent: accentSchema }).optional(),
 });
 
 function validateHttpsUrl(url: string | null | undefined): string | null {
@@ -44,10 +48,11 @@ export async function PATCH(request: Request) {
     }
   }
 
-  const updates: Record<string, string | null> = {};
+  const updates: Record<string, string | null | { accent: AccentPreset }> = {};
   if (input.displayName !== undefined) updates.display_name = input.displayName;
   if (input.bio !== undefined) updates.bio = input.bio;
   if (safeAvatar !== undefined) updates.avatar_url = safeAvatar;
+  if (input.theme !== undefined) updates.theme = input.theme;
 
   if (Object.keys(updates).length === 0) {
     return NextResponse.json({ error: "Nothing to update" }, { status: 400 });
@@ -66,5 +71,6 @@ export async function PATCH(request: Request) {
 
   revalidatePath(publicDeckPath(profile.handle));
   revalidatePath("/discover");
+  revalidatePath("/dashboard");
   return NextResponse.json({ profile });
 }
