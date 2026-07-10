@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { SmartComposer } from "@/components/compose/smart-composer";
 import { StripeConnectBanner } from "@/components/payments/stripe-connect-banner";
 import { EditorShell } from "@/components/layout/editor-shell";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -65,7 +66,12 @@ export default async function PaymentsDashboardPage({ searchParams }: PageProps)
         returnTo="/dashboard/payments"
       />
 
-      <div className="space-y-10">
+      <SmartComposer
+        profileId={profile.id}
+        hint="Sell something — snap a photo and say the price. Or paste a link to add to your deck."
+      />
+
+      <div className="mt-10 space-y-10">
         <section>
           <h2 className="mb-4 font-display text-xl text-ink">Products</h2>
           <ProductForm profileId={profile.id} />

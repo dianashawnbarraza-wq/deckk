@@ -5,14 +5,18 @@ import { cn } from "@/lib/utils";
 export function EditorShell({
   children,
   title,
+  subtitle,
   backHref,
   backLabel = "Back",
+  hideTitle = false,
   className,
 }: {
   children: React.ReactNode;
-  title: string;
+  title?: string;
+  subtitle?: string;
   backHref?: string;
   backLabel?: string;
+  hideTitle?: boolean;
   className?: string;
 }) {
   return (
@@ -33,10 +37,18 @@ export function EditorShell({
         </div>
       </header>
       <main className="mx-auto max-w-editor px-5 py-8">
-        <h1 className="font-display text-[2rem] leading-[1.05] tracking-tight text-ink">
-          {title}
-        </h1>
-        <div className="mt-8">{children}</div>
+        {!hideTitle && title && (
+          <>
+            <h1 className="font-display text-[2rem] leading-[1.05] tracking-tight text-ink">
+              {title}
+            </h1>
+            {subtitle && (
+              <p className="mt-2 text-base text-muted-foreground">{subtitle}</p>
+            )}
+            <div className="mt-8">{children}</div>
+          </>
+        )}
+        {hideTitle && children}
       </main>
     </div>
   );

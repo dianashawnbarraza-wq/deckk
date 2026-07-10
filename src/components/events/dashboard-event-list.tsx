@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { formatEventWhen, isEventPast } from "@/lib/events";
+import { SmartComposer } from "@/components/compose/smart-composer";
 import { EventForm } from "@/components/events/event-form";
 import type { Event } from "@/types/database";
 
@@ -57,8 +58,19 @@ export function DashboardEventList({
   }
 
   return (
-    <div className="space-y-4">
-      <EventForm profileId={profileId} />
+    <div className="space-y-8">
+      <SmartComposer
+        profileId={profileId}
+        hint="Upload your flyer first — we'll pull the date, time, and venue for you."
+      />
+      <details className="rounded-[1rem] border border-line">
+        <summary className="cursor-pointer px-5 py-4 text-base font-medium text-ink">
+          Manual event form
+        </summary>
+        <div className="border-t border-line p-4">
+          <EventForm profileId={profileId} />
+        </div>
+      </details>
       {events.length > 0 && (
         <div className="space-y-3 pt-4">
           <h3 className="font-medium">Your events</h3>

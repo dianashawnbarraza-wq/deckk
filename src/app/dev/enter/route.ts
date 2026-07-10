@@ -58,6 +58,7 @@ export async function GET(request: NextRequest) {
       user_id: user.id,
       handle: baseHandle,
       display_name: "Demo",
+      bio: "Welcome to my deck — events, shop, and links all in one place.",
       is_published: true,
     });
     if (profileError) {
@@ -66,6 +67,7 @@ export async function GET(request: NextRequest) {
         user_id: user.id,
         handle: fallbackHandle,
         display_name: "Demo",
+        bio: "Welcome to my deck — events, shop, and links all in one place.",
         is_published: true,
       });
       if (retryError) {
@@ -82,6 +84,20 @@ export async function GET(request: NextRequest) {
       .from("profiles")
       .update({ is_published: true })
       .eq("id", profile.id);
+  } else {
+    const { data: full } = await admin
+      .from("profiles")
+      .select("bio")
+      .eq("id", profile.id)
+      .single();
+    if (!full?.bio) {
+      await admin
+        .from("profiles")
+        .update({
+          bio: "Welcome to my deck — events, shop, and links all in one place.",
+        })
+        .eq("id", profile.id);
+    }
   }
 
   const { data: linkData, error: linkError } = await admin.auth.admin.generateLink({

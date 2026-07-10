@@ -1,7 +1,9 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { CommunityOptInToggle } from "@/components/community/community-opt-in-toggle";
+import { SmartComposer } from "@/components/compose/smart-composer";
 import { EditorShell } from "@/components/layout/editor-shell";
+import { ProfileEditor } from "@/components/profile/profile-editor";
 import { LinkCard } from "@/components/profile/link-card";
 import { buttonVariants } from "@/components/ui/button";
 import { devAuthEnabled } from "@/lib/dev-auth";
@@ -18,14 +20,14 @@ export default async function DashboardPage() {
 
   const { data: profile } = await supabase
     .from("profiles")
-    .select("handle, is_published, charges_enabled, community_opt_in")
+    .select("id, handle, display_name, bio, avatar_url, is_published, community_opt_in")
     .eq("user_id", user.id)
     .single();
 
   if (!profile) redirect("/onboarding");
 
   return (
-    <EditorShell title="Your deck">
+    <EditorShell hideTitle>
       {devAuthEnabled() && (
         <p className="mb-6 rounded-[1rem] border border-line bg-paper-sunken px-4 py-3 text-sm text-ink">
           Demo mode — login bypass is on. Remove <code className="text-xs">BYPASS_AUTH</code> on
@@ -33,57 +35,55 @@ export default async function DashboardPage() {
         </p>
       )}
 
-      <div className="space-y-3">
-        <Link
-          href="/dashboard/payments"
-          className={cn(buttonVariants(), "w-full justify-center")}
-        >
-          Payments
-        </Link>
-        <Link
-          href="/dashboard/events"
-          className={cn(buttonVariants({ variant: "outline" }), "w-full justify-center")}
-        >
-          Events
-        </Link>
+      <div className="mb-10 text-center">
+        <h1 className="font-display text-[2.25rem] leading-[1.02] tracking-tight text-ink sm:text-[2.75rem]">
+          What are we adding?
+        </h1>
+        <p className="mx-auto mt-3 max-w-md text-base text-muted-foreground">
+          Upload, describe, publish — your deck updates in seconds.
+        </p>
       </div>
 
-      <section className="mt-10">
-        <p className="mb-3 text-[0.6875rem] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
-          Preview
-        </p>
-        <LinkCard
-          title="View public deck"
-          subtitle={`deckk.me/${profile.handle}`}
-          href={publicDeckPath(profile.handle)}
-          variant="row"
-          external={false}
+      <SmartComposer profileId={profile.id} variant="chat" />
+
+      <div className="mt-12 space-y-6">
+        <ProfileEditor
+          handle={profile.handle}
+          initialDisplayName={profile.display_name}
+          initialBio={profile.bio}
+          initialAvatarUrl={profile.avatar_url}
         />
-      </section>
 
-      <div className="mt-10 space-y-4">
-        <CommunityOptInToggle initialOptIn={profile.community_opt_in} />
-        <div className="rounded-[1rem] border border-line p-5 text-base text-muted-foreground">
-          <p className="font-medium text-ink">Community pages</p>
-          <p className="mt-2 leading-relaxed">
-            Events with &quot;Show on community calendar&quot; appear on{" "}
-            <Link href="/calendar" className="text-brand-accent-strong underline-offset-4 hover:underline">
-              /calendar
-            </Link>
-            . Directory opt-in lists your deck on{" "}
-            <Link href="/discover" className="text-brand-accent-strong underline-offset-4 hover:underline">
-              /discover
-            </Link>
-            .
+        <section>
+          <p className="mb-3 text-[0.6875rem] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
+            Preview
           </p>
-        </div>
-      </div>
+          <LinkCard
+            title="View public deck"
+            subtitle={`deckk.me/${profile.handle}`}
+            href={publicDeckPath(profile.handle)}
+            variant="row"
+            external={false}
+          />
+        </section>
 
-      {!profile.is_published && (
-        <p className="mt-6 text-base text-muted-foreground">
-          Your deck is not published yet. Publish from settings when ready.
-        </p>
-      )}
+        <div className="flex flex-wrap gap-3">
+          <Link href="/dashboard/payments" className={cn(buttonVariants({ variant: "outline" }))}>
+            Payments
+          </Link>
+          <Link href="/dashboard/events" className={cn(buttonVariants({ variant: "outline" }))}>
+            Events
+          </Link>
+        </div>
+
+        <CommunityOptInToggle initialOptIn={profile.community_opt_in} />
+
+        {!profile.is_published && (
+          <p className="text-base text-muted-foreground">
+            Your deck is not published yet. Publish from settings when ready.
+          </p>
+        )}
+      </div>
     </EditorShell>
   );
 }
