@@ -5,17 +5,30 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
-  --font-sans: var(--font-manrope);
+  --font-sans: var(--font-space-grotesk);
   --font-display: var(--font-instrument-serif);
   --font-heading: var(--font-display);
   --font-mono: var(--font-geist-mono);
 
-  --color-paper: var(--paper);
-  --color-paper-sunken: var(--paper-sunken);
-  --color-ink: var(--ink);
-  --color-line: var(--line);
-  --color-brand-accent: var(--brand-accent);
-  --color-brand-accent-strong: var(--brand-accent-strong);
+  --color-backdrop: var(--backdrop);
+  --color-page: var(--page);
+  --color-glass: var(--glass);
+  --color-glass-strong: var(--glass-strong);
+  --color-deck-card: var(--deck-card);
+  --color-deck-card-brd: var(--deck-card-brd);
+  --color-deck-nav: var(--deck-nav);
+  --color-dim: var(--dim);
+  --color-faint: var(--faint);
+  --color-accent-2: var(--accent-2);
+  --color-phone-brd: var(--phone-brd);
+  --color-deck-shadow: var(--deck-shadow);
+
+  --color-paper: var(--page);
+  --color-paper-sunken: var(--backdrop);
+  --color-ink: var(--text);
+  --color-line: var(--deck-card-brd);
+  --color-brand-accent: var(--accent);
+  --color-brand-accent-strong: var(--accent);
 
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -46,11 +59,69 @@
   --max-width-auth: 24rem;
   --max-width-editor: 42rem;
 
+  --max-width-phone: 25.25rem;
+
   --ease-out-editorial: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-deck: cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 :root {
-  /* Perch / deckk editorial tokens */
+  /* Deckk 3.0 — from design prototype */
+  --backdrop: #ded5c4;
+  --page: #ede5d5;
+  --text: #1b1813;
+  --dim: rgba(27, 24, 19, 0.58);
+  --faint: rgba(27, 24, 19, 0.34);
+  --glass: rgba(250, 246, 238, 0.62);
+  --glass-strong: rgba(250, 246, 238, 0.82);
+  --deck-card: rgba(255, 255, 255, 0.5);
+  --deck-card-brd: rgba(27, 24, 19, 0.1);
+  --deck-nav: rgba(250, 246, 238, 0.66);
+  --accent: #6d28f5;
+  --accent-2: #b8894a;
+  --phone-brd: rgba(27, 24, 19, 0.16);
+  --deck-shadow: rgba(27, 24, 19, 0.22);
+
+  /* shadcn semantic mapping */
+  --background: var(--backdrop);
+  --foreground: var(--text);
+  --card: var(--deck-card);
+  --card-foreground: var(--text);
+  --popover: var(--glass-strong);
+  --popover-foreground: var(--text);
+  --primary: var(--accent);
+  --primary-foreground: #fff;
+  --secondary: var(--page);
+  --secondary-foreground: var(--text);
+  --muted: var(--page);
+  --muted-foreground: var(--dim);
+  --accent-color: var(--page);
+  --accent-foreground: var(--text);
+  --destructive: #b3261e;
+  --border: var(--deck-card-brd);
+  --input: var(--deck-card-brd);
+  --ring: var(--accent);
+  --radius: 1rem;
+}
+
+.dark {
+  --backdrop: #090807;
+  --page: #131110;
+  --text: #f3ecdf;
+  --dim: rgba(243, 236, 223, 0.62);
+  --faint: rgba(243, 236, 223, 0.4);
+  --glass: rgba(32, 29, 25, 0.5);
+  --glass-strong: rgba(32, 29, 25, 0.8);
+  --deck-card: rgba(255, 255, 255, 0.06);
+  --deck-card-brd: rgba(255, 255, 255, 0.13);
+  --deck-nav: rgba(26, 23, 20, 0.55);
+  --accent: #a98bff;
+  --accent-2: #cba25a;
+  --phone-brd: rgba(255, 255, 255, 0.13);
+  --deck-shadow: rgba(0, 0, 0, 0.55);
+}
+
+:root.legacy-perch {
   --paper: #f7f1e7;
   --paper-sunken: #ede5d8;
   --ink: #191512;
@@ -58,27 +129,17 @@
   --line: #d9cfc0;
   --brand-accent: #ff4433;
   --brand-accent-strong: #c42e1f;
+}
 
-  /* shadcn semantic mapping */
-  --background: var(--paper);
-  --foreground: var(--ink);
-  --card: var(--paper);
-  --card-foreground: var(--ink);
-  --popover: var(--paper);
-  --popover-foreground: var(--ink);
-  --primary: var(--brand-accent);
-  --primary-foreground: #fffaf7;
-  --secondary: var(--paper-sunken);
-  --secondary-foreground: var(--ink);
-  --muted: var(--paper-sunken);
-  --muted-foreground: var(--ink-muted);
-  --accent: var(--paper-sunken);
-  --accent-foreground: var(--ink);
-  --destructive: #c42e1f;
-  --border: var(--line);
-  --input: var(--line);
-  --ring: var(--ink);
-  --radius: 1rem;
+:root:not(.legacy-perch) {
+  /* alias for older components during migration */
+  --paper: var(--page);
+  --paper-sunken: var(--backdrop);
+  --ink: var(--text);
+  --ink-muted: var(--dim);
+  --line: var(--deck-card-brd);
+  --brand-accent: var(--accent);
+  --brand-accent-strong: var(--accent);
 }
 
 @layer base {
@@ -110,12 +171,65 @@
   .max-w-editor {
     max-width: var(--max-width-editor);
   }
-  .text-brand-accent-strong {
-    color: var(--brand-accent-strong);
+  .deckk-fade-up {
+    animation: deckk-fade-up 0.4s ease both;
   }
-  .deck-logo-levitate {
-    animation: deck-logo-levitate 3.5s var(--ease-out-editorial) infinite;
-    will-change: transform;
+  .deckk-pop {
+    animation: deckk-pop 0.45s ease both;
+  }
+  .deckk-scroll-hide::-webkit-scrollbar {
+    width: 0;
+  }
+}
+
+@keyframes deckk-fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes deckk-pop {
+  0% {
+    opacity: 0;
+    transform: scale(0.94) translateY(-6px);
+  }
+  60% {
+    transform: scale(1.01);
+  }
+  100% {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes deckk-float {
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1);
+  }
+  50% {
+    transform: translate(20px, -30px) scale(1.1);
+  }
+}
+
+@keyframes deckk-shimmer {
+  0% {
+    background-position: -200px 0;
+  }
+  100% {
+    background-position: 240px 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .deckk-fade-up,
+  .deckk-pop {
+    animation: none;
   }
 }
 

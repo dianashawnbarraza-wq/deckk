@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Instrument_Serif, Manrope } from "next/font/google";
+import { Instrument_Serif, Space_Grotesk } from "next/font/google";
 import "./globals.css";
 
 const instrumentSerif = Instrument_Serif({
@@ -9,16 +9,16 @@ const instrumentSerif = Instrument_Serif({
   style: ["normal", "italic"],
 });
 
-const manrope = Manrope({
-  variable: "--font-manrope",
+const spaceGrotesk = Space_Grotesk({
+  variable: "--font-space-grotesk",
   subsets: ["latin"],
-  weight: ["400", "500", "600", "700", "800"],
+  weight: ["400", "500", "600", "700"],
 });
 
 export const metadata: Metadata = {
   title: "deckk.me — your whole deck, dealt in one link",
   description:
-    "Drop your links, shop, events, and support in one page — 0% platform fees.",
+    "A living micro site for makers — events, shop, and links with hierarchy that actually helps visitors find what matters.",
 };
 
 export default function RootLayout({
@@ -27,8 +27,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${instrumentSerif.variable} ${manrope.variable} h-full`}>
-      <body className="min-h-full flex flex-col">{children}</body>
+    <html lang="en" className={`${instrumentSerif.variable} ${spaceGrotesk.variable} h-full`}>
+      <body className="min-h-full flex flex-col font-sans">{children}</body>
     </html>
   );
 }
