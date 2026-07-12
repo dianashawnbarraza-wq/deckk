@@ -48,23 +48,23 @@ export async function GET(request: NextRequest) {
 
   const targetHandle = devAuthHandle();
 
-  const { data: profile } = await admin
-    .from("profiles")
+  const { data: deck } = await admin
+    .from("decks")
     .select("id, handle, is_published")
     .eq("user_id", user.id)
     .maybeSingle();
 
-  if (!profile) {
-    const { error: profileError } = await admin.from("profiles").insert({
+  if (!deck) {
+    const { error: deckError } = await admin.from("decks").insert({
       user_id: user.id,
       handle: targetHandle,
       display_name: "Shawn",
       bio: "Welcome to my deck — events, shop, and links all in one place.",
       is_published: true,
     });
-    if (profileError) {
+    if (deckError) {
       const fallbackHandle = `${targetHandle}-${user.id.slice(0, 8)}`;
-      const { error: retryError } = await admin.from("profiles").insert({
+      const { error: retryError } = await admin.from("decks").insert({
         user_id: user.id,
         handle: fallbackHandle,
         display_name: "Shawn",
@@ -81,52 +81,32 @@ export async function GET(request: NextRequest) {
       }
     }
   } else {
-    if (profile.handle !== targetHandle) {
+    if (deck.handle !== targetHandle) {
       const { data: conflict } = await admin
-        .from("profiles")
+        .from("decks")
         .select("id")
         .eq("handle", targetHandle)
-        .neq("id", profile.id)
+        .neq("id", deck.id)
         .maybeSingle();
 
       if (!conflict) {
-        await admin.from("handle_redirects").upsert(
+        await admin.from("deck_handle_redirects").upsert(
           {
-            old_handle: profile.handle,
-            profile_id: profile.id,
+            old_handle: deck.handle,
+            deck_id: deck.id,
             expires_at: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString(),
           },
           { onConflict: "old_handle" }
         );
         await admin
-          .from("profiles")
+          .from("decks")
           .update({ handle: targetHandle, display_name: "Shawn" })
-          .eq("id", profile.id);
+          .eq("id", deck.id);
       }
     }
 
-    if (!profile.is_published) {
-      await admin
-        .from("profiles")
-        .update({ is_published: true })
-        .eq("id", profile.id);
-    }
-
-    const { data: full } = await admin
-      .from("profiles")
-      .select("bio, display_name")
-      .eq("id", profile.id)
-      .single();
-
-    const updates: Record<string, string> = {};
-    if (!full?.bio) {
-      updates.bio = "Welcome to my deck — events, shop, and links all in one place.";
-    }
-    if (!full?.display_name || full.display_name === "Demo") {
-      updates.display_name = "Shawn";
-    }
-    if (Object.keys(updates).length > 0) {
-      await admin.from("profiles").update(updates).eq("id", profile.id);
+    if (!deck.is_published) {
+      await admin.from("decks").update({ is_published: true }).eq("id", deck.id);
     }
   }
 
@@ -134,7 +114,7 @@ export async function GET(request: NextRequest) {
     type: "magiclink",
     email,
     options: {
-      redirectTo: `${request.nextUrl.origin}/auth/callback?next=/dashboard`,
+      redirectTo: `${request.nextUrl.origin}/auth/callback?next=/auth/continue`,
     },
   });
 
@@ -148,7 +128,7 @@ export async function GET(request: NextRequest) {
     );
   }
 
-  const response = NextResponse.redirect(new URL("/dashboard", request.url));
+  const response = NextResponse.redirect(new URL("/auth/continue", request.url));
   const supabase = createServerClient(url, anonKey, {
     cookies: {
       getAll() {

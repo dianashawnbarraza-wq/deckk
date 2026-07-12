@@ -16,7 +16,7 @@ export default function HomePage() {
         your whole deck, dealt in one link
       </h1>
       <p className="mt-4 max-w-md text-base leading-relaxed text-muted-foreground">
-        Drop your links, shop, events, and support in one page — 0% platform fees.
+        A living micro site for makers — events, shop, and links with hierarchy that helps visitors find what matters now.
       </p>
       <div className="mt-10 flex flex-wrap gap-3">
         {skipLogin ? (

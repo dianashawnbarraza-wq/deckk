@@ -4,8 +4,8 @@ import { createServerClient } from "@supabase/ssr";
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
   const code = searchParams.get("code");
-  const next = searchParams.get("next") ?? "/dashboard";
-  const safeNext = next.startsWith("/") ? next : "/dashboard";
+  const next = searchParams.get("next") ?? "/auth/continue";
+  const safeNext = next.startsWith("/") ? next : "/auth/continue";
   const authError =
     searchParams.get("error_description") ?? searchParams.get("error");
 
