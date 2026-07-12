@@ -107,9 +107,9 @@
 .dark {
   --backdrop: #090807;
   --page: #131110;
-  --text: #f3ecdf;
-  --dim: rgba(243, 236, 223, 0.62);
-  --faint: rgba(243, 236, 223, 0.4);
+  --text: #ffffff;
+  --dim: rgba(255, 255, 255, 0.62);
+  --faint: rgba(255, 255, 255, 0.4);
   --glass: rgba(32, 29, 25, 0.5);
   --glass-strong: rgba(32, 29, 25, 0.8);
   --deck-card: rgba(255, 255, 255, 0.06);
@@ -119,6 +119,26 @@
   --accent-2: #cba25a;
   --phone-brd: rgba(255, 255, 255, 0.13);
   --deck-shadow: rgba(0, 0, 0, 0.55);
+
+  /* Keep semantic text tokens white inside the phone shell */
+  --background: var(--backdrop);
+  --foreground: #ffffff;
+  --card: var(--deck-card);
+  --card-foreground: #ffffff;
+  --popover: var(--glass-strong);
+  --popover-foreground: #ffffff;
+  --primary: var(--accent);
+  --primary-foreground: #ffffff;
+  --secondary: var(--page);
+  --secondary-foreground: #ffffff;
+  --muted: var(--page);
+  --muted-foreground: var(--dim);
+  --accent-foreground: #ffffff;
+  --border: var(--deck-card-brd);
+  --input: var(--deck-card-brd);
+  --ring: var(--accent);
+  --ink: #ffffff;
+  --ink-muted: var(--dim);
 }
 
 :root.legacy-perch {
@@ -231,6 +251,19 @@
   .deckk-pop {
     animation: none;
   }
+}
+
+/* Dark mode: headers + primary button labels stay white */
+.dark h1,
+.dark h2,
+.dark h3 {
+  color: #ffffff;
+}
+
+.dark .bg-primary,
+.dark button.bg-primary,
+.dark a.bg-primary {
+  color: #ffffff;
 }
 
 @keyframes deck-logo-levitate {

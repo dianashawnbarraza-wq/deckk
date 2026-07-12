@@ -89,7 +89,7 @@ export function PhoneShell({ children, className }: PhoneShellProps) {
           className
         )}
       >
-        <div className="relative h-[868px] w-full max-w-phone max-h-[calc(100dvh-30px)] overflow-hidden rounded-[46px] border border-phone-brd bg-page shadow-[0_50px_90px_-40px_var(--deck-shadow),0_10px_30px_-20px_var(--deck-shadow)] transition-colors duration-500">
+        <div className="relative h-[868px] w-full max-w-phone max-h-[calc(100dvh-30px)] overflow-hidden rounded-[46px] border border-phone-brd bg-page text-foreground shadow-[0_50px_90px_-40px_var(--deck-shadow),0_10px_30px_-20px_var(--deck-shadow)] transition-colors duration-500">
           <div
             className="pointer-events-none absolute -left-10 -top-[60px] h-[260px] w-[260px] rounded-full opacity-50 blur-[30px]"
             style={{

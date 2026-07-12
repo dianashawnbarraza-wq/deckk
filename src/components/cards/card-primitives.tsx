@@ -45,8 +45,8 @@ export function EventDateChip({ card }: { card: Card }) {
       <div className="bg-primary px-0 py-0.5 text-[9px] font-bold tracking-widest text-primary-foreground">
         {month}
       </div>
-      <div className="bg-[#1b1813] px-0 py-1 text-primary-foreground dark:bg-[#1b1813]">
-        <div className="font-display text-[22px] leading-none">{day}</div>
+      <div className="bg-[#1b1813] px-0 py-1 text-white">
+        <div className="font-display text-[22px] leading-none text-white">{day}</div>
       </div>
     </div>
   );
@@ -98,7 +98,7 @@ export function ItemCardGrid({ card }: { card: Card }) {
         {card.description && (
           <div className="mt-0.5 text-[11px] text-dim line-clamp-2">{card.description}</div>
         )}
-        {price && <div className="mt-2 text-sm font-semibold">{price}</div>}
+        {price && <div className="mt-2 text-sm font-semibold text-foreground">{price}</div>}
       </div>
     </div>
   );

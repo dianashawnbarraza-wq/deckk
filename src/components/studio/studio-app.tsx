@@ -584,7 +584,7 @@ export function StudioApp({ deck }: { deck: Deck }) {
                       setDraft(null);
                       clearAttachment();
                     }}
-                    className="rounded-xl border border-deck-card-brd px-4 py-3 text-[13px] font-semibold"
+                    className="rounded-xl border border-deck-card-brd px-4 py-3 text-[13px] font-semibold text-foreground"
                   >
                     Discard
                   </button>
@@ -610,7 +610,7 @@ export function StudioApp({ deck }: { deck: Deck }) {
                     {kindLabel(card.type)}
                   </span>
                   <div className="min-w-0 flex-1">
-                    <div className="truncate text-[13px] font-semibold">{card.title}</div>
+                    <div className="truncate text-[13px] font-semibold text-foreground">{card.title}</div>
                     <div className="truncate text-[11px] text-dim">
                       {card.source === "extracted" ? "extracted · " : ""}
                       {card.status}

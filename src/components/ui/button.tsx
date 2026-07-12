@@ -10,11 +10,11 @@ const buttonVariants = cva(
       variant: {
         default: "bg-primary text-primary-foreground hover:bg-[color-mix(in_srgb,var(--brand-accent),#000_8%)]",
         outline:
-          "border-line bg-paper text-ink hover:bg-paper-sunken",
+          "border-line bg-paper text-foreground hover:bg-paper-sunken",
         secondary:
-          "bg-paper-sunken text-ink hover:bg-[color-mix(in_srgb,var(--paper-sunken),var(--ink)_6%)]",
+          "bg-paper-sunken text-foreground hover:bg-[color-mix(in_srgb,var(--paper-sunken),var(--ink)_6%)]",
         ghost:
-          "text-ink hover:bg-paper-sunken",
+          "text-foreground hover:bg-paper-sunken",
         destructive:
           "bg-destructive/10 text-destructive hover:bg-destructive/15",
         link: "h-auto min-h-0 rounded-none px-0 text-brand-accent-strong underline-offset-4 hover:underline active:scale-100",
