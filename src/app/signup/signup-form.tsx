@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { PhoneShell } from "@/components/shell/phone-shell";
+import { PhoneShell, ThemeToggleButton } from "@/components/shell/phone-shell";
 
 export default function SignupForm() {
   const router = useRouter();
@@ -44,6 +44,9 @@ export default function SignupForm() {
   return (
     <PhoneShell>
       <div className="deckk-scroll-hide absolute inset-0 overflow-y-auto p-6 deckk-fade-up">
+        <div className="absolute right-4 top-4 z-10">
+          <ThemeToggleButton />
+        </div>
         <div className="mx-auto flex min-h-full max-w-sm flex-col justify-center py-10">
           <p className="mb-2 text-[9px] font-bold tracking-[0.18em] text-primary uppercase">
             ✦ Welcome

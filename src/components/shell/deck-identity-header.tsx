@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { cn } from "@/lib/utils";
 import type { Deck } from "@/types/cards";
+import { ThemeToggleButton } from "@/components/shell/phone-shell";
 
 interface DeckIdentityHeaderProps {
   deck: Pick<Deck, "display_name" | "bio" | "avatar_url">;
@@ -10,6 +11,7 @@ interface DeckIdentityHeaderProps {
   eyebrow?: string;
   showBio?: boolean;
   actions?: React.ReactNode;
+  showThemeToggle?: boolean;
 }
 
 export function DeckIdentityHeader({
@@ -18,6 +20,7 @@ export function DeckIdentityHeader({
   eyebrow,
   showBio = !condensed,
   actions,
+  showThemeToggle = true,
 }: DeckIdentityHeaderProps) {
   return (
     <div
@@ -35,7 +38,10 @@ export function DeckIdentityHeader({
             deckk<span className="text-primary">.</span>me
           </div>
         </div>
-        {actions}
+        <div className="flex items-center gap-2">
+          {showThemeToggle && <ThemeToggleButton />}
+          {actions}
+        </div>
       </div>
 
       <div
