@@ -1,7 +1,7 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
-import { Camera, ImageIcon, Send, Trash2 } from "lucide-react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { Camera, ImageIcon, Plus, Send, Trash2 } from "lucide-react";
 import type { Card, Deck } from "@/types/cards";
 import { PhoneShell } from "@/components/shell/phone-shell";
 import { DeckIdentityHeader } from "@/components/shell/deck-identity-header";
@@ -39,6 +39,10 @@ export function StudioApp({ deck }: { deck: Deck }) {
     null
   );
   const [toast, setToast] = useState<string | null>(null);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
+  const cameraInputRef = useRef<HTMLInputElement>(null);
+  const uploadInputRef = useRef<HTMLInputElement>(null);
 
   const loadCards = useCallback(async () => {
     const res = await fetch("/api/cards");
@@ -56,6 +60,17 @@ export function StudioApp({ deck }: { deck: Deck }) {
     const id = setInterval(() => setHintIndex((i) => (i + 1) % HINTS.length), 3000);
     return () => clearInterval(id);
   }, []);
+
+  useEffect(() => {
+    if (!menuOpen) return;
+    function onPointerDown(e: PointerEvent) {
+      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
+        setMenuOpen(false);
+      }
+    }
+    document.addEventListener("pointerdown", onPointerDown);
+    return () => document.removeEventListener("pointerdown", onPointerDown);
+  }, [menuOpen]);
 
   function showToast(msg: string) {
     setToast(msg);
@@ -145,23 +160,61 @@ export function StudioApp({ deck }: { deck: Deck }) {
               Snap a flyer or describe it. Deckk builds the card for you.
             </p>
 
-            <div className="mt-4 rounded-[18px] border-[1.5px] border-foreground bg-glass-strong p-2 shadow-lg backdrop-blur-xl">
-              <div className="flex items-end gap-2">
-                <button
-                  type="button"
-                  className="flex size-[38px] shrink-0 items-center justify-center rounded-[11px] border border-deck-card-brd bg-deck-card text-foreground"
-                  aria-label="Camera"
-                >
-                  <Camera className="size-4" />
-                </button>
-                <button
-                  type="button"
-                  className="flex size-[38px] shrink-0 items-center justify-center rounded-[11px] border border-deck-card-brd bg-deck-card text-foreground"
-                  aria-label="Upload"
-                >
-                  <ImageIcon className="size-4" />
-                </button>
-                <div className="relative min-w-0 flex-1">
+            <div className="mt-4 rounded-[16px] border-[1.5px] border-foreground bg-glass-strong px-1.5 py-1.5 shadow-lg backdrop-blur-xl">
+              <div className="flex items-center gap-1.5">
+                <div className="relative shrink-0" ref={menuRef}>
+                  <button
+                    type="button"
+                    onClick={() => setMenuOpen((o) => !o)}
+                    className="flex size-8 items-center justify-center rounded-[10px] border border-deck-card-brd bg-deck-card text-foreground"
+                    aria-label="Add photo"
+                    aria-expanded={menuOpen}
+                  >
+                    <Plus className={cn("size-4 transition-transform", menuOpen && "rotate-45")} />
+                  </button>
+                  {menuOpen && (
+                    <div className="absolute bottom-full left-0 z-20 mb-2 w-48 overflow-hidden rounded-xl border border-deck-card-brd bg-glass-strong py-1 shadow-lg backdrop-blur-xl">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setMenuOpen(false);
+                          cameraInputRef.current?.click();
+                        }}
+                        className="flex w-full items-center gap-2.5 px-3 py-2.5 text-left text-[13px] font-medium text-foreground transition hover:bg-deck-card"
+                      >
+                        <Camera className="size-4 shrink-0 text-dim" />
+                        Take a photo
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setMenuOpen(false);
+                          uploadInputRef.current?.click();
+                        }}
+                        className="flex w-full items-center gap-2.5 px-3 py-2.5 text-left text-[13px] font-medium text-foreground transition hover:bg-deck-card"
+                      >
+                        <ImageIcon className="size-4 shrink-0 text-dim" />
+                        Upload an image
+                      </button>
+                    </div>
+                  )}
+                  <input
+                    ref={cameraInputRef}
+                    type="file"
+                    accept="image/*"
+                    capture="environment"
+                    className="hidden"
+                    onChange={() => showToast("Photo extraction ships next")}
+                  />
+                  <input
+                    ref={uploadInputRef}
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={() => showToast("Photo extraction ships next")}
+                  />
+                </div>
+                <div className="relative flex min-h-8 min-w-0 flex-1 items-center">
                   <textarea
                     value={composer}
                     onChange={(e) => setComposer(e.target.value)}
@@ -172,10 +225,10 @@ export function StudioApp({ deck }: { deck: Deck }) {
                       }
                     }}
                     rows={1}
-                    className="max-h-24 min-h-10 w-full resize-none border-0 bg-transparent py-2 text-sm text-foreground outline-none"
+                    className="max-h-20 w-full resize-none border-0 bg-transparent py-1.5 text-sm leading-5 text-foreground outline-none"
                   />
                   {!composer && (
-                    <span className="pointer-events-none absolute left-0 top-2 text-sm text-faint transition-opacity duration-500">
+                    <span className="pointer-events-none absolute inset-x-0 top-1/2 -translate-y-1/2 truncate text-sm leading-5 text-faint">
                       &ldquo;{HINTS[hintIndex]}&rdquo;
                     </span>
                   )}
@@ -183,9 +236,9 @@ export function StudioApp({ deck }: { deck: Deck }) {
                 <button
                   type="button"
                   onClick={runExtract}
-                  className="flex size-[38px] shrink-0 items-center justify-center rounded-[11px] bg-primary text-primary-foreground"
+                  className="flex size-8 shrink-0 items-center justify-center rounded-[10px] bg-primary text-primary-foreground"
                 >
-                  <Send className="size-4" />
+                  <Send className="size-3.5" />
                 </button>
               </div>
             </div>
