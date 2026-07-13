@@ -26,7 +26,9 @@ export function PublicDeckApp({ deck, cards, tab, isOwner }: PublicDeckAppProps)
   const ranked = rankCards(cards);
   const visible = cardsForTab(ranked, tab);
   const basePath = `/${deck.handle}`;
-  const nextEvent = ranked.happeningSoon[0];
+  const nextEvent = ranked.pinned?.type === "event" || ranked.pinned?.type === "announcement"
+    ? ranked.pinned
+    : ranked.happeningSoon[0];
 
   useEffect(() => {
     function onScroll(e: Event) {

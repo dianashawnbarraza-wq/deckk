@@ -106,7 +106,12 @@ export function cardsForTab(
   tab: "home" | "events" | "shop"
 ): Card[] {
   if (tab === "events") {
-    return [...ranked.happeningSoon, ...ranked.past];
+    const pinnedEvent =
+      ranked.pinned &&
+      (ranked.pinned.type === "event" || ranked.pinned.type === "announcement")
+        ? [ranked.pinned]
+        : [];
+    return [...pinnedEvent, ...ranked.happeningSoon, ...ranked.past];
   }
   if (tab === "shop") {
     return [...ranked.freshItems, ...ranked.evergreen.filter((c) => c.type === "item")];

@@ -83,8 +83,8 @@ export function ItemCardGrid({ card }: { card: Card }) {
   const image = card.media[0]?.url;
   const price = card.price != null ? `$${Number(card.price).toFixed(0)}` : null;
 
-  return (
-    <div className="overflow-hidden rounded-[18px] border border-deck-card-brd bg-deck-card backdrop-blur-xl">
+  const body = (
+    <>
       <div className="relative h-[136px] bg-page">
         {image ? (
           // eslint-disable-next-line @next/next/no-img-element
@@ -98,8 +98,34 @@ export function ItemCardGrid({ card }: { card: Card }) {
         {card.description && (
           <div className="mt-0.5 text-[11px] text-dim line-clamp-2">{card.description}</div>
         )}
-        {price && <div className="mt-2 text-sm font-semibold text-foreground">{price}</div>}
+        <div className="mt-2 flex items-center justify-between gap-2">
+          {price && <div className="text-sm font-semibold text-foreground">{price}</div>}
+          {card.cta_label && (
+            <span className="ml-auto rounded-full bg-primary px-3 py-1.5 text-[12px] font-semibold text-primary-foreground">
+              {card.cta_label}
+            </span>
+          )}
+        </div>
       </div>
+    </>
+  );
+
+  if (card.cta_url) {
+    return (
+      <a
+        href={card.cta_url}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="overflow-hidden rounded-[18px] border border-deck-card-brd bg-deck-card backdrop-blur-xl transition-opacity hover:opacity-90"
+      >
+        {body}
+      </a>
+    );
+  }
+
+  return (
+    <div className="overflow-hidden rounded-[18px] border border-deck-card-brd bg-deck-card backdrop-blur-xl">
+      {body}
     </div>
   );
 }
