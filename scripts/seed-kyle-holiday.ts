@@ -44,6 +44,14 @@ const RIVET_PATH = resolve(
   ASSET_ROOT,
   "RIVET_Collars_and_Mosh_July_2026-1816ec0c-0587-464e-b87b-33bf77846e43.png"
 );
+const TEE_PATH = resolve(
+  ASSET_ROOT,
+  "Title_Tee_Trans_Leather_Babes_Kyle_Holiday-170df201-9b2f-4404-b48b-5db1312dcc97.png"
+);
+const BONES_PATH = resolve(
+  ASSET_ROOT,
+  "Bones-f0a13262-201b-441e-b4c4-58a46bcfd8d1.png"
+);
 
 type SeedCard = {
   type: "event" | "item" | "link";
@@ -60,7 +68,7 @@ type SeedCard = {
   featured?: boolean;
   position: number;
   tags: string[];
-  mediaKey?: "kinkteria" | "rivet";
+  mediaKey?: "kinkteria" | "rivet" | "tee" | "bones";
 };
 
 const cards: SeedCard[] = [
@@ -145,12 +153,13 @@ const cards: SeedCard[] = [
     featured: true,
     position: 10,
     tags: ["apparel", "new", "featured"],
+    mediaKey: "tee",
   },
   {
     type: "item",
-    title: "Pet Play Tags & Leather",
+    title: "Bone-Shaped Custom Tag",
     description:
-      "Custom engraved acrylic bone tags, collars, and handmade leather — new pet play tag styles live on Etsy.",
+      "Custom engraved acrylic bone tags — pick your color, name, and style. Hang from a collar with the metal jump ring.",
     date_start: null,
     date_end: null,
     location_name: null,
@@ -162,6 +171,7 @@ const cards: SeedCard[] = [
     featured: true,
     position: 11,
     tags: ["pet-play", "tags", "featured"],
+    mediaKey: "bones",
   },
   {
     type: "link",
@@ -298,10 +308,14 @@ async function main() {
   const avatarUrl = await uploadPublic(admin, user.id, AVATAR_PATH, "kyle-avatar.png");
   const kinkteriaUrl = await uploadPublic(admin, user.id, KINKTERIA_PATH, "kinkteria.png");
   const rivetUrl = await uploadPublic(admin, user.id, RIVET_PATH, `rivet-flyer-${Date.now()}.png`);
+  const teeUrl = await uploadPublic(admin, user.id, TEE_PATH, `tee-${Date.now()}.png`);
+  const bonesUrl = await uploadPublic(admin, user.id, BONES_PATH, `bones-${Date.now()}.png`);
 
   const mediaMap = {
     kinkteria: kinkteriaUrl,
     rivet: rivetUrl,
+    tee: teeUrl,
+    bones: bonesUrl,
   };
 
   const existing = await admin
