@@ -7,6 +7,7 @@ import { ArrowUpRight, Check, Share2, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { Card, Deck } from "@/types/cards";
 import { ThemeToggleButton } from "@/components/shell/phone-shell";
+import { SocialIconLink } from "@/components/cards/card-primitives";
 
 function StatusBarClock() {
   const [time, setTime] = useState("--:--");
@@ -202,15 +203,7 @@ export function DeckIdentityHeader({
               )}
             >
               {socialLinks.map((link) => (
-                <a
-                  key={link.id}
-                  href={link.cta_url ?? "#"}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="rounded-full border border-deck-card-brd bg-deck-card px-3 py-1 text-[12px] font-semibold text-foreground transition-opacity hover:opacity-80"
-                >
-                  {link.title}
-                </a>
+                <SocialIconLink key={link.id} card={link} />
               ))}
             </div>
           )}

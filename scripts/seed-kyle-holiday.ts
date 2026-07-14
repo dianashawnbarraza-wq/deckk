@@ -42,7 +42,7 @@ const KINKTERIA_PATH = resolve(
 );
 const RIVET_PATH = resolve(
   ASSET_ROOT,
-  "image-f8aa62af-f7de-45c0-8e22-cf807424c8b8.png"
+  "RIVET_Collars_and_Mosh_July_2026-1816ec0c-0587-464e-b87b-33bf77846e43.png"
 );
 
 type SeedCard = {
@@ -90,12 +90,12 @@ const cards: SeedCard[] = [
     date_end: "2026-07-22T22:00:00-07:00",
     location_name: "Devil Mask Studio",
     location_address: "313 W 118th Street",
-    cta_label: "Craft + Mosh RSVP",
+    cta_label: "RSVP",
     cta_url: "https://kyleholiday.com/",
     price: null,
     pinned: true,
     position: 1,
-    tags: ["leather", "craft", "mosh"],
+    tags: ["party", "workshop", "mosh", "craft"],
     mediaKey: "rivet",
   },
   {
