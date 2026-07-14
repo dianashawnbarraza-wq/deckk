@@ -9,7 +9,7 @@ import { cn } from "@/lib/utils";
 
 const ROLES = ["creators", "artists", "organizers", "anyone"] as const;
 
-export function LandingHero({ skipLogin }: { skipLogin: boolean }) {
+export function LandingHero() {
   const [roleIndex, setRoleIndex] = useState(0);
   const [visible, setVisible] = useState(true);
 
@@ -23,8 +23,6 @@ export function LandingHero({ skipLogin }: { skipLogin: boolean }) {
     }, 2600);
     return () => window.clearInterval(id);
   }, []);
-
-  const startedHref = skipLogin ? "/dev/enter" : "/get-started";
 
   return (
     <div className="dark min-h-dvh bg-backdrop text-foreground" data-theme="dark">
@@ -72,19 +70,17 @@ export function LandingHero({ skipLogin }: { skipLogin: boolean }) {
 
           <div className="mt-10 flex flex-wrap items-center gap-3">
             <Link
-              href={startedHref}
+              href="/get-started"
               className="inline-flex h-12 items-center justify-center rounded-full bg-primary px-7 text-[15px] font-semibold text-white shadow-[0_12px_28px_-12px_var(--accent)] transition hover:opacity-90"
             >
               Get started
             </Link>
-            {!skipLogin && (
-              <Link
-                href="/login"
-                className="inline-flex h-12 items-center justify-center rounded-full border border-deck-card-brd bg-deck-card px-6 text-[15px] font-semibold text-foreground transition hover:opacity-90"
-              >
-                Sign in
-              </Link>
-            )}
+            <Link
+              href="/login"
+              className="inline-flex h-12 items-center justify-center rounded-full border border-deck-card-brd bg-deck-card px-6 text-[15px] font-semibold text-foreground transition hover:opacity-90"
+            >
+              Login
+            </Link>
           </div>
 
           <p className="mt-5 text-[13px] text-dim">No cost, just build.</p>
