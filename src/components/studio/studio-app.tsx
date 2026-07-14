@@ -8,6 +8,7 @@ import { fileToDownscaledBlob } from "@/lib/ai/image-prep";
 import { missingEventFields } from "@/lib/card-taxonomy";
 import { PhoneShell } from "@/components/shell/phone-shell";
 import { DeckIdentityHeader } from "@/components/shell/deck-identity-header";
+import { StudioSplashModal } from "@/components/studio/studio-splash-modal";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 
@@ -391,7 +392,7 @@ export function StudioApp({ deck: initialDeck }: { deck: Deck }) {
             actions={
               <Link
                 href={`${basePath}?preview=1`}
-                className="rounded-full border border-deck-card-brd bg-deck-card px-3 py-1.5 text-xs font-semibold text-foreground backdrop-blur-md"
+                className="rounded-full border border-deck-card-brd bg-deck-card px-3 py-1.5 text-[13px] font-semibold text-foreground backdrop-blur-md"
               >
                 View live
               </Link>
@@ -801,6 +802,12 @@ export function StudioApp({ deck: initialDeck }: { deck: Deck }) {
             </div>
           </div>
         </div>
+
+        <StudioSplashModal
+          onAddPhoto={() => {
+            window.setTimeout(() => uploadInputRef.current?.click(), 80);
+          }}
+        />
 
         {toast && (
           <div className="fixed bottom-8 left-1/2 z-50 -translate-x-1/2 rounded-full bg-[#1b1813] px-5 py-3 text-[13px] font-medium text-[#f3ecdf] shadow-xl deckk-fade-up">

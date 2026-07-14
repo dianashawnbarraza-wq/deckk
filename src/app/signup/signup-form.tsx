@@ -55,7 +55,8 @@ export default function SignupForm() {
             Claim your deck
           </h1>
           <p className="mb-8 text-sm leading-relaxed text-dim">
-            Pick your handle and name — you&apos;ll land in Studio to add your first card.
+            Pick your public link — then Studio opens so you can snap a flyer and
+            publish your first card.
           </p>
 
           <form onSubmit={onSubmit} className="space-y-5">
