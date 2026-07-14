@@ -5,6 +5,8 @@ export type CardSource = "manual" | "extracted";
 export interface DeckTheme {
   accent?: string;
   dark?: boolean;
+  pronouns?: string;
+  location?: string;
 }
 
 export interface Deck {

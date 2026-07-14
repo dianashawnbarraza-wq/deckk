@@ -58,12 +58,14 @@ function Field({
   onChange,
   low,
   multiline,
+  rows = 2,
 }: {
   label: string;
   value: string;
   onChange: (v: string) => void;
   low?: boolean;
   multiline?: boolean;
+  rows?: number;
 }) {
   const cls = cn(
     "w-full rounded-lg border bg-page px-2.5 py-2 text-[13px] text-foreground outline-none",
@@ -84,7 +86,7 @@ function Field({
         <textarea
           value={value}
           onChange={(e) => onChange(e.target.value)}
-          rows={2}
+          rows={rows}
           className={cn(cls, "resize-none")}
         />
       ) : (
@@ -94,7 +96,12 @@ function Field({
   );
 }
 
-export function StudioApp({ deck }: { deck: Deck }) {
+export function StudioApp({ deck: initialDeck }: { deck: Deck }) {
+  const [deck, setDeck] = useState(initialDeck);
+  const [bio, setBio] = useState(initialDeck.bio ?? "");
+  const [pronouns, setPronouns] = useState(initialDeck.theme?.pronouns ?? "");
+  const [location, setLocation] = useState(initialDeck.theme?.location ?? "");
+  const [savingProfile, setSavingProfile] = useState(false);
   const [cards, setCards] = useState<Card[]>([]);
   const [composer, setComposer] = useState("");
   const [hintIndex, setHintIndex] = useState(0);
@@ -156,6 +163,40 @@ export function StudioApp({ deck }: { deck: Deck }) {
   function showToast(msg: string) {
     setToast(msg);
     setTimeout(() => setToast(null), 1900);
+  }
+
+  async function saveProfile() {
+    setSavingProfile(true);
+    try {
+      const res = await fetch("/api/decks", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          bio: bio.trim(),
+          pronouns: pronouns.trim() || null,
+          location: location.trim() || null,
+        }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        showToast(data.error ?? "Could not save profile");
+        return;
+      }
+      if (data.deck) {
+        setDeck((prev) => ({
+          ...prev,
+          bio: data.deck.bio ?? prev.bio,
+          theme: {
+            ...(typeof data.deck.theme === "object" && data.deck.theme
+              ? data.deck.theme
+              : prev.theme),
+          },
+        }));
+      }
+      showToast("Profile saved");
+    } finally {
+      setSavingProfile(false);
+    }
   }
 
   function clearAttachment() {
@@ -368,6 +409,27 @@ export function StudioApp({ deck }: { deck: Deck }) {
               Turn your flyers, images, ideas into beautiful event pages, shop
               listings, and a home for everything you share.
             </p>
+
+            <div className="mt-5 rounded-[16px] border border-deck-card-brd bg-deck-card p-3.5 backdrop-blur-xl">
+              <p className="mb-3 text-[9px] font-bold tracking-[0.18em] text-primary uppercase">
+                Profile
+              </p>
+              <div className="space-y-3">
+                <Field label="Bio" value={bio} onChange={setBio} multiline rows={4} />
+                <div className="grid grid-cols-2 gap-2.5">
+                  <Field label="Pronouns" value={pronouns} onChange={setPronouns} />
+                  <Field label="Location" value={location} onChange={setLocation} />
+                </div>
+                <button
+                  type="button"
+                  onClick={() => void saveProfile()}
+                  disabled={savingProfile}
+                  className="w-full rounded-full bg-primary px-4 py-2.5 text-[13px] font-semibold text-primary-foreground transition-opacity hover:opacity-90 disabled:opacity-50"
+                >
+                  {savingProfile ? "Saving…" : "Save profile"}
+                </button>
+              </div>
+            </div>
 
             <div className="mt-4 rounded-[16px] border-[1.5px] border-foreground bg-glass-strong px-1.5 py-1.5 shadow-lg backdrop-blur-xl">
               {attachment && (

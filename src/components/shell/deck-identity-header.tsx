@@ -74,7 +74,7 @@ function ShareIconButton({ shareUrl, title }: { shareUrl: string; title: string 
 }
 
 interface DeckIdentityHeaderProps {
-  deck: Pick<Deck, "display_name" | "bio" | "avatar_url" | "handle">;
+  deck: Pick<Deck, "display_name" | "bio" | "avatar_url" | "handle" | "theme">;
   condensed?: boolean;
   eyebrow?: string;
   showBio?: boolean;
@@ -191,6 +191,25 @@ export function DeckIdentityHeader({
               {deck.display_name}
             </h1>
           </div>
+          {showBio && (deck.theme?.pronouns || deck.theme?.location) && (
+            <div
+              className={cn(
+                "mt-2.5 flex flex-wrap gap-1.5",
+                !condensed && "justify-center"
+              )}
+            >
+              {deck.theme?.pronouns && (
+                <span className="rounded-full border border-deck-card-brd bg-deck-card px-2.5 py-1 text-[11px] font-semibold tracking-wide text-foreground">
+                  {deck.theme.pronouns}
+                </span>
+              )}
+              {deck.theme?.location && (
+                <span className="rounded-full border border-deck-card-brd bg-deck-card px-2.5 py-1 text-[11px] font-semibold tracking-wide text-foreground">
+                  {deck.theme.location}
+                </span>
+              )}
+            </div>
+          )}
           {showBio && deck.bio && (
             <p className="mt-3 text-[14.5px] leading-snug text-dim">{deck.bio}</p>
           )}

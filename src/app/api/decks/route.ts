@@ -70,6 +70,8 @@ const patchSchema = z.object({
   bio: z.string().max(500).optional(),
   avatarUrl: z.string().url().nullable().optional(),
   theme: z.record(z.string(), z.unknown()).optional(),
+  pronouns: z.string().max(40).nullable().optional(),
+  location: z.string().max(80).nullable().optional(),
 });
 
 export async function PATCH(request: Request) {
@@ -84,11 +86,33 @@ export async function PATCH(request: Request) {
     return NextResponse.json({ error: "Invalid input" }, { status: 400 });
   }
 
+  const current = await getDeckByUserId(supabase, user.id);
+  if (!current) return NextResponse.json({ error: "No deck" }, { status: 404 });
+
   const updates: Record<string, unknown> = {};
   if (parsed.data.displayName !== undefined) updates.display_name = parsed.data.displayName;
   if (parsed.data.bio !== undefined) updates.bio = parsed.data.bio;
   if (parsed.data.avatarUrl !== undefined) updates.avatar_url = parsed.data.avatarUrl;
-  if (parsed.data.theme !== undefined) updates.theme = parsed.data.theme;
+
+  const themePatch: Record<string, unknown> = {
+    ...(typeof current.theme === "object" && current.theme ? current.theme : {}),
+  };
+  let themeChanged = false;
+  if (parsed.data.theme !== undefined) {
+    Object.assign(themePatch, parsed.data.theme);
+    themeChanged = true;
+  }
+  if (parsed.data.pronouns !== undefined) {
+    if (parsed.data.pronouns) themePatch.pronouns = parsed.data.pronouns;
+    else delete themePatch.pronouns;
+    themeChanged = true;
+  }
+  if (parsed.data.location !== undefined) {
+    if (parsed.data.location) themePatch.location = parsed.data.location;
+    else delete themePatch.location;
+    themeChanged = true;
+  }
+  if (themeChanged) updates.theme = themePatch;
 
   if (Object.keys(updates).length === 0) {
     return NextResponse.json({ error: "Nothing to update" }, { status: 400 });

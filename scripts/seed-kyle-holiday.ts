@@ -52,6 +52,14 @@ const BONES_PATH = resolve(
   ASSET_ROOT,
   "Bones-f0a13262-201b-441e-b4c4-58a46bcfd8d1.png"
 );
+const BARBED_PATH = resolve(
+  ASSET_ROOT,
+  "Kyle_Holiday_Custom_Barbed_Wire_Tag-399a8492-8378-423e-aa9d-cfe2bfb135c0.png"
+);
+const HEART_PATH = resolve(
+  ASSET_ROOT,
+  "Heart_Kyle_Holiday_Thumb-5f70d5b9-4c42-49d2-a3ea-524032b0a1fb.png"
+);
 
 type SeedCard = {
   type: "event" | "item" | "link";
@@ -68,7 +76,7 @@ type SeedCard = {
   featured?: boolean;
   position: number;
   tags: string[];
-  mediaKey?: "kinkteria" | "rivet" | "tee" | "bones";
+  mediaKey?: "kinkteria" | "rivet" | "tee" | "bones" | "barbed" | "heart";
 };
 
 const cards: SeedCard[] = [
@@ -165,7 +173,7 @@ const cards: SeedCard[] = [
     date_end: null,
     location_name: null,
     location_address: null,
-    cta_label: "Shop Etsy",
+    cta_label: "Shop on Etsy",
     cta_url:
       "https://www.etsy.com/listing/1784936319/personalized-puppy-play-collar-tag",
     price: 12,
@@ -184,7 +192,7 @@ const cards: SeedCard[] = [
     date_end: null,
     location_name: null,
     location_address: null,
-    cta_label: "Shop Etsy",
+    cta_label: "Shop on Etsy",
     cta_url:
       "https://www.etsy.com/listing/1836159961/personalized-puppy-play-collar-tag",
     price: 12,
@@ -192,18 +200,18 @@ const cards: SeedCard[] = [
     featured: true,
     position: 12,
     tags: ["pet-play", "tags", "featured"],
-    mediaKey: "bones",
+    mediaKey: "barbed",
   },
   {
     type: "item",
     title: "Heart-Shaped Custom Tag",
     description:
-      "Custom heart pet play tag — engraved acrylic, made to order.",
+      "Custom heart pet play tag — engraved acrylic, made to order. 2 font styles, 3 sizes, 17 colors (incl glow + pastels).",
     date_start: null,
     date_end: null,
     location_name: null,
     location_address: null,
-    cta_label: "Shop Etsy",
+    cta_label: "Shop on Etsy",
     cta_url:
       "https://www.etsy.com/listing/1840728495/custom-heart-pet-play-tag-engraved",
     price: 12,
@@ -211,6 +219,7 @@ const cards: SeedCard[] = [
     featured: true,
     position: 13,
     tags: ["pet-play", "tags", "featured", "heart"],
+    mediaKey: "heart",
   },
   {
     type: "link",
@@ -302,8 +311,11 @@ async function uploadPublic(
   }
   const buffer = readFileSync(localPath);
   const path = `${userId}/seed-${filename}`;
+  const contentType = filename.toLowerCase().endsWith(".jpg") || filename.toLowerCase().endsWith(".jpeg")
+    ? "image/jpeg"
+    : "image/png";
   const { error } = await admin.storage.from("deckk-uploads").upload(path, buffer, {
-    contentType: "image/png",
+    contentType,
     upsert: true,
   });
   if (error) {
@@ -349,12 +361,16 @@ async function main() {
   const rivetUrl = await uploadPublic(admin, user.id, RIVET_PATH, `rivet-flyer-${Date.now()}.png`);
   const teeUrl = await uploadPublic(admin, user.id, TEE_PATH, `tee-${Date.now()}.png`);
   const bonesUrl = await uploadPublic(admin, user.id, BONES_PATH, `bones-${Date.now()}.png`);
+  const barbedUrl = await uploadPublic(admin, user.id, BARBED_PATH, `barbed-${Date.now()}.jpg`);
+  const heartUrl = await uploadPublic(admin, user.id, HEART_PATH, `heart-${Date.now()}.jpg`);
 
   const mediaMap = {
     kinkteria: kinkteriaUrl,
     rivet: rivetUrl,
     tee: teeUrl,
     bones: bonesUrl,
+    barbed: barbedUrl,
+    heart: heartUrl,
   };
 
   const existing = await admin
@@ -367,11 +383,11 @@ async function main() {
   const deckPayload = {
     handle: HANDLE,
     display_name: "Kyle Holiday",
-    bio: "Mx. Cruise LA Leather 2026 (they/he). Latine artist, leatherworker, pet play accessory maker & kinkster. Find me every 3rd Saturday at Cruise LA (Eagle LA).",
+    bio: "Mx. Cruise LA Leather 2026. I'm a Latine artist making leather gear, pet play tags, and custom framed art. Find me at Cruise LA every 3rd Saturday.",
     avatar_url: avatarUrl,
     is_published: true,
     timezone: "America/Los_Angeles",
-    theme: { accent: "grape" },
+    theme: { accent: "grape", pronouns: "they/he", location: "Los Angeles" },
   };
 
   let deckId = existing.data?.id as string | undefined;

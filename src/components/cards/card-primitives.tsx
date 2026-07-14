@@ -84,6 +84,7 @@ function priceChip(card: Card): string {
 
 function ctaLabel(card: Card): string | null {
   if (!card.cta_url) return null;
+  if (/etsy\.com/i.test(card.cta_url)) return "Shop on Etsy";
   const label = (card.cta_label ?? "").trim();
   if (/rsvp/i.test(label)) return "RSVP";
   if (/ticket/i.test(label)) return "Tickets";
@@ -92,6 +93,12 @@ function ctaLabel(card: Card): string | null {
     if (label.length <= 14) return label;
   }
   return "Details";
+}
+
+function shopCtaLabel(card: Card): string | null {
+  if (!card.cta_url && !card.cta_label) return null;
+  if (card.cta_url && /etsy\.com/i.test(card.cta_url)) return "Shop on Etsy";
+  return (card.cta_label ?? "").trim() || "Shop";
 }
 
 function formatTimeRange(start: Date, end: Date | null): string {
@@ -216,6 +223,7 @@ export function ItemCardGrid({ card }: { card: Card }) {
   const image = card.media[0]?.url;
   const price = card.price != null ? `$${Number(card.price).toFixed(0)}` : null;
   const starred = card.featured || card.tags.includes("featured");
+  const action = shopCtaLabel(card);
 
   const body = (
     <>
@@ -239,9 +247,9 @@ export function ItemCardGrid({ card }: { card: Card }) {
         )}
         <div className="mt-2 flex items-center justify-between gap-2">
           {price && <div className="text-sm font-semibold text-foreground">{price}</div>}
-          {card.cta_label && (
+          {action && (
             <span className="ml-auto rounded-full bg-primary px-3 py-1.5 text-[12px] font-semibold text-primary-foreground">
-              {card.cta_label}
+              {action}
             </span>
           )}
         </div>
@@ -306,6 +314,7 @@ export function SocialIconLink({ card }: { card: Card }) {
   const kind = card.title || "Link";
   const payment = detectPaymentKind(card);
   const isPayment = payment !== "generic";
+  const isVenmo = payment === "venmo";
   return (
     <a
       href={card.cta_url ?? "#"}
@@ -313,10 +322,15 @@ export function SocialIconLink({ card }: { card: Card }) {
       rel="noopener noreferrer"
       title={kind}
       aria-label={kind}
-      className="flex size-10 items-center justify-center rounded-full border border-deck-card-brd bg-deck-card text-foreground transition-opacity hover:opacity-80"
+      className={cn(
+        "flex size-10 items-center justify-center rounded-full border transition-opacity hover:opacity-80",
+        isVenmo
+          ? "border-transparent bg-[#008CFF] text-white"
+          : "border-deck-card-brd bg-deck-card text-foreground"
+      )}
     >
       {isPayment ? (
-        <PaymentBrandIcon card={card} className="size-[18px]" />
+        <PaymentBrandIcon card={card} className={isVenmo ? "size-[15px]" : "size-[18px]"} />
       ) : (
         <SocialBrandIcon card={card} className="size-[18px]" />
       )}

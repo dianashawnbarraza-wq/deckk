@@ -115,7 +115,8 @@
   --deck-card: rgba(255, 255, 255, 0.06);
   --deck-card-brd: rgba(255, 255, 255, 0.13);
   --deck-nav: rgba(26, 23, 20, 0.55);
-  --accent: #a98bff;
+  /* Hot electric magenta-violet — AA+ on dark page as text; dark labels on primary fills */
+  --accent: #ff3bf1;
   --accent-2: #cba25a;
   --phone-brd: rgba(255, 255, 255, 0.13);
   --deck-shadow: rgba(0, 0, 0, 0.55);
@@ -128,12 +129,12 @@
   --popover: var(--glass-strong);
   --popover-foreground: #ffffff;
   --primary: var(--accent);
-  --primary-foreground: #ffffff;
+  --primary-foreground: #0a0012;
   --secondary: var(--page);
   --secondary-foreground: #ffffff;
   --muted: var(--page);
   --muted-foreground: var(--dim);
-  --accent-foreground: #ffffff;
+  --accent-foreground: #0a0012;
   --border: var(--deck-card-brd);
   --input: var(--deck-card-brd);
   --ring: var(--accent);
@@ -253,7 +254,7 @@
   }
 }
 
-/* Dark mode: headers + primary button labels stay white */
+/* Dark mode: headers stay white; primary fills use near-black on electric violet */
 .dark h1,
 .dark h2,
 .dark h3 {
@@ -263,7 +264,7 @@
 .dark .bg-primary,
 .dark button.bg-primary,
 .dark a.bg-primary {
-  color: #ffffff;
+  color: #0a0012;
 }
 
 @keyframes deck-logo-levitate {
