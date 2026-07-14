@@ -1,5 +1,5 @@
 /**
- * Seed thekyleholiday deck from kyleholiday.com content + flyer assets.
+ * Seed kyleholiday deck from kyleholiday.com content + flyer assets.
  * Run: npx tsx scripts/seed-kyle-holiday.ts
  */
 import { createClient } from "@supabase/supabase-js";
@@ -25,7 +25,8 @@ function loadEnv() {
 loadEnv();
 
 const EMAIL = "kyle@deckk.me";
-const HANDLE = "thekyleholiday";
+const HANDLE = "kyleholiday";
+const LEGACY_HANDLE = "thekyleholiday";
 
 const ASSET_ROOT = resolve(
   process.env.HOME || "",
@@ -361,7 +362,7 @@ async function main() {
   const existing = await admin
     .from("decks")
     .select("id, handle")
-    .eq("handle", HANDLE)
+    .or(`handle.eq.${HANDLE},handle.eq.${LEGACY_HANDLE}`)
     .maybeSingle();
   if (existing.error) throw existing.error;
 
@@ -376,6 +377,7 @@ async function main() {
   };
 
   let deckId = existing.data?.id as string | undefined;
+  const previousHandle = existing.data?.handle as string | undefined;
   if (!deckId) {
     const byUser = await admin
       .from("decks")
@@ -387,7 +389,7 @@ async function main() {
         .from("decks")
         .update(deckPayload)
         .eq("id", byUser.data.id)
-        .select("id")
+        .select("id, handle")
         .single();
       if (upd.error) throw upd.error;
       deckId = upd.data.id;
@@ -406,6 +408,19 @@ async function main() {
     const upd = await admin.from("decks").update(deckPayload).eq("id", deckId);
     if (upd.error) throw upd.error;
     console.log(`Deck /${HANDLE} refreshed (avatar: ${avatarUrl ? "yes" : "no"})`);
+  }
+
+  if (previousHandle && previousHandle !== HANDLE) {
+    const redirect = await admin.from("deck_handle_redirects").upsert(
+      {
+        old_handle: previousHandle,
+        deck_id: deckId,
+        expires_at: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString(),
+      },
+      { onConflict: "old_handle" }
+    );
+    if (redirect.error) console.warn(`Redirect warn: ${redirect.error.message}`);
+    else console.log(`Redirect /${previousHandle} → /${HANDLE}`);
   }
 
   const del = await admin.from("cards").delete().eq("deck_id", deckId);
