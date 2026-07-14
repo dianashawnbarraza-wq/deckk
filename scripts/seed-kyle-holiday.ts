@@ -1,9 +1,9 @@
 /**
- * Seed thekyleholiday deck from kyleholiday.com content.
+ * Seed thekyleholiday deck from kyleholiday.com content + flyer assets.
  * Run: npx tsx scripts/seed-kyle-holiday.ts
  */
 import { createClient } from "@supabase/supabase-js";
-import { readFileSync } from "fs";
+import { readFileSync, existsSync } from "fs";
 import { resolve } from "path";
 
 function loadEnv() {
@@ -27,25 +27,79 @@ loadEnv();
 const EMAIL = "kyle@deckk.me";
 const HANDLE = "thekyleholiday";
 
-const cards = [
+const ASSET_ROOT = resolve(
+  process.env.HOME || "",
+  ".cursor/projects/Users-shawn-deckkme/assets"
+);
+
+const AVATAR_PATH = resolve(
+  ASSET_ROOT,
+  "Kyle_holiday-6a338062-ef79-4d0e-92db-5bdd139ebc73.png"
+);
+const KINKTERIA_PATH = resolve(
+  ASSET_ROOT,
+  "Kinkteria_Cruise_LA_July_2026-a16cf429-fa5e-42f9-94ec-bc8761798496.png"
+);
+const RIVET_PATH = resolve(
+  ASSET_ROOT,
+  "image-f8aa62af-f7de-45c0-8e22-cf807424c8b8.png"
+);
+
+type SeedCard = {
+  type: "event" | "item" | "link";
+  title: string;
+  description: string;
+  date_start: string | null;
+  date_end: string | null;
+  location_name: string | null;
+  location_address: string | null;
+  cta_label: string | null;
+  cta_url: string | null;
+  price: number | null;
+  pinned: boolean;
+  featured?: boolean;
+  position: number;
+  tags: string[];
+  mediaKey?: "kinkteria" | "rivet";
+};
+
+const cards: SeedCard[] = [
   {
-    type: "event" as const,
+    type: "event",
+    title: "KINKTERIA",
+    description:
+      "Mx. Cruise LA Leather 2026 x Machete present KINKTERIA — lotería-style play for prizes on the patio. @kinkteria",
+    date_start: "2026-07-18T16:00:00-07:00",
+    date_end: "2026-07-18T17:30:00-07:00",
+    location_name: "Cruise LA",
+    location_address: null, // missing on flyer — product should prompt for this
+    cta_label: "Details",
+    cta_url: "https://www.instagram.com/kinkteria",
+    price: null,
+    pinned: false,
+    position: 0,
+    tags: ["cruise-la", "loteria", "machete"],
+    mediaKey: "kinkteria",
+  },
+  {
+    type: "event",
     title: "RIVET: Collars + Mosh Party",
     description:
-      "Co-host with Shayn (International Trainer 2026) at Devil Mask Studio — make a collar (supplies & snacks provided); mosh starts at 8 PM.",
+      "Co-host with Shayn (International Trainer 2026) — make a collar, supplies and snacks provided, mosh starts at 8 PM. Hosted by Shayn & Kyle (Mr. Cruise LA Leather 2024).",
     date_start: "2026-07-22T18:00:00-07:00",
     date_end: "2026-07-22T22:00:00-07:00",
     location_name: "Devil Mask Studio",
-    location_address: null,
-    cta_label: "RSVP",
+    location_address: "313 W 118th Street",
+    cta_label: "Craft + Mosh RSVP",
     cta_url: "https://kyleholiday.com/",
     price: null,
     pinned: true,
-    position: 0,
+    position: 1,
     tags: ["leather", "craft", "mosh"],
+    mediaKey: "rivet",
   },
   {
-    type: "event" as const,
+    type: "event",
     title: "Strap Social",
     description:
       "Host with Patricia Nyx (Chains of Love) — for leather queers, freaks, pups & pets.",
@@ -57,11 +111,11 @@ const cards = [
     cta_url: "https://kyleholiday.com/",
     price: null,
     pinned: false,
-    position: 1,
+    position: 2,
     tags: ["leather", "social"],
   },
   {
-    type: "event" as const,
+    type: "event",
     title: "Cruise LA at the Eagle",
     description: "Every 3rd Saturday community night at Eagle LA.",
     date_start: "2026-06-20T19:00:00-07:00",
@@ -72,26 +126,11 @@ const cards = [
     cta_url: "https://kyleholiday.com/",
     price: null,
     pinned: false,
-    position: 2,
+    position: 3,
     tags: ["cruise-la"],
   },
   {
-    type: "event" as const,
-    title: "Leather Beast",
-    description: "Vending at Bullet Bar.",
-    date_start: "2026-06-18T18:00:00-07:00",
-    date_end: "2026-06-18T23:00:00-07:00",
-    location_name: "Bullet Bar",
-    location_address: null,
-    cta_label: "Details",
-    cta_url: "https://kyleholiday.com/",
-    price: null,
-    pinned: false,
-    position: 3,
-    tags: ["vending"],
-  },
-  {
-    type: "item" as const,
+    type: "item",
     title: "Trans Leather Babes Tee",
     description:
       "Title t-shirt celebrating trans joy in leather — four-color screenprint by Kyle on a super soft tee.",
@@ -103,11 +142,12 @@ const cards = [
     cta_url: "https://www.etsy.com/shop/KyleHoliday",
     price: null,
     pinned: false,
+    featured: true,
     position: 10,
-    tags: ["apparel", "new"],
+    tags: ["apparel", "new", "featured"],
   },
   {
-    type: "item" as const,
+    type: "item",
     title: "Pet Play Tags & Leather",
     description:
       "Custom engraved acrylic bone tags, collars, and handmade leather — new pet play tag styles live on Etsy.",
@@ -119,11 +159,12 @@ const cards = [
     cta_url: "https://www.etsy.com/shop/KyleHoliday",
     price: 12,
     pinned: false,
+    featured: true,
     position: 11,
-    tags: ["pet-play", "tags"],
+    tags: ["pet-play", "tags", "featured"],
   },
   {
-    type: "link" as const,
+    type: "link",
     title: "Instagram",
     description: "@thekyleholiday",
     date_start: null,
@@ -138,7 +179,7 @@ const cards = [
     tags: ["social"],
   },
   {
-    type: "link" as const,
+    type: "link",
     title: "TikTok",
     description: "@thekyleholiday",
     date_start: null,
@@ -153,7 +194,7 @@ const cards = [
     tags: ["social"],
   },
   {
-    type: "link" as const,
+    type: "link",
     title: "Tip jar · Venmo",
     description: "Support via Venmo @mxholiday",
     date_start: null,
@@ -168,7 +209,22 @@ const cards = [
     tags: ["support"],
   },
   {
-    type: "link" as const,
+    type: "link",
+    title: "Fansly",
+    description: "18+ content",
+    date_start: null,
+    date_end: null,
+    location_name: null,
+    location_address: null,
+    cta_label: "Enter",
+    cta_url: "https://fansly.com/",
+    price: null,
+    pinned: false,
+    position: 24,
+    tags: ["adult", "18+"],
+  },
+  {
+    type: "link",
     title: "kyleholiday.com",
     description: "Full site — art, events, and shop",
     date_start: null,
@@ -184,6 +240,31 @@ const cards = [
   },
 ];
 
+async function uploadPublic(
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  admin: any,
+  userId: string,
+  localPath: string,
+  filename: string
+): Promise<string | null> {
+  if (!existsSync(localPath)) {
+    console.warn(`Missing asset: ${localPath}`);
+    return null;
+  }
+  const buffer = readFileSync(localPath);
+  const path = `${userId}/seed-${filename}`;
+  const { error } = await admin.storage.from("deckk-uploads").upload(path, buffer, {
+    contentType: "image/png",
+    upsert: true,
+  });
+  if (error) {
+    console.warn(`Upload failed for ${filename}: ${error.message}`);
+    return null;
+  }
+  const { data } = admin.storage.from("deckk-uploads").getPublicUrl(path);
+  return data.publicUrl;
+}
+
 async function main() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
@@ -195,7 +276,8 @@ async function main() {
     auth: { autoRefreshToken: false, persistSession: false },
   });
 
-  // Find or create auth user
+  // Featured column applied via migration SQL when available; tags also mark featured.
+
   const listed = await admin.auth.admin.listUsers({ page: 1, perPage: 1000 });
   if (listed.error) throw listed.error;
   let user = listed.data.users.find((u) => u.email === EMAIL);
@@ -213,7 +295,15 @@ async function main() {
     console.log("Using existing Kyle auth user");
   }
 
-  // Upsert deck by handle
+  const avatarUrl = await uploadPublic(admin, user.id, AVATAR_PATH, "kyle-avatar.png");
+  const kinkteriaUrl = await uploadPublic(admin, user.id, KINKTERIA_PATH, "kinkteria.png");
+  const rivetUrl = await uploadPublic(admin, user.id, RIVET_PATH, "rivet-flyer.png");
+
+  const mediaMap = {
+    kinkteria: kinkteriaUrl,
+    rivet: rivetUrl,
+  };
+
   const existing = await admin
     .from("decks")
     .select("id, handle")
@@ -221,9 +311,18 @@ async function main() {
     .maybeSingle();
   if (existing.error) throw existing.error;
 
+  const deckPayload = {
+    handle: HANDLE,
+    display_name: "Kyle Holiday",
+    bio: "Mx. Cruise LA Leather 2026 (they/he). Latine artist, leatherworker, pet play accessory maker & kinkster. Find me every 3rd Saturday at Cruise LA (Eagle LA).",
+    avatar_url: avatarUrl,
+    is_published: true,
+    timezone: "America/Los_Angeles",
+    theme: { accent: "grape" },
+  };
+
   let deckId = existing.data?.id as string | undefined;
   if (!deckId) {
-    // Also check if this user already has a different deck (unique user_id)
     const byUser = await admin
       .from("decks")
       .select("id, handle")
@@ -232,14 +331,7 @@ async function main() {
     if (byUser.data) {
       const upd = await admin
         .from("decks")
-        .update({
-          handle: HANDLE,
-          display_name: "Kyle Holiday",
-          bio: "Mx. Cruise LA Leather 2026 (they/he). Latine artist, leatherworker, pet play accessory maker & kinkster. Find me every 3rd Saturday at Cruise LA (Eagle LA).",
-          is_published: true,
-          timezone: "America/Los_Angeles",
-          theme: { accent: "grape" },
-        })
+        .update(deckPayload)
         .eq("id", byUser.data.id)
         .select("id")
         .single();
@@ -249,15 +341,7 @@ async function main() {
     } else {
       const ins = await admin
         .from("decks")
-        .insert({
-          user_id: user.id,
-          handle: HANDLE,
-          display_name: "Kyle Holiday",
-          bio: "Mx. Cruise LA Leather 2026 (they/he). Latine artist, leatherworker, pet play accessory maker & kinkster. Find me every 3rd Saturday at Cruise LA (Eagle LA).",
-          is_published: true,
-          timezone: "America/Los_Angeles",
-          theme: { accent: "grape" },
-        })
+        .insert({ user_id: user.id, ...deckPayload })
         .select("id")
         .single();
       if (ins.error) throw ins.error;
@@ -265,49 +349,51 @@ async function main() {
       console.log(`Created deck /${HANDLE}`);
     }
   } else {
-    const upd = await admin
-      .from("decks")
-      .update({
-        display_name: "Kyle Holiday",
-        bio: "Mx. Cruise LA Leather 2026 (they/he). Latine artist, leatherworker, pet play accessory maker & kinkster. Find me every 3rd Saturday at Cruise LA (Eagle LA).",
-        is_published: true,
-        timezone: "America/Los_Angeles",
-      })
-      .eq("id", deckId);
+    const upd = await admin.from("decks").update(deckPayload).eq("id", deckId);
     if (upd.error) throw upd.error;
-    console.log(`Deck /${HANDLE} already exists — refreshing profile`);
+    console.log(`Deck /${HANDLE} refreshed (avatar: ${avatarUrl ? "yes" : "no"})`);
   }
 
-  // Replace cards for a clean import
   const del = await admin.from("cards").delete().eq("deck_id", deckId);
   if (del.error) throw del.error;
 
-  const rows = cards.map((c) => ({
-    deck_id: deckId,
-    type: c.type,
-    title: c.title,
-    description: c.description,
-    media: [],
-    date_start: c.date_start,
-    date_end: c.date_end,
-    location_name: c.location_name,
-    location_address: c.location_address,
-    cta_label: c.cta_label,
-    cta_url: c.cta_url,
-    price: c.price,
-    currency: "usd",
-    tags: c.tags,
-    pinned: c.pinned,
-    status: "live",
-    position: c.position,
-    source: "manual",
-  }));
+  const rows = cards.map((c) => {
+    const mediaUrl = c.mediaKey ? mediaMap[c.mediaKey] : null;
+    return {
+      deck_id: deckId,
+      type: c.type,
+      title: c.title,
+      description: c.description,
+      media: mediaUrl ? [{ url: mediaUrl }] : [],
+      date_start: c.date_start,
+      date_end: c.date_end,
+      location_name: c.location_name,
+      location_address: c.location_address,
+      cta_label: c.cta_label,
+      cta_url: c.cta_url,
+      price: c.price,
+      currency: "usd",
+      tags: c.tags,
+      pinned: c.pinned,
+      featured: c.featured ?? false,
+      status: "live",
+      position: c.position,
+      source: c.mediaKey ? "extracted" : "manual",
+    };
+  });
 
-  const inserted = await admin.from("cards").insert(rows).select("id, type, title");
+  let inserted = await admin.from("cards").insert(rows).select("id, type, title");
+  if (inserted.error && /featured/i.test(inserted.error.message)) {
+    const withoutFeatured = rows.map(({ featured: _f, ...rest }) => rest);
+    inserted = await admin.from("cards").insert(withoutFeatured).select("id, type, title");
+  }
   if (inserted.error) throw inserted.error;
 
   console.log(`Imported ${inserted.data?.length ?? 0} cards`);
   console.log(`Public deck: https://deckkme.vercel.app/${HANDLE}`);
+  console.log(
+    "Note: KINKTERIA is missing a street address — Studio extract UX now prompts for missing address."
+  );
 }
 
 main().catch((e) => {

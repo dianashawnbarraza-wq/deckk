@@ -19,6 +19,19 @@ export function GlassCard({
     className
   );
   if (href) {
+    const external = /^https?:\/\//i.test(href);
+    if (external) {
+      return (
+        <a
+          href={href}
+          target="_blank"
+          rel="noopener noreferrer"
+          className={cn(cls, "block transition-opacity hover:opacity-90")}
+        >
+          {children}
+        </a>
+      );
+    }
     return (
       <Link href={href} className={cn(cls, "block transition-opacity hover:opacity-90")}>
         {children}
@@ -56,15 +69,31 @@ export function EventCardRow({ card }: { card: Card }) {
   const meta = [card.location_name, card.cta_label].filter(Boolean).join(" · ");
   const price =
     card.price != null ? `$${Number(card.price).toFixed(0)}` : card.cta_label ?? "Free";
+  const flyer = card.media[0]?.url;
+  const timeLabel = card.date_start
+    ? format(new Date(card.date_start), "M/d/yy, h:mm a").replace(" AM", " AM").replace(" PM", " PM")
+    : null;
 
   return (
     <GlassCard
       href={card.cta_url ?? undefined}
-      className="flex items-center gap-3"
+      className="flex items-center gap-3 overflow-hidden p-2.5"
     >
-      <EventDateChip card={card} />
-      <div className="min-w-0 flex-1">
-        <div className="mb-1 flex items-center gap-1.5">
+      {flyer ? (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
+          src={flyer}
+          alt=""
+          className="h-[88px] w-[64px] shrink-0 rounded-xl object-cover"
+        />
+      ) : (
+        <EventDateChip card={card} />
+      )}
+      <div className="min-w-0 flex-1 py-0.5">
+        {timeLabel && (
+          <div className="mb-1 text-[11px] font-semibold text-primary">{timeLabel}</div>
+        )}
+        <div className="mb-1 flex flex-wrap items-center gap-1.5">
           <span className="rounded-full border border-deck-card-brd px-1.5 py-0.5 text-[9px] font-bold tracking-wide text-dim uppercase">
             {card.type}
           </span>
@@ -74,6 +103,9 @@ export function EventCardRow({ card }: { card: Card }) {
         </div>
         <div className="font-display text-lg leading-tight text-foreground">{card.title}</div>
         {meta && <div className="mt-0.5 text-xs text-dim">{meta}</div>}
+        {card.description && (
+          <div className="mt-1 line-clamp-2 text-[11px] italic text-dim">{card.description}</div>
+        )}
       </div>
     </GlassCard>
   );
@@ -82,6 +114,7 @@ export function EventCardRow({ card }: { card: Card }) {
 export function ItemCardGrid({ card }: { card: Card }) {
   const image = card.media[0]?.url;
   const price = card.price != null ? `$${Number(card.price).toFixed(0)}` : null;
+  const starred = card.featured || card.tags.includes("featured");
 
   const body = (
     <>
@@ -91,6 +124,11 @@ export function ItemCardGrid({ card }: { card: Card }) {
           <img src={image} alt="" className="h-full w-full object-cover" />
         ) : (
           <div className="flex h-full items-center justify-center text-faint text-xs">No photo</div>
+        )}
+        {starred && (
+          <span className="absolute left-2 top-2 rounded-full bg-[#1b1813]/90 px-2 py-0.5 text-[10px] font-bold text-white">
+            ★ Featured
+          </span>
         )}
       </div>
       <div className="p-3">

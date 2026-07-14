@@ -43,6 +43,8 @@ export interface Card {
   currency: string | null;
   tags: string[];
   pinned: boolean;
+  /** Starred shop item — appear in Featured (max 4 per deck). Optional until migration applied. */
+  featured?: boolean;
   status: CardStatus;
   position: number | null;
   source: CardSource;
@@ -52,4 +54,4 @@ export interface Card {
   updated_at: string;
 }
 
-export type PublicTab = "home" | "events" | "shop";
+export type PublicTab = "home" | "events" | "shop" | "adult" | "listen" | "writing";

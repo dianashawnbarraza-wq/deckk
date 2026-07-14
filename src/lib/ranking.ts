@@ -1,4 +1,5 @@
-import type { Card } from "@/types/cards";
+import type { Card, PublicTab } from "@/types/cards";
+import { cardsInBucket, isFeaturedItem } from "@/lib/card-taxonomy";
 
 const MS_DAY = 86_400_000;
 const FRESH_ITEM_DAYS = 14;
@@ -49,6 +50,12 @@ export interface RankedCards {
   pinned: Card | null;
   happeningSoon: Card[];
   freshItems: Card[];
+  featuredItems: Card[];
+  socialLinks: Card[];
+  supportLinks: Card[];
+  adultLinks: Card[];
+  listenLinks: Card[];
+  writingLinks: Card[];
   evergreen: Card[];
   past: Card[];
 }
@@ -72,6 +79,25 @@ export function rankCards(cards: Card[], now: Date = new Date()): RankedCards {
     .filter((c) => isFreshItem(c, now))
     .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
 
+  const featuredItems = withoutPinned
+    .filter((c) => isFeaturedItem(c))
+    .sort((a, b) => (a.position ?? 999) - (b.position ?? 999))
+    .slice(0, 4);
+
+  const socialLinks = cardsInBucket(withoutPinned, "social");
+  const supportLinks = cardsInBucket(withoutPinned, "support");
+  const adultLinks = cardsInBucket(withoutPinned, "adult");
+  const listenLinks = cardsInBucket(withoutPinned, "listen");
+  const writingLinks = cardsInBucket(withoutPinned, "writing");
+
+  const reservedLinkIds = new Set([
+    ...socialLinks,
+    ...supportLinks,
+    ...adultLinks,
+    ...listenLinks,
+    ...writingLinks,
+  ].map((c) => c.id));
+  const featuredIds = new Set(featuredItems.map((c) => c.id));
   const freshIds = new Set(freshItems.map((c) => c.id));
   const timeIds = new Set(timeRanked.map((c) => c.id));
 
@@ -80,6 +106,8 @@ export function rankCards(cards: Card[], now: Date = new Date()): RankedCards {
       (c) =>
         !timeIds.has(c.id) &&
         !freshIds.has(c.id) &&
+        !featuredIds.has(c.id) &&
+        !reservedLinkIds.has(c.id) &&
         (c.type === "link" || c.type === "collection" || c.type === "item")
     )
     .sort((a, b) => (a.position ?? 999) - (b.position ?? 999));
@@ -96,15 +124,18 @@ export function rankCards(cards: Card[], now: Date = new Date()): RankedCards {
     pinned,
     happeningSoon: timeRanked.filter((c) => !isPast(c, now)),
     freshItems,
+    featuredItems,
+    socialLinks,
+    supportLinks,
+    adultLinks,
+    listenLinks,
+    writingLinks,
     evergreen,
     past,
   };
 }
 
-export function cardsForTab(
-  ranked: RankedCards,
-  tab: "home" | "events" | "shop"
-): Card[] {
+export function cardsForTab(ranked: RankedCards, tab: PublicTab): Card[] {
   if (tab === "events") {
     const pinnedEvent =
       ranked.pinned &&
@@ -114,14 +145,26 @@ export function cardsForTab(
     return [...pinnedEvent, ...ranked.happeningSoon, ...ranked.past];
   }
   if (tab === "shop") {
-    return [...ranked.freshItems, ...ranked.evergreen.filter((c) => c.type === "item")];
+    return [
+      ...ranked.featuredItems,
+      ...ranked.freshItems.filter((c) => !ranked.featuredItems.some((f) => f.id === c.id)),
+      ...ranked.evergreen.filter(
+        (c) => c.type === "item" && !ranked.featuredItems.some((f) => f.id === c.id)
+      ),
+    ];
   }
+  if (tab === "adult") return ranked.adultLinks;
+  if (tab === "listen") return ranked.listenLinks;
+  if (tab === "writing") return ranked.writingLinks;
+
   const seen = new Set<string>();
   const out: Card[] = [];
   for (const c of [
     ranked.pinned,
     ...ranked.happeningSoon,
+    ...ranked.featuredItems,
     ...ranked.freshItems,
+    ...ranked.supportLinks,
     ...ranked.evergreen,
   ]) {
     if (!c || seen.has(c.id)) continue;

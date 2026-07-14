@@ -5,7 +5,19 @@ const DECK_FIELDS =
   "id, user_id, handle, display_name, bio, avatar_url, theme, timezone, is_published, created_at, updated_at";
 
 const CARD_FIELDS =
+  "id, deck_id, type, title, description, media, date_start, date_end, location_name, location_address, cta_label, cta_url, price, currency, tags, pinned, featured, status, position, source, extraction_confidence, collection_id, created_at, updated_at";
+
+const CARD_FIELDS_LEGACY =
   "id, deck_id, type, title, description, media, date_start, date_end, location_name, location_address, cta_label, cta_url, price, currency, tags, pinned, status, position, source, extraction_confidence, collection_id, created_at, updated_at";
+
+function normalizeCard(row: Record<string, unknown>): Card {
+  const tags = Array.isArray(row.tags) ? (row.tags as string[]) : [];
+  const featured =
+    typeof row.featured === "boolean"
+      ? row.featured
+      : tags.includes("featured");
+  return { ...(row as unknown as Card), tags, featured };
+}
 
 export async function getDeckByUserId(
   supabase: SupabaseClient,
@@ -42,9 +54,20 @@ export async function getLiveCardsForDeck(
   if (!includeDrafts) {
     query = query.eq("status", "live");
   }
-  const { data, error } = await query.order("created_at", { ascending: false });
+  let { data, error } = await query.order("created_at", { ascending: false });
+
+  if (error && /featured/i.test(error.message)) {
+    let legacy = supabase.from("cards").select(CARD_FIELDS_LEGACY).eq("deck_id", deckId);
+    if (!includeDrafts) {
+      legacy = legacy.eq("status", "live");
+    }
+    const retry = await legacy.order("created_at", { ascending: false });
+    data = retry.data as typeof data;
+    error = retry.error;
+  }
+
   if (error || !data) return [];
-  return data as Card[];
+  return (data as Record<string, unknown>[]).map((row) => normalizeCard(row));
 }
 
 export async function deckExistsForUser(

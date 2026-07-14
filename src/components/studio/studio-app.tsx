@@ -1,13 +1,13 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Camera, ImageIcon, Plus, Send, Trash2, X } from "lucide-react";
+import { Camera, ImageIcon, Plus, Send, Star, Trash2, X } from "lucide-react";
 import type { Card, CardType, Deck } from "@/types/cards";
 import type { ExtractResult } from "@/lib/ai/extract-types";
 import { fileToDownscaledBlob } from "@/lib/ai/image-prep";
+import { missingEventFields } from "@/lib/card-taxonomy";
 import { PhoneShell } from "@/components/shell/phone-shell";
 import { DeckIdentityHeader } from "@/components/shell/deck-identity-header";
-import { BottomNav } from "@/components/shell/bottom-nav";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 
@@ -108,6 +108,9 @@ export function StudioApp({ deck }: { deck: Deck }) {
   } | null>(null);
   const [toast, setToast] = useState<string | null>(null);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [shareUrl, setShareUrl] = useState(
+    `https://deckkme.vercel.app/${deck.handle}`
+  );
   const menuRef = useRef<HTMLDivElement>(null);
   const cameraInputRef = useRef<HTMLInputElement>(null);
   const uploadInputRef = useRef<HTMLInputElement>(null);
@@ -123,6 +126,10 @@ export function StudioApp({ deck }: { deck: Deck }) {
   useEffect(() => {
     loadCards();
   }, [loadCards]);
+
+  useEffect(() => {
+    setShareUrl(`${window.location.origin}/${deck.handle}`);
+  }, [deck.handle]);
 
   useEffect(() => {
     const id = setInterval(() => setHintIndex((i) => (i + 1) % HINTS.length), 3000);
@@ -302,6 +309,23 @@ export function StudioApp({ deck }: { deck: Deck }) {
     await loadCards();
   }
 
+  async function toggleFeatured(card: Card) {
+    if (card.type !== "item") return;
+    const next = !(card.featured || card.tags.includes("featured"));
+    const res = await fetch(`/api/cards/${card.id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ featured: next }),
+    });
+    if (!res.ok) {
+      const data = await res.json().catch(() => ({}));
+      showToast(data.error ?? "Could not update featured");
+      return;
+    }
+    await loadCards();
+    showToast(next ? "Starred as featured ✦" : "Removed from featured");
+  }
+
   async function deleteCard(id: string) {
     await fetch(`/api/cards/${id}`, { method: "DELETE" });
     await loadCards();
@@ -310,17 +334,22 @@ export function StudioApp({ deck }: { deck: Deck }) {
 
   const basePath = `/${deck.handle}`;
   const conf = draft?.confidence ?? {};
+  const gaps = draft ? missingEventFields(draft) : [];
 
   return (
     <PhoneShell>
       <div className="relative flex h-full flex-col">
-        <div className="deckk-scroll-hide absolute inset-0 overflow-y-auto pb-36">
+        <div className="deckk-scroll-hide absolute inset-0 overflow-y-auto pb-28">
           <DeckIdentityHeader
             deck={deck}
             condensed
+            showBio={false}
+            showThemeToggle
+            shareUrl={shareUrl}
+            studioHref={null}
             actions={
               <Link
-                href={basePath}
+                href={`${basePath}?preview=1`}
                 className="rounded-full border border-deck-card-brd bg-deck-card px-3 py-1.5 text-xs font-semibold text-foreground backdrop-blur-md"
               >
                 View live
@@ -328,7 +357,7 @@ export function StudioApp({ deck }: { deck: Deck }) {
             }
           />
 
-          <div className="deckk-fade-up px-4 pb-4 pt-2">
+          <div className="deckk-fade-up px-4 pb-4 pt-4">
             <p className="mb-1 text-[9px] font-bold tracking-[0.18em] text-primary uppercase">
               ✦ Studio
             </p>
@@ -496,6 +525,27 @@ export function StudioApp({ deck }: { deck: Deck }) {
                     className="mb-3 h-28 w-full rounded-xl object-cover"
                   />
                 )}
+                {gaps.length > 0 && (
+                  <div className="mb-3 rounded-xl border border-[#d4a017]/60 bg-[#fff8e7] px-3 py-2.5">
+                    <p className="text-[11px] font-bold tracking-wide text-[#8a6a20] uppercase">
+                      Add what&apos;s missing
+                    </p>
+                    <p className="mt-0.5 text-[12px] text-[#8a6a20]/90">
+                      We grabbed what we could from the flyer — fill these in so people can find
+                      you.
+                    </p>
+                    <div className="mt-2 flex flex-wrap gap-1.5">
+                      {gaps.map((g) => (
+                        <span
+                          key={g.key}
+                          className="rounded-full border border-[#d4a017]/50 bg-white/70 px-2 py-0.5 text-[11px] font-semibold text-[#8a6a20]"
+                        >
+                          {g.label}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
                 <div className="space-y-2.5">
                   <Field
                     label="Title"
@@ -553,22 +603,49 @@ export function StudioApp({ deck }: { deck: Deck }) {
                         setDraft({ ...draft, dateStart: dateStart.trim() || null })
                       }
                       low={
-                        draft.source === "extracted" &&
-                        conf.date_start != null &&
-                        conf.date_start < LOW_CONFIDENCE
+                        (draft.source === "extracted" &&
+                          conf.date_start != null &&
+                          conf.date_start < LOW_CONFIDENCE) ||
+                        gaps.some((g) => g.key === "dateStart")
                       }
                     />
                     <Field
-                      label="Where"
+                      label="Venue"
                       value={draft.locationName ?? ""}
-                      onChange={(locationName) => setDraft({ ...draft, locationName })}
+                      onChange={(locationName) =>
+                        setDraft({ ...draft, locationName: locationName.trim() || null })
+                      }
                       low={
-                        draft.source === "extracted" &&
-                        conf.location_name != null &&
-                        conf.location_name < LOW_CONFIDENCE
+                        (draft.source === "extracted" &&
+                          conf.location_name != null &&
+                          conf.location_name < LOW_CONFIDENCE) ||
+                        gaps.some((g) => g.key === "locationName")
                       }
                     />
                   </div>
+                  {(draft.type === "event" || draft.type === "announcement" || gaps.length > 0) && (
+                    <>
+                      <Field
+                        label="Street address"
+                        value={draft.locationAddress ?? ""}
+                        onChange={(locationAddress) =>
+                          setDraft({
+                            ...draft,
+                            locationAddress: locationAddress.trim() || null,
+                          })
+                        }
+                        low={gaps.some((g) => g.key === "locationAddress")}
+                      />
+                      <Field
+                        label="RSVP / ticket link"
+                        value={draft.ctaUrl ?? ""}
+                        onChange={(ctaUrl) =>
+                          setDraft({ ...draft, ctaUrl: ctaUrl.trim() || null })
+                        }
+                        low={gaps.some((g) => g.key === "ctaUrl")}
+                      />
+                    </>
+                  )}
                 </div>
                 <div className="mt-3 flex gap-2">
                   <button
@@ -596,43 +673,64 @@ export function StudioApp({ deck }: { deck: Deck }) {
               <span className="text-[9px] font-semibold tracking-[0.14em] text-dim uppercase">
                 Your cards · {cards.length}
               </span>
+              <span className="text-[10px] text-faint">Star up to 4 shop items</span>
             </div>
             <div className="flex flex-col gap-2">
-              {cards.map((card) => (
-                <div
-                  key={card.id}
-                  className={cn(
-                    "flex items-center gap-2 rounded-[13px] border border-deck-card-brd bg-deck-card px-3 py-2.5 backdrop-blur-xl",
-                    card.status !== "live" && "opacity-50"
-                  )}
-                >
-                  <span className="text-[9px] font-bold tracking-wide text-primary uppercase">
-                    {kindLabel(card.type)}
-                  </span>
-                  <div className="min-w-0 flex-1">
-                    <div className="truncate text-[13px] font-semibold text-foreground">{card.title}</div>
-                    <div className="truncate text-[11px] text-dim">
-                      {card.source === "extracted" ? "extracted · " : ""}
-                      {card.status}
+              {cards.map((card) => {
+                const starred = card.featured || card.tags.includes("featured");
+                return (
+                  <div
+                    key={card.id}
+                    className={cn(
+                      "flex items-center gap-2 rounded-[13px] border border-deck-card-brd bg-deck-card px-3 py-2.5 backdrop-blur-xl",
+                      card.status !== "live" && "opacity-50"
+                    )}
+                  >
+                    <span className="text-[9px] font-bold tracking-wide text-primary uppercase">
+                      {kindLabel(card.type)}
+                    </span>
+                    <div className="min-w-0 flex-1">
+                      <div className="truncate text-[13px] font-semibold text-foreground">
+                        {card.title}
+                      </div>
+                      <div className="truncate text-[11px] text-dim">
+                        {card.source === "extracted" ? "extracted · " : ""}
+                        {card.status}
+                        {starred ? " · featured" : ""}
+                      </div>
                     </div>
+                    {card.type === "item" && (
+                      <button
+                        type="button"
+                        onClick={() => void toggleFeatured(card)}
+                        className={cn(
+                          "text-primary",
+                          starred && "text-[#d4a017]"
+                        )}
+                        aria-label={starred ? "Unstar featured" : "Star as featured"}
+                        title={starred ? "Unstar featured" : "Feature on home (max 4)"}
+                      >
+                        <Star className="size-3.5" fill={starred ? "currentColor" : "none"} />
+                      </button>
+                    )}
+                    <button
+                      type="button"
+                      onClick={() => toggleStatus(card)}
+                      className="text-[11px] font-semibold text-primary"
+                    >
+                      {card.status === "live" ? "Hide" : "Show"}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => deleteCard(card.id)}
+                      className="text-primary"
+                      aria-label="Delete"
+                    >
+                      <Trash2 className="size-3.5" />
+                    </button>
                   </div>
-                  <button
-                    type="button"
-                    onClick={() => toggleStatus(card)}
-                    className="text-[11px] font-semibold text-primary"
-                  >
-                    {card.status === "live" ? "Hide" : "Show"}
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => deleteCard(card.id)}
-                    className="text-primary"
-                    aria-label="Delete"
-                  >
-                    <Trash2 className="size-3.5" />
-                  </button>
-                </div>
-              ))}
+                );
+              })}
               {cards.length === 0 && (
                 <p className="rounded-2xl border border-dashed border-deck-card-brd py-8 text-center text-sm text-dim">
                   No cards yet — snap a flyer or describe your first post.
@@ -641,8 +739,6 @@ export function StudioApp({ deck }: { deck: Deck }) {
             </div>
           </div>
         </div>
-
-        <BottomNav active="studio" basePath={basePath} showStudio />
 
         {toast && (
           <div className="fixed bottom-8 left-1/2 z-50 -translate-x-1/2 rounded-full bg-[#1b1813] px-5 py-3 text-[13px] font-medium text-[#f3ecdf] shadow-xl deckk-fade-up">

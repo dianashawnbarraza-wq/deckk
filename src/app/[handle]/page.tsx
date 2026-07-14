@@ -1,3 +1,4 @@
+import { headers } from "next/headers";
 import { notFound, redirect } from "next/navigation";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
@@ -9,19 +10,22 @@ export const revalidate = 60;
 
 interface PageProps {
   params: Promise<{ handle: string }>;
-  searchParams: Promise<{ tab?: string }>;
+  searchParams: Promise<{ tab?: string; preview?: string }>;
 }
 
+const TABS: PublicTab[] = ["home", "events", "shop", "adult", "listen", "writing"];
+
 function normalizeTab(value: string | undefined): PublicTab {
-  if (value === "events" || value === "shop") return value;
+  if (value && (TABS as string[]).includes(value)) return value as PublicTab;
   return "home";
 }
 
 export default async function PublicDeckPage({ params, searchParams }: PageProps) {
   const { handle: rawHandle } = await params;
   const handle = rawHandle.replace(/^@/, "").toLowerCase();
-  const { tab: tabParam } = await searchParams;
+  const { tab: tabParam, preview } = await searchParams;
   const tab = normalizeTab(tabParam);
+  const previewMode = preview === "1" || preview === "true";
 
   const admin = createAdminClient();
 
@@ -52,5 +56,19 @@ export default async function PublicDeckPage({ params, searchParams }: PageProps
   } = await userClient.auth.getUser();
   const isOwner = Boolean(user && user.id === deck.user_id);
 
-  return <PublicDeckApp deck={deck} cards={cards} tab={tab} isOwner={isOwner} />;
+  const hdrs = await headers();
+  const host = hdrs.get("x-forwarded-host") ?? hdrs.get("host") ?? "deckkme.vercel.app";
+  const proto = hdrs.get("x-forwarded-proto") ?? "https";
+  const shareUrl = `${proto}://${host}/${deck.handle}`;
+
+  return (
+    <PublicDeckApp
+      deck={deck}
+      cards={cards}
+      tab={tab}
+      isOwner={isOwner}
+      previewMode={previewMode && isOwner}
+      shareUrl={shareUrl}
+    />
+  );
 }
