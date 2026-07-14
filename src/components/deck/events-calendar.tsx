@@ -123,7 +123,7 @@ export function EventsCalendarView({
             className={cn(
               "flex size-8 items-center justify-center rounded-full transition-colors",
               viewMode === "calendar"
-                ? "bg-primary text-primary-foreground"
+                ? "bg-primary text-white"
                 : "text-dim hover:text-foreground"
             )}
           >
@@ -136,7 +136,7 @@ export function EventsCalendarView({
             className={cn(
               "flex size-8 items-center justify-center rounded-full transition-colors",
               viewMode === "list"
-                ? "bg-primary text-primary-foreground"
+                ? "bg-primary text-white"
                 : "text-dim hover:text-foreground"
             )}
           >

@@ -76,7 +76,7 @@ export function BottomNav({ active, capabilities, onSelect }: BottomNavProps) {
               className={cn(
                 "flex shrink-0 items-center gap-1.5 rounded-full border-none px-2.5 py-2.5 text-sm transition-all duration-300 ease-out",
                 isActive
-                  ? "bg-primary text-primary-foreground"
+                  ? "bg-primary text-white"
                   : "bg-transparent text-dim hover:text-foreground"
               )}
             >

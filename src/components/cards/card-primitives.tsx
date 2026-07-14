@@ -308,7 +308,7 @@ export function LinkCardRow({
       rel="noopener noreferrer"
       className="flex items-center gap-3 rounded-[18px] border border-deck-card-brd bg-deck-card p-3 backdrop-blur-xl transition-opacity hover:opacity-90"
     >
-      <div className="flex size-9 shrink-0 items-center justify-center rounded-[11px] bg-primary text-primary-foreground">
+      <div className="flex size-9 shrink-0 items-center justify-center rounded-[11px] bg-primary text-white">
         {showPayment ? (
           <PaymentBrandIcon card={card} className="size-[18px]" />
         ) : (
