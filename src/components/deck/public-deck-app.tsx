@@ -232,7 +232,7 @@ export function PublicDeckApp({
             deck={deck}
             condensed={condensed && activeTab === "home"}
             showBio={!(condensed && activeTab === "home")}
-            socialLinks={ranked.socialLinks}
+            socialLinks={[...ranked.socialLinks, ...ranked.supportLinks]}
             showThemeToggle
             shareUrl={shareUrl}
             studioHref={studioHref}

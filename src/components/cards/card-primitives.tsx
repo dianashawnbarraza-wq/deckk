@@ -5,7 +5,7 @@ import { format } from "date-fns";
 import { Calendar, Heart, MapPin, ShoppingBag } from "lucide-react";
 import type { Card } from "@/types/cards";
 import { cn } from "@/lib/utils";
-import { SocialBrandIcon, PaymentBrandIcon } from "@/components/icons/social-icons";
+import { SocialBrandIcon, PaymentBrandIcon, detectPaymentKind } from "@/components/icons/social-icons";
 
 export function GlassCard({
   children,
@@ -303,7 +303,9 @@ export function LinkCardRow({
 }
 
 export function SocialIconLink({ card }: { card: Card }) {
-  const kind = card.title || "Social";
+  const kind = card.title || "Link";
+  const payment = detectPaymentKind(card);
+  const isPayment = payment !== "generic";
   return (
     <a
       href={card.cta_url ?? "#"}
@@ -313,7 +315,11 @@ export function SocialIconLink({ card }: { card: Card }) {
       aria-label={kind}
       className="flex size-10 items-center justify-center rounded-full border border-deck-card-brd bg-deck-card text-foreground transition-opacity hover:opacity-80"
     >
-      <SocialBrandIcon card={card} className="size-[18px]" />
+      {isPayment ? (
+        <PaymentBrandIcon card={card} className="size-[18px]" />
+      ) : (
+        <SocialBrandIcon card={card} className="size-[18px]" />
+      )}
     </a>
   );
 }
