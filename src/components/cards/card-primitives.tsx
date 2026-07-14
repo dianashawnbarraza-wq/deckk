@@ -5,7 +5,7 @@ import { format } from "date-fns";
 import { Calendar, Heart, ShoppingBag } from "lucide-react";
 import type { Card } from "@/types/cards";
 import { cn } from "@/lib/utils";
-import { SocialBrandIcon } from "@/components/icons/social-icons";
+import { SocialBrandIcon, PaymentBrandIcon } from "@/components/icons/social-icons";
 
 export function GlassCard({
   children,
@@ -225,7 +225,14 @@ export function ItemCardGrid({ card }: { card: Card }) {
   );
 }
 
-export function LinkCardRow({ card }: { card: Card }) {
+export function LinkCardRow({
+  card,
+  variant = "default",
+}: {
+  card: Card;
+  variant?: "default" | "support";
+}) {
+  const showPayment = variant === "support";
   return (
     <a
       href={card.cta_url ?? "#"}
@@ -233,8 +240,14 @@ export function LinkCardRow({ card }: { card: Card }) {
       rel="noopener noreferrer"
       className="flex items-center gap-3 rounded-[18px] border border-deck-card-brd bg-deck-card p-3 backdrop-blur-xl transition-opacity hover:opacity-90"
     >
-      <div className="flex size-9 shrink-0 items-center justify-center rounded-[11px] bg-primary font-display text-lg text-primary-foreground">
-        {(card.title || "L").charAt(0).toUpperCase()}
+      <div className="flex size-9 shrink-0 items-center justify-center rounded-[11px] bg-primary text-primary-foreground">
+        {showPayment ? (
+          <PaymentBrandIcon card={card} className="size-[18px]" />
+        ) : (
+          <span className="font-display text-lg">
+            {(card.title || "L").charAt(0).toUpperCase()}
+          </span>
+        )}
       </div>
       <div className="min-w-0 flex-1">
         <div className="text-sm font-semibold text-foreground">{card.title}</div>
@@ -281,11 +294,13 @@ export function SectionTitle({
 export function SectionHeader({
   title,
   href,
+  onAction,
   linkLabel = "View all",
   icon,
 }: {
   title: string;
   href?: string;
+  onAction?: () => void;
   linkLabel?: string;
   icon?: "calendar" | "shop" | "heart";
 }) {
@@ -297,7 +312,16 @@ export function SectionHeader({
         {Icon && <Icon className="size-[18px] text-primary" strokeWidth={2.2} />}
         {title}
       </h2>
-      {href && (
+      {onAction && (
+        <button
+          type="button"
+          onClick={onAction}
+          className="mb-0.5 text-[12px] font-semibold text-primary underline-offset-2 hover:underline"
+        >
+          {linkLabel}
+        </button>
+      )}
+      {!onAction && href && (
         <Link
           href={href}
           className="mb-0.5 text-[12px] font-semibold text-primary underline-offset-2 hover:underline"

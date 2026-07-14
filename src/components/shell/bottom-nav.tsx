@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { Calendar, Home, Music2, PenLine, ShoppingBag } from "lucide-react";
 import type { PublicTab } from "@/types/cards";
@@ -11,8 +10,8 @@ export type ShellTab = PublicTab;
 
 interface BottomNavProps {
   active: ShellTab;
-  basePath: string;
   capabilities: NavCapability;
+  onSelect: (tab: ShellTab) => void;
 }
 
 type TabDef = {
@@ -61,7 +60,7 @@ const tabs: TabDef[] = [
   },
 ];
 
-export function BottomNav({ active, basePath, capabilities }: BottomNavProps) {
+export function BottomNav({ active, capabilities, onSelect }: BottomNavProps) {
   const visible = tabs.filter((t) => t.show(capabilities));
 
   return (
@@ -70,19 +69,27 @@ export function BottomNav({ active, basePath, capabilities }: BottomNavProps) {
         {visible.map(({ id, label, renderIcon }) => {
           const isActive = active === id;
           return (
-            <Link
+            <button
               key={id}
-              href={`${basePath}?tab=${id}`}
+              type="button"
+              onClick={() => onSelect(id)}
               className={cn(
-                "flex shrink-0 items-center gap-1.5 rounded-full border-none px-2.5 py-2.5 text-sm transition-colors",
+                "flex shrink-0 items-center gap-1.5 rounded-full border-none px-2.5 py-2.5 text-sm transition-all duration-300 ease-out",
                 isActive
                   ? "bg-primary text-primary-foreground"
                   : "bg-transparent text-dim hover:text-foreground"
               )}
             >
               {renderIcon(isActive)}
-              {isActive && <span className="font-semibold">{label}</span>}
-            </Link>
+              <span
+                className={cn(
+                  "overflow-hidden font-semibold whitespace-nowrap transition-all duration-300 ease-out",
+                  isActive ? "max-w-20 opacity-100" : "max-w-0 opacity-0"
+                )}
+              >
+                {label}
+              </span>
+            </button>
           );
         })}
       </nav>

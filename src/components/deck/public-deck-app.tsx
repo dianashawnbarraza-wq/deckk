@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useCallback, useEffect, useState, useTransition } from "react";
+import Link from "next/link";
 import type { Card, Deck, PublicTab } from "@/types/cards";
 import { PhoneShell } from "@/components/shell/phone-shell";
 import { DeckIdentityHeader } from "@/components/shell/deck-identity-header";
@@ -16,6 +16,7 @@ import {
 import { EventsCalendarView } from "@/components/deck/events-calendar";
 import { rankCards, cardsForTab } from "@/lib/ranking";
 import { detectNavCapabilities } from "@/lib/card-taxonomy";
+import { cn } from "@/lib/utils";
 
 const ADULT_OK_KEY = "deckk-adult-ok";
 
@@ -31,13 +32,25 @@ interface PublicDeckAppProps {
 function AgeGateModal({
   onYes,
   onNo,
+  closing,
 }: {
   onYes: () => void;
   onNo: () => void;
+  closing: boolean;
 }) {
   return (
-    <div className="absolute inset-0 z-40 flex items-end justify-center bg-black/45 px-5 pb-28 pt-10 backdrop-blur-[2px]">
-      <div className="deckk-pop w-full max-w-sm rounded-[22px] border border-deck-card-brd bg-glass-strong p-5 shadow-xl backdrop-blur-xl">
+    <div
+      className={cn(
+        "absolute inset-0 z-40 flex items-end justify-center bg-black/45 px-5 pb-28 pt-10 backdrop-blur-[2px] transition-opacity duration-300",
+        closing ? "opacity-0" : "opacity-100"
+      )}
+    >
+      <div
+        className={cn(
+          "w-full max-w-sm rounded-[22px] border border-deck-card-brd bg-glass-strong p-5 shadow-xl backdrop-blur-xl transition-all duration-300",
+          closing ? "translate-y-4 opacity-0" : "translate-y-0 opacity-100 deckk-pop"
+        )}
+      >
         <div className="mb-2 inline-flex items-center justify-center rounded-lg border-2 border-foreground px-2 py-1 text-[13px] font-black tracking-tight text-foreground">
           18+
         </div>
@@ -47,20 +60,20 @@ function AgeGateModal({
         <p className="mt-2 text-[13px] leading-relaxed text-dim">
           This section links to adult platforms. Confirm your age to continue.
         </p>
-        <div className="mt-5 flex gap-2.5">
+        <div className="mt-5 flex flex-col gap-2">
           <button
             type="button"
             onClick={onYes}
-            className="flex-1 rounded-xl bg-primary py-3 text-[13px] font-semibold text-primary-foreground"
+            className="w-full rounded-xl bg-primary py-3 text-[13px] font-semibold text-primary-foreground transition-transform active:scale-[0.98]"
           >
             Yes, I am 18+
           </button>
           <button
             type="button"
             onClick={onNo}
-            className="flex-1 rounded-xl border border-deck-card-brd bg-deck-card py-3 text-[13px] font-semibold text-foreground"
+            className="w-full rounded-xl border border-deck-card-brd bg-deck-card py-3 text-[13px] font-semibold text-foreground transition-transform active:scale-[0.98]"
           >
-            No
+            No, return to home
           </button>
         </div>
       </div>
@@ -68,21 +81,48 @@ function AgeGateModal({
   );
 }
 
+function DeckkFooter() {
+  return (
+    <footer className="mt-10 border-t border-deck-card-brd px-1 pb-2 pt-6 text-center">
+      <div className="mb-2 flex items-center justify-center gap-1.5">
+        <div className="flex size-5 items-center justify-center rounded-[6px] bg-primary text-[11px] text-primary-foreground">
+          ✦
+        </div>
+        <span className="font-display text-lg text-foreground">
+          deckk<span className="text-primary">.</span>me
+        </span>
+      </div>
+      <p className="mx-auto max-w-[280px] text-[12px] leading-relaxed text-dim">
+        Made for creators, artists, organizers, and anyone with something worth sharing.
+      </p>
+      <p className="mx-auto mt-2 max-w-[280px] text-[12px] leading-relaxed text-dim">
+        Build your Deckk. You deserve more than a list of links.{" "}
+        <Link href="/signup" className="font-semibold text-primary underline-offset-2 hover:underline">
+          Join
+        </Link>
+      </p>
+    </footer>
+  );
+}
+
 export function PublicDeckApp({
   deck,
   cards,
-  tab,
+  tab: initialTab,
   isOwner,
   previewMode = false,
   shareUrl,
 }: PublicDeckAppProps) {
-  const router = useRouter();
+  const [activeTab, setActiveTab] = useState<PublicTab>(initialTab);
+  const [, startTransition] = useTransition();
   const [condensed, setCondensed] = useState(false);
   const [adultOk, setAdultOk] = useState(false);
   const [adultChecked, setAdultChecked] = useState(false);
+  const [gateClosing, setGateClosing] = useState(false);
+  const [contentKey, setContentKey] = useState(0);
 
   const ranked = rankCards(cards);
-  const visible = cardsForTab(ranked, tab);
+  const visible = cardsForTab(ranked, activeTab);
   const capabilities = detectNavCapabilities(cards);
   const basePath = `/${deck.handle}`;
   const nextEvent =
@@ -106,6 +146,23 @@ export function PublicDeckApp({
     ...ranked.past,
   ].filter((c, i, arr) => arr.findIndex((x) => x.id === c.id) === i);
 
+  const selectTab = useCallback(
+    (next: PublicTab) => {
+      startTransition(() => {
+        setActiveTab(next);
+        setContentKey((k) => k + 1);
+        setCondensed(false);
+        const url = next === "home" ? basePath : `${basePath}?tab=${next}`;
+        window.history.replaceState(null, "", url);
+        const scroller = document.querySelector("[data-deck-scroll]");
+        if (scroller instanceof HTMLElement) {
+          scroller.scrollTo({ top: 0, behavior: "smooth" });
+        }
+      });
+    },
+    [basePath]
+  );
+
   useEffect(() => {
     try {
       setAdultOk(sessionStorage.getItem(ADULT_OK_KEY) === "1");
@@ -113,6 +170,20 @@ export function PublicDeckApp({
       // ignore
     }
     setAdultChecked(true);
+  }, []);
+
+  useEffect(() => {
+    function onPopState() {
+      const params = new URLSearchParams(window.location.search);
+      const t = params.get("tab");
+      if (t === "events" || t === "shop" || t === "adult" || t === "listen" || t === "writing") {
+        setActiveTab(t);
+      } else {
+        setActiveTab("home");
+      }
+    }
+    window.addEventListener("popstate", onPopState);
+    return () => window.removeEventListener("popstate", onPopState);
   }, []);
 
   useEffect(() => {
@@ -126,7 +197,28 @@ export function PublicDeckApp({
   }, []);
 
   const studioHref = isOwner || previewMode ? "/studio" : null;
-  const showAgeGate = tab === "adult" && adultChecked && !adultOk;
+  const showAgeGate = activeTab === "adult" && adultChecked && !adultOk;
+
+  function handleAgeYes() {
+    setGateClosing(true);
+    window.setTimeout(() => {
+      try {
+        sessionStorage.setItem(ADULT_OK_KEY, "1");
+      } catch {
+        // ignore
+      }
+      setAdultOk(true);
+      setGateClosing(false);
+    }, 280);
+  }
+
+  function handleAgeNo() {
+    setGateClosing(true);
+    window.setTimeout(() => {
+      setGateClosing(false);
+      selectTab("home");
+    }, 280);
+  }
 
   return (
     <PhoneShell>
@@ -137,8 +229,8 @@ export function PublicDeckApp({
         >
           <DeckIdentityHeader
             deck={deck}
-            condensed={condensed && tab === "home"}
-            showBio={!(condensed && tab === "home")}
+            condensed={condensed && activeTab === "home"}
+            showBio={!(condensed && activeTab === "home")}
             socialLinks={ranked.socialLinks}
             showThemeToggle={false}
             shareUrl={shareUrl}
@@ -146,15 +238,21 @@ export function PublicDeckApp({
             previewMode={previewMode}
           />
 
-          <div className="deckk-fade-up px-4 pb-4 pt-4">
-            {tab === "home" && (
+          <div
+            key={contentKey}
+            className="deckk-fade-up px-4 pb-4 pt-4"
+          >
+            {activeTab === "home" && (
               <>
                 {nextEvent && (
                   <div>
                     <SectionHeader
                       title="Next up"
                       icon="calendar"
-                      href={showViewAllEvents ? `${basePath}?tab=events` : undefined}
+                      onAction={
+                        showViewAllEvents ? () => selectTab("events") : undefined
+                      }
+                      linkLabel="View all"
                     />
                     <EventCardRow card={nextEvent} />
                   </div>
@@ -167,7 +265,9 @@ export function PublicDeckApp({
                     <SectionHeader
                       title="Featured shop"
                       icon="shop"
-                      href={capabilities.hasShop ? `${basePath}?tab=shop` : undefined}
+                      onAction={
+                        capabilities.hasShop ? () => selectTab("shop") : undefined
+                      }
                     />
                     <div className="grid grid-cols-2 gap-3">
                       {(ranked.featuredItems.length > 0
@@ -185,7 +285,7 @@ export function PublicDeckApp({
                     <SectionTitle icon="heart">Support</SectionTitle>
                     <div className="flex flex-col gap-2">
                       {ranked.supportLinks.map((c) => (
-                        <LinkCardRow key={c.id} card={c} />
+                        <LinkCardRow key={c.id} card={c} variant="support" />
                       ))}
                     </div>
                   </div>
@@ -214,9 +314,9 @@ export function PublicDeckApp({
               </>
             )}
 
-            {tab === "events" && <EventsCalendarView events={allEvents} />}
+            {activeTab === "events" && <EventsCalendarView events={allEvents} />}
 
-            {tab === "shop" && (
+            {activeTab === "shop" && (
               <>
                 <SectionTitle icon="shop">Shop</SectionTitle>
                 <div className="grid grid-cols-2 gap-3">
@@ -231,7 +331,7 @@ export function PublicDeckApp({
               </>
             )}
 
-            {tab === "adult" && adultOk && (
+            {activeTab === "adult" && adultOk && (
               <>
                 <SectionTitle>18+</SectionTitle>
                 <p className="mb-3 text-[13px] text-dim">Adult content platforms.</p>
@@ -245,7 +345,7 @@ export function PublicDeckApp({
               </>
             )}
 
-            {tab === "listen" && (
+            {activeTab === "listen" && (
               <>
                 <SectionTitle>Listen</SectionTitle>
                 <div className="flex flex-col gap-2">
@@ -258,7 +358,7 @@ export function PublicDeckApp({
               </>
             )}
 
-            {tab === "writing" && (
+            {activeTab === "writing" && (
               <>
                 <SectionTitle>Writing</SectionTitle>
                 <div className="flex flex-col gap-2">
@@ -270,26 +370,20 @@ export function PublicDeckApp({
                 </div>
               </>
             )}
+
+            <DeckkFooter />
           </div>
         </div>
 
         {showAgeGate && (
-          <AgeGateModal
-            onYes={() => {
-              try {
-                sessionStorage.setItem(ADULT_OK_KEY, "1");
-              } catch {
-                // ignore
-              }
-              setAdultOk(true);
-            }}
-            onNo={() => {
-              router.push(basePath);
-            }}
-          />
+          <AgeGateModal onYes={handleAgeYes} onNo={handleAgeNo} closing={gateClosing} />
         )}
 
-        <BottomNav active={tab} basePath={basePath} capabilities={capabilities} />
+        <BottomNav
+          active={activeTab}
+          capabilities={capabilities}
+          onSelect={selectTab}
+        />
       </div>
     </PhoneShell>
   );

@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowUpRight, Check, Share2, X } from "lucide-react";
+import { ArrowUp, ArrowUpRight, Check, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { Card, Deck } from "@/types/cards";
 import { ThemeToggleButton } from "@/components/shell/phone-shell";
@@ -67,7 +67,7 @@ function ShareIconButton({ shareUrl, title }: { shareUrl: string; title: string 
       aria-label={copied ? "Link copied" : "Share this deckk"}
       className="flex size-9 items-center justify-center rounded-full border border-deck-card-brd bg-deck-card text-foreground backdrop-blur-md transition-colors"
     >
-      {copied ? <Check className="size-4" /> : <Share2 className="size-4" />}
+      {copied ? <Check className="size-4" /> : <ArrowUp className="size-4" strokeWidth={2.4} />}
     </button>
   );
 }
@@ -113,16 +113,16 @@ export function DeckIdentityHeader({
       <div className="flex items-center justify-between gap-2 px-4 py-1.5">
         <Link
           href="/signup"
-          className="group flex min-w-0 items-center gap-1.5"
+          className="group flex min-w-0 items-center gap-0.5"
           title="Sign up for deckk.me"
         >
           <div className="flex size-7 shrink-0 items-center justify-center rounded-[9px] bg-primary text-[15px] text-primary-foreground">
             ✦
           </div>
-          <div className="font-display text-xl leading-none text-foreground">
+          <div className="ml-1.5 font-display text-xl leading-none text-foreground">
             deckk<span className="text-primary">.</span>me
           </div>
-          <ArrowUpRight className="size-3.5 shrink-0 text-dim transition-colors group-hover:text-foreground" />
+          <ArrowUpRight className="size-3 shrink-0 text-dim transition-colors group-hover:text-foreground" />
         </Link>
 
         <div className="flex shrink-0 items-center gap-1.5">

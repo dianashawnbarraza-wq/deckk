@@ -297,7 +297,7 @@ async function main() {
 
   const avatarUrl = await uploadPublic(admin, user.id, AVATAR_PATH, "kyle-avatar.png");
   const kinkteriaUrl = await uploadPublic(admin, user.id, KINKTERIA_PATH, "kinkteria.png");
-  const rivetUrl = await uploadPublic(admin, user.id, RIVET_PATH, "rivet-flyer.png");
+  const rivetUrl = await uploadPublic(admin, user.id, RIVET_PATH, `rivet-flyer-${Date.now()}.png`);
 
   const mediaMap = {
     kinkteria: kinkteriaUrl,
