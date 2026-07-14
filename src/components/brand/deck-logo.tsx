@@ -7,12 +7,12 @@ interface DeckLogoProps {
   animate?: boolean;
 }
 
-/** Floating tarot card stack with a D — brand mark. */
-export function DeckLogo({ className, size = 32, animate = true }: DeckLogoProps) {
-  const height = Math.round(size * 0.9);
+/** Compact card-stack brand mark. */
+export function DeckLogo({ className, size = 22, animate = false }: DeckLogoProps) {
+  const height = Math.round(size * 0.95);
   return (
     <svg
-      viewBox="0 0 56 48"
+      viewBox="0 0 26 24"
       width={size}
       height={height}
       fill="none"

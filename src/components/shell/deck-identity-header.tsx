@@ -117,7 +117,7 @@ export function DeckIdentityHeader({
           className="group flex min-w-0 items-center gap-0.5"
           title="Sign up for deckk.me"
         >
-          <DeckLogo size={34} />
+          <DeckLogo size={22} />
           <div className="ml-1 font-display text-xl leading-none text-foreground">
             deckk<span className="text-primary">.</span>me
           </div>

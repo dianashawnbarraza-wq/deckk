@@ -86,7 +86,7 @@ function DeckkFooter() {
   return (
     <footer className="mt-10 border-t border-deck-card-brd px-1 pb-2 pt-6 text-center">
       <div className="mb-2 flex items-center justify-center gap-1.5">
-        <DeckLogo size={24} />
+        <DeckLogo size={18} />
         <span className="font-display text-lg text-foreground">
           deckk<span className="text-primary">.</span>me
         </span>
