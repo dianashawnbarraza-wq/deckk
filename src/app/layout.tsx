@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Instrument_Serif, Space_Grotesk, UnifrakturCook } from "next/font/google";
+import { Instrument_Serif, Space_Grotesk, UnifrakturMaguntia } from "next/font/google";
 import "./globals.css";
 
 const instrumentSerif = Instrument_Serif({
@@ -15,10 +15,10 @@ const spaceGrotesk = Space_Grotesk({
   weight: ["400", "500", "600", "700"],
 });
 
-const unifrakturCook = UnifrakturCook({
+const unifrakturMaguntia = UnifrakturMaguntia({
   variable: "--font-gothic",
   subsets: ["latin"],
-  weight: "700",
+  weight: "400",
 });
 
 export const metadata: Metadata = {
@@ -35,7 +35,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${instrumentSerif.variable} ${spaceGrotesk.variable} ${unifrakturCook.variable} h-full`}
+      className={`${instrumentSerif.variable} ${spaceGrotesk.variable} ${unifrakturMaguntia.variable} h-full`}
     >
       <body className="min-h-full flex flex-col font-sans">{children}</body>
     </html>

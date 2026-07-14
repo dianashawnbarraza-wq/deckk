@@ -18,6 +18,7 @@ import { rankCards, cardsForTab, getNextUpcomingEvent } from "@/lib/ranking";
 import { detectNavCapabilities } from "@/lib/card-taxonomy";
 import { cn } from "@/lib/utils";
 import { DeckLogo } from "@/components/brand/deck-logo";
+import { DeckWordmark } from "@/components/brand/deck-wordmark";
 
 const ADULT_OK_KEY = "deckk-adult-ok";
 
@@ -87,8 +88,8 @@ function DeckkFooter() {
     <footer className="mt-10 border-t border-deck-card-brd px-1 pb-2 pt-6 text-center">
       <div className="mb-2 flex items-center justify-center gap-1.5">
         <DeckLogo size={18} />
-        <span className="font-display text-lg text-foreground">
-          deckk<span className="text-primary">.</span>me
+        <span className="text-lg leading-none">
+          <DeckWordmark />
         </span>
       </div>
       <p className="mx-auto max-w-[280px] text-[12px] leading-relaxed text-dim">
@@ -292,18 +293,20 @@ export function PublicDeckApp({
                   </div>
                 )}
 
-                {ranked.evergreen.filter((c) => c.type === "link").length > 0 && (
-                  <div className="mt-5">
-                    <SectionTitle>More</SectionTitle>
-                    <div className="flex flex-col gap-2">
-                      {ranked.evergreen
-                        .filter((c) => c.type === "link")
-                        .map((c) => (
+                {(() => {
+                  const moreLinks = ranked.evergreen.filter((c) => c.type === "link");
+                  if (moreLinks.length === 0) return null;
+                  return (
+                    <div className="mt-5">
+                      <SectionTitle>More</SectionTitle>
+                      <div className="flex flex-col gap-2">
+                        {moreLinks.map((c) => (
                           <LinkCardRow key={c.id} card={c} />
                         ))}
+                      </div>
                     </div>
-                  </div>
-                )}
+                  );
+                })()}
 
                 {!nextEvent &&
                   ranked.featuredItems.length === 0 &&

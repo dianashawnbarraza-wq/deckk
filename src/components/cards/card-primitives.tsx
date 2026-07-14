@@ -123,22 +123,38 @@ function LocationRow({
   const copyText = address || name;
   if (!name && !address) return null;
 
-  function onAddressTap() {
+  async function onAddressTap() {
     if (!copyText) return;
-    window.prompt("Copy address", copyText);
+    try {
+      await navigator.clipboard.writeText(copyText);
+    } catch {
+      window.prompt("Copy address", copyText);
+    }
   }
-
-  const line = [name, address].filter(Boolean).join(" · ");
 
   return (
     <button
       type="button"
-      onClick={onAddressTap}
+      onClick={() => void onAddressTap()}
       title="Tap to copy address"
       className="mt-1.5 flex w-full min-w-0 items-center gap-1.5 text-left text-[11px] leading-snug text-foreground"
     >
       <MapPin className="size-3.5 shrink-0 text-foreground" strokeWidth={2.4} />
-      <span className="min-w-0 truncate">{line}</span>
+      <span className="min-w-0 truncate">
+        {name && address ? (
+          <>
+            <span className="font-medium">{name}</span>
+            <span className="text-dim"> · </span>
+            <span className="underline decoration-dotted decoration-dim/80 underline-offset-[3px]">
+              {address}
+            </span>
+          </>
+        ) : (
+          <span className="underline decoration-dotted decoration-dim/80 underline-offset-[3px]">
+            {address || name}
+          </span>
+        )}
+      </span>
     </button>
   );
 }
@@ -314,7 +330,6 @@ export function SocialIconLink({ card }: { card: Card }) {
   const kind = card.title || "Link";
   const payment = detectPaymentKind(card);
   const isPayment = payment !== "generic";
-  const isVenmo = payment === "venmo";
   return (
     <a
       href={card.cta_url ?? "#"}
@@ -322,15 +337,10 @@ export function SocialIconLink({ card }: { card: Card }) {
       rel="noopener noreferrer"
       title={kind}
       aria-label={kind}
-      className={cn(
-        "flex size-10 items-center justify-center rounded-full border transition-opacity hover:opacity-80",
-        isVenmo
-          ? "border-transparent bg-[#008CFF] text-white"
-          : "border-deck-card-brd bg-deck-card text-foreground"
-      )}
+      className="flex size-10 items-center justify-center rounded-full border border-deck-card-brd bg-deck-card text-foreground transition-opacity hover:opacity-80"
     >
       {isPayment ? (
-        <PaymentBrandIcon card={card} className={isVenmo ? "size-[15px]" : "size-[18px]"} />
+        <PaymentBrandIcon card={card} className="size-[18px]" />
       ) : (
         <SocialBrandIcon card={card} className="size-[18px]" />
       )}

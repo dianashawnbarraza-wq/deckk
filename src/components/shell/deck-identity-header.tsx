@@ -3,12 +3,14 @@
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowUp, ArrowUpRight, Check, X } from "lucide-react";
+import { ArrowUpRight, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { Card, Deck } from "@/types/cards";
 import { ThemeToggleButton } from "@/components/shell/phone-shell";
 import { SocialIconLink } from "@/components/cards/card-primitives";
 import { DeckLogo } from "@/components/brand/deck-logo";
+import { DeckWordmark } from "@/components/brand/deck-wordmark";
+import { ShareDeckSheet } from "@/components/deck/share-deck-sheet";
 
 function StatusBarClock() {
   const [time, setTime] = useState("--:--");
@@ -36,40 +38,6 @@ function StatusBarClock() {
         </span>
       </div>
     </div>
-  );
-}
-
-function ShareIconButton({ shareUrl, title }: { shareUrl: string; title: string }) {
-  const [copied, setCopied] = useState(false);
-
-  async function share() {
-    try {
-      if (typeof navigator !== "undefined" && navigator.share) {
-        await navigator.share({ url: shareUrl, title });
-        return;
-      }
-    } catch (e) {
-      if (e instanceof Error && e.name === "AbortError") return;
-    }
-    try {
-      await navigator.clipboard.writeText(shareUrl);
-      setCopied(true);
-      window.setTimeout(() => setCopied(false), 2000);
-    } catch {
-      window.prompt("Copy your deck link:", shareUrl);
-    }
-  }
-
-  return (
-    <button
-      type="button"
-      onClick={() => void share()}
-      title={copied ? "Link copied" : "Share this deckk"}
-      aria-label={copied ? "Link copied" : "Share this deckk"}
-      className="flex size-9 items-center justify-center rounded-full border border-deck-card-brd bg-deck-card text-foreground backdrop-blur-md transition-colors"
-    >
-      {copied ? <Check className="size-4" /> : <ArrowUp className="size-4" strokeWidth={2.4} />}
-    </button>
   );
 }
 
@@ -118,8 +86,8 @@ export function DeckIdentityHeader({
           title="Sign up for deckk.me"
         >
           <DeckLogo size={22} />
-          <div className="ml-1 font-display text-xl leading-none text-foreground">
-            deckk<span className="text-primary">.</span>me
+          <div className="ml-1 text-xl leading-none">
+            <DeckWordmark />
           </div>
           <ArrowUpRight className="size-3 shrink-0 text-dim transition-colors group-hover:text-foreground" />
         </Link>
@@ -127,7 +95,7 @@ export function DeckIdentityHeader({
         <div className="flex shrink-0 items-center gap-1.5">
           {showThemeToggle && <ThemeToggleButton />}
           {shareUrl && (
-            <ShareIconButton shareUrl={shareUrl} title={deck.display_name} />
+            <ShareDeckSheet shareUrl={shareUrl} title={deck.display_name} />
           )}
           {previewMode && studioHref && (
             <Link

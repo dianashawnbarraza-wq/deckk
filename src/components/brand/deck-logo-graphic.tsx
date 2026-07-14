@@ -27,14 +27,14 @@ export function DeckLogoGraphic() {
       />
       <text
         x="15"
-        y="14"
+        y="14.2"
         textAnchor="middle"
         dominantBaseline="middle"
         fill="#ffffff"
         style={{
-          fontFamily: 'var(--font-gothic), "UnifrakturCook", "Old English Text MT", serif',
-          fontSize: "13px",
-          fontWeight: 700,
+          fontFamily: 'var(--font-gothic), "UnifrakturMaguntia", "Old English Text MT", serif',
+          fontSize: "15px",
+          fontWeight: 400,
         }}
       >
         d

@@ -281,21 +281,6 @@ const cards: SeedCard[] = [
     position: 24,
     tags: ["adult", "18+"],
   },
-  {
-    type: "link",
-    title: "kyleholiday.com",
-    description: "Full site — art, events, and shop",
-    date_start: null,
-    date_end: null,
-    location_name: null,
-    location_address: null,
-    cta_label: "Visit",
-    cta_url: "https://kyleholiday.com/",
-    price: null,
-    pinned: false,
-    position: 23,
-    tags: ["home"],
-  },
 ];
 
 async function uploadPublic(
