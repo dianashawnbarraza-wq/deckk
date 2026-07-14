@@ -7,13 +7,14 @@ interface DeckLogoProps {
   animate?: boolean;
 }
 
-/** Floating purple card with a D — brand mark. */
-export function DeckLogo({ className, size = 28, animate = true }: DeckLogoProps) {
+/** Floating tarot card stack with a D — brand mark. */
+export function DeckLogo({ className, size = 32, animate = true }: DeckLogoProps) {
+  const height = Math.round(size * 0.9);
   return (
     <svg
-      viewBox="0 0 40 34"
+      viewBox="0 0 56 48"
       width={size}
-      height={Math.round(size * 0.85)}
+      height={height}
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
       className={cn("shrink-0 text-foreground", animate && "deck-logo-levitate", className)}

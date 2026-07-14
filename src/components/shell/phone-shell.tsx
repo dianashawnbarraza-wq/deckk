@@ -53,7 +53,7 @@ interface PhoneShellProps {
 }
 
 export function PhoneShell({ children, className }: PhoneShellProps) {
-  const [dark, setDark] = useState(false);
+  const [dark, setDark] = useState(true);
   const [ready, setReady] = useState(false);
 
   useEffect(() => {
@@ -61,8 +61,13 @@ export function PhoneShell({ children, className }: PhoneShellProps) {
       const stored = localStorage.getItem(STORAGE_KEY);
       if (stored === "dark") setDark(true);
       else if (stored === "light") setDark(false);
+      else {
+        // Default to dark so new visitors (and reviews) see the dark look first
+        setDark(true);
+        localStorage.setItem(STORAGE_KEY, "dark");
+      }
     } catch {
-      // ignore
+      setDark(true);
     }
     setReady(true);
   }, []);

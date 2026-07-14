@@ -193,6 +193,8 @@ export function EventCardRow({ card }: { card: Card }) {
           <div className="font-display text-[18px] leading-tight text-foreground">
             {card.title}
           </div>
+
+          <LocationRow name={card.location_name} address={card.location_address} />
         </div>
 
         {action && card.cta_url && (
@@ -206,8 +208,6 @@ export function EventCardRow({ card }: { card: Card }) {
           </a>
         )}
       </div>
-
-      <LocationRow name={card.location_name} address={card.location_address} />
     </div>
   );
 }

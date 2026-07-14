@@ -72,7 +72,7 @@ const cards: SeedCard[] = [
     date_start: "2026-07-18T16:00:00-07:00",
     date_end: "2026-07-18T17:30:00-07:00",
     location_name: "Cruise LA",
-    location_address: null, // missing on flyer — product should prompt for this
+    location_address: "4219 Santa Monica Blvd, Los Angeles, CA 90029",
     cta_label: "Details",
     cta_url: "https://www.instagram.com/kinkteria",
     price: null,
@@ -391,9 +391,6 @@ async function main() {
 
   console.log(`Imported ${inserted.data?.length ?? 0} cards`);
   console.log(`Public deck: https://deckkme.vercel.app/${HANDLE}`);
-  console.log(
-    "Note: KINKTERIA is missing a street address — Studio extract UX now prompts for missing address."
-  );
 }
 
 main().catch((e) => {
