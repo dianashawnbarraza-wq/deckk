@@ -71,6 +71,30 @@ export function EventsCalendarView({
   }, [cursor]);
 
   const selectedEvents = eventsByDay.get(dayKey(selected)) ?? [];
+
+  const futureEvents = useMemo(() => {
+    const selectedStart = new Date(selected);
+    selectedStart.setHours(0, 0, 0, 0);
+    const dayAfter = new Date(selectedStart);
+    dayAfter.setDate(dayAfter.getDate() + 1);
+    const skip = new Set(
+      (eventsByDay.get(dayKey(selected)) ?? []).map((c) => c.id)
+    );
+
+    return events
+      .filter((c) => {
+        if (skip.has(c.id)) return false;
+        const d = eventDay(c);
+        if (!d) return false;
+        return d.getTime() >= dayAfter.getTime();
+      })
+      .sort((a, b) => {
+        const aT = a.date_start ? new Date(a.date_start).getTime() : 0;
+        const bT = b.date_start ? new Date(b.date_start).getTime() : 0;
+        return aT - bT;
+      });
+  }, [events, selected, eventsByDay]);
+
   const listEvents = useMemo(() => {
     return [...events].sort((a, b) => {
       const aT = a.date_start ? new Date(a.date_start).getTime() : 0;
@@ -79,21 +103,8 @@ export function EventsCalendarView({
     });
   }, [events]);
 
-  const upcoming =
-    selectedEvents.length > 0
-      ? selectedEvents
-      : events
-          .filter((c) => {
-            const d = eventDay(c);
-            return d && d >= new Date(new Date().setHours(0, 0, 0, 0));
-          })
-          .slice(0, 8);
-
-  const showingSelected = selectedEvents.length > 0;
-  const agendaTitle = showingSelected
-    ? format(selected, "EEE, MMM d")
-    : "Upcoming";
-  const agendaCount = `${upcoming.length} EVENT${upcoming.length === 1 ? "" : "S"}`;
+  const agendaTitle = format(selected, "EEE, MMM d");
+  const agendaCount = `${selectedEvents.length} EVENT${selectedEvents.length === 1 ? "" : "S"}`;
 
   return (
     <div>
@@ -219,14 +230,30 @@ export function EventsCalendarView({
           </div>
 
           <div className="flex flex-col gap-2.5">
-            {upcoming.length === 0 ? (
+            {selectedEvents.length === 0 ? (
               <div className="rounded-2xl border border-dashed border-deck-card-brd bg-deck-card py-8 text-center text-sm text-dim">
                 Nothing on this day.
               </div>
             ) : (
-              upcoming.map((c) => <EventCardRow key={c.id} card={c} />)
+              selectedEvents.map((c) => <EventCardRow key={c.id} card={c} />)
             )}
           </div>
+
+          {futureEvents.length > 0 && (
+            <div className="mt-6">
+              <div className="mb-3 flex items-baseline justify-between px-0.5">
+                <div className="font-display text-[22px] text-foreground">Future events</div>
+                <span className="text-[11px] font-semibold tracking-wide text-dim uppercase">
+                  {futureEvents.length} EVENT{futureEvents.length === 1 ? "" : "S"}
+                </span>
+              </div>
+              <div className="flex flex-col gap-2.5">
+                {futureEvents.map((c) => (
+                  <EventCardRow key={c.id} card={c} />
+                ))}
+              </div>
+            </div>
+          )}
         </>
       )}
 
