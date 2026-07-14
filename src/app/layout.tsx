@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Instrument_Serif, Space_Grotesk } from "next/font/google";
+import { Instrument_Serif, Space_Grotesk, UnifrakturCook } from "next/font/google";
 import "./globals.css";
 
 const instrumentSerif = Instrument_Serif({
@@ -15,6 +15,12 @@ const spaceGrotesk = Space_Grotesk({
   weight: ["400", "500", "600", "700"],
 });
 
+const unifrakturCook = UnifrakturCook({
+  variable: "--font-gothic",
+  subsets: ["latin"],
+  weight: "700",
+});
+
 export const metadata: Metadata = {
   title: "deckk.me — your whole deck, dealt in one link",
   description:
@@ -27,7 +33,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${instrumentSerif.variable} ${spaceGrotesk.variable} h-full`}>
+    <html
+      lang="en"
+      className={`${instrumentSerif.variable} ${spaceGrotesk.variable} ${unifrakturCook.variable} h-full`}
+    >
       <body className="min-h-full flex flex-col font-sans">{children}</body>
     </html>
   );

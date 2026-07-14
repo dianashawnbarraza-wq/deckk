@@ -1,4 +1,4 @@
-/** Tarot-style stacked cards — floating deck with a D on the top card. */
+/** Tarot-style stacked cards — floating deck with a gothic lowercase d. */
 export function DeckLogoGraphic() {
   return (
     <>
@@ -54,7 +54,6 @@ export function DeckLogoGraphic() {
       {/* Front card — upright, levitating */}
       <g transform="translate(22 2)">
         <rect x="0" y="0" width="28" height="38" rx="4" fill="var(--accent, #6a4c86)" />
-        {/* tarot border frame */}
         <rect
           x="2.5"
           y="2.5"
@@ -65,25 +64,24 @@ export function DeckLogoGraphic() {
           stroke="rgba(255,255,255,0.35)"
           strokeWidth="1.25"
         />
-        {/* corner diamonds */}
         <circle cx="6" cy="6" r="1.1" fill="rgba(255,255,255,0.55)" />
         <circle cx="22" cy="6" r="1.1" fill="rgba(255,255,255,0.55)" />
         <circle cx="6" cy="32" r="1.1" fill="rgba(255,255,255,0.55)" />
         <circle cx="22" cy="32" r="1.1" fill="rgba(255,255,255,0.55)" />
+
         <text
           x="14"
-          y="21"
+          y="22.5"
           textAnchor="middle"
           dominantBaseline="middle"
           fill="#ffffff"
           style={{
-            fontFamily: 'var(--font-instrument-serif), Georgia, "Times New Roman", serif',
-            fontStyle: "italic",
-            fontSize: "18px",
-            fontWeight: 500,
+            fontFamily: 'var(--font-gothic), "UnifrakturCook", "Old English Text MT", serif',
+            fontSize: "22px",
+            fontWeight: 700,
           }}
         >
-          D
+          d
         </text>
       </g>
     </>
