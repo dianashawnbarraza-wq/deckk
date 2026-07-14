@@ -69,7 +69,7 @@ export function EventsCalendarView({ events }: { events: Card[] }) {
     return [...events].sort((a, b) => {
       const aT = a.date_start ? new Date(a.date_start).getTime() : 0;
       const bT = b.date_start ? new Date(b.date_start).getTime() : 0;
-      return aT - bT;
+      return bT - aT; // latest first
     });
   }, [events]);
 

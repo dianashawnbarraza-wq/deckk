@@ -1,8 +1,9 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import { format } from "date-fns";
-import { Calendar, Heart, ShoppingBag } from "lucide-react";
+import { Calendar, Check, Copy, Heart, MapPin, ShoppingBag } from "lucide-react";
 import type { Card } from "@/types/cards";
 import { cn } from "@/lib/utils";
 import { SocialBrandIcon, PaymentBrandIcon } from "@/components/icons/social-icons";
@@ -88,51 +89,135 @@ function ctaLabel(card: Card): string | null {
   if (/rsvp/i.test(label)) return "RSVP";
   if (/ticket/i.test(label)) return "Tickets";
   if (label) {
-    // Prefer short action words
     if (/details|info|more|view/i.test(label)) return "Details";
     if (label.length <= 14) return label;
   }
   return "Details";
 }
 
+function mapsUrl(locationName: string | null, address: string | null): string | null {
+  const q = [locationName, address].filter(Boolean).join(", ");
+  if (!q) return null;
+  return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(q)}`;
+}
+
+function formatTimeRange(start: Date, end: Date | null): string {
+  if (end) {
+    const sM = format(start, "a");
+    const eM = format(end, "a");
+    if (sM === eM) {
+      return `${format(start, "h")}–${format(end, "h")} ${eM}`;
+    }
+    return `${format(start, "h a")}–${format(end, "h a")}`;
+  }
+  return format(start, "h:mm a").replace(":00", "");
+}
+
+function LocationRow({
+  name,
+  address,
+}: {
+  name: string | null;
+  address: string | null;
+}) {
+  const [copied, setCopied] = useState(false);
+  const href = mapsUrl(name, address);
+  const copyText = address || name;
+  if (!name && !address) return null;
+
+  async function copyAddress(e: React.MouseEvent) {
+    e.preventDefault();
+    e.stopPropagation();
+    if (!copyText) return;
+    try {
+      await navigator.clipboard.writeText(copyText);
+      setCopied(true);
+      window.setTimeout(() => setCopied(false), 1600);
+    } catch {
+      window.prompt("Copy address:", copyText);
+    }
+  }
+
+  const body = (
+    <>
+      <MapPin className="mt-0.5 size-3 shrink-0 text-primary" strokeWidth={2.4} />
+      <span className="min-w-0 flex-1">
+        {name && <span className="font-medium text-foreground">{name}</span>}
+        {name && address && <span className="text-dim"> · </span>}
+        {address && <span className="text-dim">{address}</span>}
+      </span>
+    </>
+  );
+
+  return (
+    <div className="mt-1.5 flex items-start gap-1">
+      {href ? (
+        <a
+          href={href}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex min-w-0 flex-1 items-start gap-1 text-[11px] leading-snug underline-offset-2 hover:underline"
+          title="Open in Maps"
+        >
+          {body}
+        </a>
+      ) : (
+        <div className="flex min-w-0 flex-1 items-start gap-1 text-[11px] leading-snug">
+          {body}
+        </div>
+      )}
+      {copyText && (
+        <button
+          type="button"
+          onClick={(e) => void copyAddress(e)}
+          className="mt-0.5 flex size-6 shrink-0 items-center justify-center rounded-md text-dim transition-colors hover:bg-page hover:text-foreground"
+          title={copied ? "Copied" : "Copy address"}
+          aria-label={copied ? "Address copied" : "Copy address"}
+        >
+          {copied ? <Check className="size-3" /> : <Copy className="size-3" />}
+        </button>
+      )}
+    </div>
+  );
+}
+
 export function EventCardRow({ card }: { card: Card }) {
   const flyer = card.media[0]?.url;
   const start = card.date_start ? new Date(card.date_start) : null;
   const end = card.date_end ? new Date(card.date_end) : null;
-
-  let timePart = "";
-  if (start && end) {
-    const sM = format(start, "a");
-    const eM = format(end, "a");
-    if (sM === eM) {
-      timePart = `${format(start, "h")}–${format(end, "h")} ${eM}`;
-    } else {
-      timePart = `${format(start, "h a")}–${format(end, "h a")}`;
-    }
-  } else if (start) {
-    timePart = format(start, "h:mm a").replace(":00", "");
-  }
-
-  const dayPart = start ? format(start, "EEE").toUpperCase() : null;
-  const meta = [dayPart, timePart, card.location_name].filter(Boolean).join(" · ");
+  // e.g. "SAT July 18"
+  const displayDate = start
+    ? `${format(start, "EEE").toUpperCase()} ${format(start, "MMMM d")}`
+    : null;
+  const timePart = start ? formatTimeRange(start, end) : "";
   const action = ctaLabel(card);
   const typeLabel = eventTypeLabel(card);
   const price = priceChip(card);
 
   return (
-    <div className="flex items-center gap-3 overflow-hidden rounded-[18px] border border-deck-card-brd bg-deck-card p-2.5 backdrop-blur-xl">
+    <div className="flex items-start gap-3 overflow-hidden rounded-[18px] border border-deck-card-brd bg-deck-card p-2.5 backdrop-blur-xl">
       {flyer ? (
         // eslint-disable-next-line @next/next/no-img-element
         <img
           src={flyer}
           alt=""
-          className="h-[92px] w-[68px] shrink-0 rounded-[12px] object-cover"
+          className="h-[104px] w-[72px] shrink-0 rounded-[12px] object-cover"
         />
       ) : (
         <EventDateChip card={card} />
       )}
 
       <div className="min-w-0 flex-1 py-0.5">
+        {flyer && displayDate && (
+          <div className="mb-0.5 text-[12px] font-semibold tracking-wide text-primary">
+            {displayDate}
+            {timePart ? <span className="font-medium text-dim"> · {timePart}</span> : null}
+          </div>
+        )}
+        {!flyer && timePart && (
+          <div className="mb-0.5 text-[12px] font-semibold text-primary">{timePart}</div>
+        )}
+
         <div className="mb-1 flex flex-wrap items-center gap-1.5">
           <span className="rounded-full border border-deck-card-brd bg-page/60 px-1.5 py-0.5 text-[9px] font-bold tracking-wide text-dim uppercase">
             {typeLabel}
@@ -148,10 +233,12 @@ export function EventCardRow({ card }: { card: Card }) {
             {price}
           </span>
         </div>
+
         <div className="font-display text-[18px] leading-tight text-foreground">
           {card.title}
         </div>
-        {meta && <div className="mt-0.5 text-[12px] text-dim">{meta}</div>}
+
+        <LocationRow name={card.location_name} address={card.location_address} />
       </div>
 
       {action && card.cta_url && (
@@ -159,7 +246,7 @@ export function EventCardRow({ card }: { card: Card }) {
           href={card.cta_url}
           target="_blank"
           rel="noopener noreferrer"
-          className="shrink-0 rounded-full bg-[#1b1813] px-3.5 py-2 text-[12px] font-semibold text-white transition-opacity hover:opacity-90"
+          className="mt-1 shrink-0 rounded-full bg-[#1b1813] px-3.5 py-2 text-[12px] font-semibold text-white transition-opacity hover:opacity-90"
         >
           {action}
         </a>
