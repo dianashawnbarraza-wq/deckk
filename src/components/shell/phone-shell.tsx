@@ -50,9 +50,11 @@ export function ThemeToggleButton({ className }: { className?: string }) {
 interface PhoneShellProps {
   children: ReactNode;
   className?: string;
+  /** Fill the viewport — used for landing gallery iframes. */
+  embed?: boolean;
 }
 
-export function PhoneShell({ children, className }: PhoneShellProps) {
+export function PhoneShell({ children, className, embed = false }: PhoneShellProps) {
   const [dark, setDark] = useState(true);
   const [ready, setReady] = useState(false);
 
@@ -83,6 +85,22 @@ export function PhoneShell({ children, className }: PhoneShellProps) {
       return next;
     });
   }, []);
+
+  if (embed) {
+    return (
+      <ThemeContext.Provider value={{ dark: true, toggleTheme, ready }}>
+        <div
+          data-theme="dark"
+          className={cn(
+            "dark relative h-dvh w-full overflow-hidden bg-page text-foreground",
+            className
+          )}
+        >
+          {children}
+        </div>
+      </ThemeContext.Provider>
+    );
+  }
 
   return (
     <ThemeContext.Provider value={{ dark, toggleTheme, ready }}>

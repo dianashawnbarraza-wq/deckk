@@ -10,7 +10,7 @@ export const revalidate = 60;
 
 interface PageProps {
   params: Promise<{ handle: string }>;
-  searchParams: Promise<{ tab?: string; preview?: string }>;
+  searchParams: Promise<{ tab?: string; preview?: string; embed?: string }>;
 }
 
 const TABS: PublicTab[] = ["home", "events", "shop", "adult", "listen", "writing"];
@@ -23,9 +23,10 @@ function normalizeTab(value: string | undefined): PublicTab {
 export default async function PublicDeckPage({ params, searchParams }: PageProps) {
   const { handle: rawHandle } = await params;
   const handle = rawHandle.replace(/^@/, "").toLowerCase();
-  const { tab: tabParam, preview } = await searchParams;
+  const { tab: tabParam, preview, embed: embedParam } = await searchParams;
   const tab = normalizeTab(tabParam);
   const previewMode = preview === "1" || preview === "true";
+  const embed = embedParam === "1" || embedParam === "true";
 
   const admin = createAdminClient();
 
@@ -69,6 +70,7 @@ export default async function PublicDeckPage({ params, searchParams }: PageProps
       isOwner={isOwner}
       previewMode={previewMode && isOwner}
       shareUrl={shareUrl}
+      embed={embed}
     />
   );
 }

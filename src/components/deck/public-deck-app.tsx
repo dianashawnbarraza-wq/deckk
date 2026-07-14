@@ -29,6 +29,7 @@ interface PublicDeckAppProps {
   isOwner: boolean;
   previewMode?: boolean;
   shareUrl: string;
+  embed?: boolean;
 }
 
 function AgeGateModal({
@@ -112,6 +113,7 @@ export function PublicDeckApp({
   isOwner,
   previewMode = false,
   shareUrl,
+  embed = false,
 }: PublicDeckAppProps) {
   const [activeTab, setActiveTab] = useState<PublicTab>(initialTab);
   const [, startTransition] = useTransition();
@@ -223,7 +225,7 @@ export function PublicDeckApp({
   }
 
   return (
-    <PhoneShell>
+    <PhoneShell embed={embed}>
       <div className="relative flex h-full flex-col">
         <div
           data-deck-scroll
@@ -234,7 +236,7 @@ export function PublicDeckApp({
             condensed={condensed && activeTab === "home"}
             showBio={!(condensed && activeTab === "home")}
             socialLinks={[...ranked.socialLinks, ...ranked.supportLinks]}
-            showThemeToggle
+            showThemeToggle={!embed}
             shareUrl={shareUrl}
             studioHref={studioHref}
             previewMode={previewMode}
