@@ -1,9 +1,8 @@
 "use client";
 
-import { useState } from "react";
 import Link from "next/link";
 import { format } from "date-fns";
-import { Calendar, Check, Copy, Heart, MapPin, ShoppingBag } from "lucide-react";
+import { Calendar, Heart, MapPin, ShoppingBag } from "lucide-react";
 import type { Card } from "@/types/cards";
 import { cn } from "@/lib/utils";
 import { SocialBrandIcon, PaymentBrandIcon } from "@/components/icons/social-icons";
@@ -95,12 +94,6 @@ function ctaLabel(card: Card): string | null {
   return "Details";
 }
 
-function mapsUrl(locationName: string | null, address: string | null): string | null {
-  const q = [locationName, address].filter(Boolean).join(", ");
-  if (!q) return null;
-  return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(q)}`;
-}
-
 function formatTimeRange(start: Date, end: Date | null): string {
   if (end) {
     const sM = format(start, "a");
@@ -120,64 +113,26 @@ function LocationRow({
   name: string | null;
   address: string | null;
 }) {
-  const [copied, setCopied] = useState(false);
-  const href = mapsUrl(name, address);
   const copyText = address || name;
   if (!name && !address) return null;
 
-  async function copyAddress(e: React.MouseEvent) {
-    e.preventDefault();
-    e.stopPropagation();
+  function onAddressTap() {
     if (!copyText) return;
-    try {
-      await navigator.clipboard.writeText(copyText);
-      setCopied(true);
-      window.setTimeout(() => setCopied(false), 1600);
-    } catch {
-      window.prompt("Copy address:", copyText);
-    }
+    window.prompt("Copy address", copyText);
   }
 
-  const body = (
-    <>
-      <MapPin className="mt-0.5 size-3 shrink-0 text-primary" strokeWidth={2.4} />
-      <span className="min-w-0 flex-1">
-        {name && <span className="font-medium text-foreground">{name}</span>}
-        {name && address && <span className="text-dim"> · </span>}
-        {address && <span className="text-dim">{address}</span>}
-      </span>
-    </>
-  );
+  const line = [name, address].filter(Boolean).join(" · ");
 
   return (
-    <div className="mt-1.5 flex items-start gap-1">
-      {href ? (
-        <a
-          href={href}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="flex min-w-0 flex-1 items-start gap-1 text-[11px] leading-snug underline-offset-2 hover:underline"
-          title="Open in Maps"
-        >
-          {body}
-        </a>
-      ) : (
-        <div className="flex min-w-0 flex-1 items-start gap-1 text-[11px] leading-snug">
-          {body}
-        </div>
-      )}
-      {copyText && (
-        <button
-          type="button"
-          onClick={(e) => void copyAddress(e)}
-          className="mt-0.5 flex size-6 shrink-0 items-center justify-center rounded-md text-dim transition-colors hover:bg-page hover:text-foreground"
-          title={copied ? "Copied" : "Copy address"}
-          aria-label={copied ? "Address copied" : "Copy address"}
-        >
-          {copied ? <Check className="size-3" /> : <Copy className="size-3" />}
-        </button>
-      )}
-    </div>
+    <button
+      type="button"
+      onClick={onAddressTap}
+      title="Tap to copy address"
+      className="mt-1.5 flex w-full min-w-0 items-center gap-1.5 text-left text-[11px] leading-snug text-foreground"
+    >
+      <MapPin className="size-3.5 shrink-0 text-foreground" strokeWidth={2.4} />
+      <span className="min-w-0 truncate">{line}</span>
+    </button>
   );
 }
 
@@ -195,62 +150,64 @@ export function EventCardRow({ card }: { card: Card }) {
   const price = priceChip(card);
 
   return (
-    <div className="flex items-start gap-3 overflow-hidden rounded-[18px] border border-deck-card-brd bg-deck-card p-2.5 backdrop-blur-xl">
-      {flyer ? (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img
-          src={flyer}
-          alt=""
-          className="h-[104px] w-[72px] shrink-0 rounded-[12px] object-cover"
-        />
-      ) : (
-        <EventDateChip card={card} />
-      )}
+    <div className="overflow-hidden rounded-[18px] border border-deck-card-brd bg-deck-card p-2.5 backdrop-blur-xl">
+      <div className="flex items-start gap-3">
+        {flyer ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={flyer}
+            alt=""
+            className="h-[104px] w-[72px] shrink-0 rounded-[12px] object-cover"
+          />
+        ) : (
+          <EventDateChip card={card} />
+        )}
 
-      <div className="min-w-0 flex-1 py-0.5">
-        {flyer && displayDate && (
-          <div className="mb-0.5 text-[12px] font-semibold tracking-wide text-primary">
-            {displayDate}
-            {timePart ? <span className="font-medium text-dim"> · {timePart}</span> : null}
+        <div className="min-w-0 flex-1 py-0.5">
+          {flyer && displayDate && (
+            <div className="mb-0.5 text-[12px] font-semibold tracking-wide text-primary">
+              {displayDate}
+              {timePart ? <span className="font-medium text-dim"> · {timePart}</span> : null}
+            </div>
+          )}
+          {!flyer && timePart && (
+            <div className="mb-0.5 text-[12px] font-semibold text-primary">{timePart}</div>
+          )}
+
+          <div className="mb-1 flex flex-wrap items-center gap-1.5">
+            <span className="rounded-full border border-deck-card-brd bg-page/60 px-1.5 py-0.5 text-[9px] font-bold tracking-wide text-dim uppercase">
+              {typeLabel}
+            </span>
+            <span
+              className={cn(
+                "rounded-full px-2 py-0.5 text-[10px] font-bold",
+                price === "Free"
+                  ? "border border-primary/40 text-primary"
+                  : "bg-[#1b1813] text-white"
+              )}
+            >
+              {price}
+            </span>
           </div>
-        )}
-        {!flyer && timePart && (
-          <div className="mb-0.5 text-[12px] font-semibold text-primary">{timePart}</div>
-        )}
 
-        <div className="mb-1 flex flex-wrap items-center gap-1.5">
-          <span className="rounded-full border border-deck-card-brd bg-page/60 px-1.5 py-0.5 text-[9px] font-bold tracking-wide text-dim uppercase">
-            {typeLabel}
-          </span>
-          <span
-            className={cn(
-              "rounded-full px-2 py-0.5 text-[10px] font-bold",
-              price === "Free"
-                ? "border border-primary/40 text-primary"
-                : "bg-[#1b1813] text-white"
-            )}
+          <div className="font-display text-[18px] leading-tight text-foreground">
+            {card.title}
+          </div>
+        </div>
+
+        {action && card.cta_url && (
+          <a
+            href={card.cta_url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="mt-1 shrink-0 rounded-full bg-[#1b1813] px-3.5 py-2 text-[12px] font-semibold text-white transition-opacity hover:opacity-90"
           >
-            {price}
-          </span>
-        </div>
-
-        <div className="font-display text-[18px] leading-tight text-foreground">
-          {card.title}
-        </div>
-
-        <LocationRow name={card.location_name} address={card.location_address} />
+            {action}
+          </a>
+        )}
       </div>
 
-      {action && card.cta_url && (
-        <a
-          href={card.cta_url}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="mt-1 shrink-0 rounded-full bg-[#1b1813] px-3.5 py-2 text-[12px] font-semibold text-white transition-opacity hover:opacity-90"
-        >
-          {action}
-        </a>
-      )}
+      <LocationRow name={card.location_name} address={card.location_address} />
     </div>
   );
 }

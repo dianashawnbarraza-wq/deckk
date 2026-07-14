@@ -7,18 +7,16 @@ interface DeckLogoProps {
   animate?: boolean;
 }
 
-/** Stacked tarot-style cards — used in nav headers. */
-export function DeckLogo({ className, size = 36, animate = true }: DeckLogoProps) {
-  const height = Math.round(size * 1.12);
-
+/** Floating purple card with a D — brand mark. */
+export function DeckLogo({ className, size = 28, animate = true }: DeckLogoProps) {
   return (
     <svg
-      viewBox="0 0 56 48"
+      viewBox="0 0 40 34"
       width={size}
-      height={height}
+      height={Math.round(size * 0.85)}
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
-      className={cn("shrink-0", animate && "deck-logo-levitate", className)}
+      className={cn("shrink-0 text-foreground", animate && "deck-logo-levitate", className)}
       role="img"
       aria-label="deckk"
     >

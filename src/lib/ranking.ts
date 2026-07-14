@@ -173,3 +173,32 @@ export function cardsForTab(ranked: RankedCards, tab: PublicTab): Card[] {
   }
   return out;
 }
+
+/**
+ * Next chronological upcoming event/announcement (still happening or not yet started).
+ * Used for Home "Next up" and Events calendar landing date.
+ */
+export function getNextUpcomingEvent(
+  cards: Card[],
+  now: Date = new Date()
+): Card | null {
+  const startOfToday = new Date(now);
+  startOfToday.setHours(0, 0, 0, 0);
+
+  const upcoming = cards
+    .filter((c) => {
+      if (c.status !== "live") return false;
+      if (c.type !== "event" && c.type !== "announcement") return false;
+      const end = c.date_end ?? c.date_start;
+      if (!end) return false;
+      // Still on or after start of today, OR end is still in the future
+      return new Date(end).getTime() >= startOfToday.getTime();
+    })
+    .sort((a, b) => {
+      const aT = new Date(a.date_start ?? a.date_end ?? 0).getTime();
+      const bT = new Date(b.date_start ?? b.date_end ?? 0).getTime();
+      return aT - bT;
+    });
+
+  return upcoming[0] ?? null;
+}

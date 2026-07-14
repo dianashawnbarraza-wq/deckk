@@ -14,9 +14,10 @@ import {
   SectionTitle,
 } from "@/components/cards/card-primitives";
 import { EventsCalendarView } from "@/components/deck/events-calendar";
-import { rankCards, cardsForTab } from "@/lib/ranking";
+import { rankCards, cardsForTab, getNextUpcomingEvent } from "@/lib/ranking";
 import { detectNavCapabilities } from "@/lib/card-taxonomy";
 import { cn } from "@/lib/utils";
+import { DeckLogo } from "@/components/brand/deck-logo";
 
 const ADULT_OK_KEY = "deckk-adult-ok";
 
@@ -85,9 +86,7 @@ function DeckkFooter() {
   return (
     <footer className="mt-10 border-t border-deck-card-brd px-1 pb-2 pt-6 text-center">
       <div className="mb-2 flex items-center justify-center gap-1.5">
-        <div className="flex size-5 items-center justify-center rounded-[6px] bg-primary text-[11px] text-primary-foreground">
-          ✦
-        </div>
+        <DeckLogo size={24} />
         <span className="font-display text-lg text-foreground">
           deckk<span className="text-primary">.</span>me
         </span>
@@ -125,25 +124,27 @@ export function PublicDeckApp({
   const visible = cardsForTab(ranked, activeTab);
   const capabilities = detectNavCapabilities(cards);
   const basePath = `/${deck.handle}`;
-  const nextEvent =
-    ranked.pinned?.type === "event" || ranked.pinned?.type === "announcement"
-      ? ranked.pinned
-      : ranked.happeningSoon[0];
-  const upcomingCount =
-    (ranked.pinned &&
-    (ranked.pinned.type === "event" || ranked.pinned.type === "announcement")
-      ? 1
-      : 0) +
-    ranked.happeningSoon.filter((c) => c.id !== ranked.pinned?.id).length;
+  const nextEvent = getNextUpcomingEvent(cards);
+  const upcomingCount = cards.filter((c) => {
+    if (c.status !== "live") return false;
+    if (c.type !== "event" && c.type !== "announcement") return false;
+    const end = c.date_end ?? c.date_start;
+    if (!end) return false;
+    const startOfToday = new Date();
+    startOfToday.setHours(0, 0, 0, 0);
+    return new Date(end).getTime() >= startOfToday.getTime();
+  }).length;
   const showViewAllEvents = upcomingCount > 1;
 
   const allEvents = [
-    ...(ranked.pinned &&
-    (ranked.pinned.type === "event" || ranked.pinned.type === "announcement")
-      ? [ranked.pinned]
-      : []),
     ...ranked.happeningSoon,
     ...ranked.past,
+    ...(ranked.pinned &&
+    (ranked.pinned.type === "event" || ranked.pinned.type === "announcement") &&
+    !ranked.happeningSoon.some((c) => c.id === ranked.pinned!.id) &&
+    !ranked.past.some((c) => c.id === ranked.pinned!.id)
+      ? [ranked.pinned]
+      : []),
   ].filter((c, i, arr) => arr.findIndex((x) => x.id === c.id) === i);
 
   const selectTab = useCallback(
@@ -314,7 +315,9 @@ export function PublicDeckApp({
               </>
             )}
 
-            {activeTab === "events" && <EventsCalendarView events={allEvents} />}
+            {activeTab === "events" && (
+              <EventsCalendarView events={allEvents} nextUpcoming={nextEvent} />
+            )}
 
             {activeTab === "shop" && (
               <>

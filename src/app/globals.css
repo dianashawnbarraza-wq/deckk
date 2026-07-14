@@ -276,6 +276,10 @@
   }
 }
 
+.deck-logo-levitate {
+  animation: deck-logo-levitate 3.2s ease-in-out infinite;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .deck-logo-levitate {
     animation: none;

@@ -29,16 +29,22 @@ function eventDay(card: Card): Date | null {
 
 type ViewMode = "calendar" | "list";
 
-export function EventsCalendarView({ events }: { events: Card[] }) {
-  const [viewMode, setViewMode] = useState<ViewMode>("calendar");
-  const [cursor, setCursor] = useState(() => {
-    const first = events.map(eventDay).find(Boolean);
-    return first ? startOfMonth(first) : startOfMonth(new Date());
-  });
-  const [selected, setSelected] = useState(() => {
+export function EventsCalendarView({
+  events,
+  nextUpcoming = null,
+}: {
+  events: Card[];
+  nextUpcoming?: Card | null;
+}) {
+  const landingDay = (() => {
+    if (nextUpcoming?.date_start) return new Date(nextUpcoming.date_start);
     const first = events.map(eventDay).find(Boolean);
     return first ?? new Date();
-  });
+  })();
+
+  const [viewMode, setViewMode] = useState<ViewMode>("calendar");
+  const [cursor, setCursor] = useState(() => startOfMonth(landingDay));
+  const [selected, setSelected] = useState(() => landingDay);
 
   const eventsByDay = useMemo(() => {
     const map = new Map<string, Card[]>();

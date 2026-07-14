@@ -8,6 +8,7 @@ import { cn } from "@/lib/utils";
 import type { Card, Deck } from "@/types/cards";
 import { ThemeToggleButton } from "@/components/shell/phone-shell";
 import { SocialIconLink } from "@/components/cards/card-primitives";
+import { DeckLogo } from "@/components/brand/deck-logo";
 
 function StatusBarClock() {
   const [time, setTime] = useState("--:--");
@@ -116,10 +117,8 @@ export function DeckIdentityHeader({
           className="group flex min-w-0 items-center gap-0.5"
           title="Sign up for deckk.me"
         >
-          <div className="flex size-7 shrink-0 items-center justify-center rounded-[9px] bg-primary text-[15px] text-primary-foreground">
-            ✦
-          </div>
-          <div className="ml-1.5 font-display text-xl leading-none text-foreground">
+          <DeckLogo size={28} />
+          <div className="ml-1 font-display text-xl leading-none text-foreground">
             deckk<span className="text-primary">.</span>me
           </div>
           <ArrowUpRight className="size-3 shrink-0 text-dim transition-colors group-hover:text-foreground" />
