@@ -1,5 +1,8 @@
 import { env } from "@/lib/env";
 
+/** Flat processing fee on ticket orders ($2.00), not per ticket. */
+export const TICKET_PLATFORM_FEE_CENTS = 200;
+
 /** Platform fee in basis points (default 0 = deckk.me charges 0% per §11). */
 export function getPlatformFeeBps(): number {
   return env.platformFeeBps();
