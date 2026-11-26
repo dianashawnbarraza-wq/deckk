@@ -25,7 +25,8 @@ function hostOf(url: string | null | undefined): string {
 
 export function detectSocialKind(card: Pick<Card, "title" | "cta_url" | "tags">): SocialKind {
   const host = hostOf(card.cta_url);
-  const blob = `${card.title} ${card.tags.join(" ")}`.toLowerCase();
+  const tags = Array.isArray(card.tags) ? card.tags.join(" ") : "";
+  const blob = `${card.title} ${tags}`.toLowerCase();
   if (host.includes("instagram") || blob.includes("instagram")) return "instagram";
   if (host.includes("tiktok") || blob.includes("tiktok")) return "tiktok";
   if (host === "x.com" || host.includes("twitter") || /\b(twitter|\bx\b)\b/.test(blob)) return "x";
@@ -41,7 +42,8 @@ export function detectSocialKind(card: Pick<Card, "title" | "cta_url" | "tags">)
 
 export function detectPaymentKind(card: Pick<Card, "title" | "cta_url" | "tags">): PaymentKind {
   const host = hostOf(card.cta_url);
-  const blob = `${card.title} ${card.tags.join(" ")} ${card.cta_url ?? ""}`.toLowerCase();
+  const tags = Array.isArray(card.tags) ? card.tags.join(" ") : "";
+  const blob = `${card.title} ${tags} ${card.cta_url ?? ""}`.toLowerCase();
   if (host.includes("venmo") || blob.includes("venmo")) return "venmo";
   if (host.includes("cash.app") || blob.includes("cash app") || blob.includes("cashapp")) {
     return "cashapp";

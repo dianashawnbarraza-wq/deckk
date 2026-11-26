@@ -2,11 +2,8 @@
 
 import { useState } from "react";
 import Image from "next/image";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
 import type { PaymentLink, Product } from "@/types/database";
+import { cn } from "@/lib/utils";
 
 function formatUsd(cents: number): string {
   return new Intl.NumberFormat("en-US", {
@@ -24,7 +21,8 @@ export function ProductPaymentCard({
   product,
   handle,
   chargesEnabled,
-}: PaymentCardProps & { product: Product }) {
+  framed = true,
+}: PaymentCardProps & { product: Product; framed?: boolean }) {
   const [loading, setLoading] = useState(false);
   const soldOut =
     product.inventory_qty !== null && product.inventory_qty <= 0;
@@ -49,52 +47,90 @@ export function ProductPaymentCard({
     }
   }
 
-  return (
-    <Card className="overflow-hidden">
-      {product.images[0] && (
-        <div className="relative aspect-[16/10] w-full bg-paper-sunken">
+  const body = (
+    <>
+      <div
+        className={cn(
+          "relative aspect-[4/3] w-full shrink-0 bg-page/40",
+          !framed && "overflow-hidden rounded-[12px]"
+        )}
+      >
+        {product.images[0] ? (
           <Image
             src={product.images[0]}
             alt={product.title}
             fill
             className="object-cover"
-            sizes="(max-width: 768px) 100vw, 400px"
+            sizes="(max-width: 768px) 50vw, 420px"
           />
-        </div>
-      )}
-      <CardHeader className="pb-2">
-        <p className="mb-1 text-[0.6875rem] font-semibold uppercase tracking-[0.14em] text-brand-accent-strong">
-          Shop
-        </p>
-        <CardTitle>{product.title}</CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-4">
-        {product.description && (
-          <p className="text-base text-muted-foreground">{product.description}</p>
+        ) : null}
+      </div>
+      <div
+        className={cn(
+          "flex min-h-0 flex-1 flex-col space-y-2",
+          framed ? "p-2.5 lg:space-y-3 lg:p-5" : "pt-2.5 lg:pt-4"
         )}
-        <div className="flex items-center justify-between gap-2">
-          <span className="font-display text-2xl text-ink">{formatUsd(product.price_cents)}</span>
-          {product.inventory_qty !== null && (
-            <Badge variant="secondary">
-              {soldOut ? "Sold out" : `${product.inventory_qty} left`}
-            </Badge>
+      >
+        <p className="line-clamp-2 text-[13px] font-semibold leading-snug text-foreground lg:font-display lg:text-[24px] lg:leading-tight">
+          {product.title}
+        </p>
+        {product.description ? (
+          <p className="line-clamp-2 text-[11px] leading-relaxed text-dim lg:text-[14px]">
+            {product.description}
+          </p>
+        ) : (
+          <p className="line-clamp-2 text-[11px] leading-relaxed text-transparent lg:text-[14px]" aria-hidden>
+            &nbsp;
+          </p>
+        )}
+        <div className="mt-auto flex flex-col gap-2 pt-1">
+          <div className="flex items-center justify-between gap-1">
+            <span className="text-[13px] font-bold text-foreground lg:text-[17px]">
+              {formatUsd(product.price_cents)}
+            </span>
+            {product.inventory_qty !== null && (
+              <span className="rounded-full border border-deck-card-brd bg-page/60 px-1.5 py-0.5 text-[9px] font-bold tracking-wide text-dim uppercase lg:px-2.5 lg:py-1 lg:text-[11px]">
+                {soldOut ? "Sold out" : `${product.inventory_qty} left`}
+              </span>
+            )}
+          </div>
+          {!chargesEnabled ? (
+            <button
+              type="button"
+              disabled
+              className="w-full rounded-xl border border-deck-card-brd bg-page/50 py-2 text-[12px] font-semibold text-dim lg:rounded-2xl lg:py-3 lg:text-[14px]"
+            >
+              Coming soon
+            </button>
+          ) : soldOut ? (
+            <button
+              type="button"
+              disabled
+              className="w-full rounded-xl border border-deck-card-brd bg-page/50 py-2 text-[12px] font-semibold text-dim lg:rounded-2xl lg:py-3 lg:text-[14px]"
+            >
+              Sold out
+            </button>
+          ) : (
+            <button
+              type="button"
+              onClick={() => void checkout()}
+              disabled={loading}
+              className="w-full rounded-xl bg-primary py-2 text-[12px] font-semibold text-primary-foreground transition-transform active:scale-[0.98] disabled:opacity-60 lg:rounded-2xl lg:py-3 lg:text-[14px]"
+            >
+              {loading ? "Loading…" : "Buy now"}
+            </button>
           )}
         </div>
-        {!chargesEnabled ? (
-          <Button disabled className="w-full">
-            Coming soon
-          </Button>
-        ) : soldOut ? (
-          <Button disabled className="w-full">
-            Sold out
-          </Button>
-        ) : (
-          <Button onClick={checkout} disabled={loading} className="w-full">
-            {loading ? "Loading…" : "Buy now"}
-          </Button>
-        )}
-      </CardContent>
-    </Card>
+      </div>
+    </>
+  );
+
+  if (!framed) return <div className="flex h-full flex-col">{body}</div>;
+
+  return (
+    <div className="flex h-full flex-col overflow-hidden rounded-[14px] border border-deck-card-brd bg-deck-card shadow-[0_10px_30px_-18px_var(--deck-shadow)] backdrop-blur-xl lg:rounded-[24px] lg:shadow-[0_24px_50px_-28px_var(--deck-shadow)]">
+      {body}
+    </div>
   );
 }
 
@@ -108,7 +144,7 @@ export function TipJarCard({
 
   async function checkout() {
     const dollars = Number.parseFloat(amount);
-    if (!Number.isFinite(dollars) || dollars < 1 || dollars > 500) return;
+    if (!Number.isFinite(dollars) || dollars < 1 || dollars > 25000) return;
 
     setLoading(true);
     try {
@@ -130,42 +166,48 @@ export function TipJarCard({
   }
 
   return (
-    <Card>
-      <CardHeader>
-        <p className="mb-1 text-[0.6875rem] font-semibold uppercase tracking-[0.14em] text-brand-accent-strong">
-          Support
-        </p>
-        <CardTitle>{link.title}</CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-4">
-        <p className="text-base text-muted-foreground">
-          Support with any amount from $1 to $500
-        </p>
-        {!chargesEnabled ? (
-          <Button disabled className="w-full">
-            Coming soon
-          </Button>
-        ) : (
-          <>
-            <div className="flex gap-2">
-              <span className="flex items-center text-muted-foreground">$</span>
-              <Input
-                type="number"
-                min={1}
-                max={500}
-                step={0.01}
-                value={amount}
-                onChange={(e) => setAmount(e.target.value)}
-                aria-label="Tip amount in dollars"
-              />
-            </div>
-            <Button onClick={checkout} disabled={loading} className="w-full">
-              {loading ? "Loading…" : "Send support"}
-            </Button>
-          </>
-        )}
-      </CardContent>
-    </Card>
+    <div className="rounded-[14px] border border-deck-card-brd bg-deck-card p-3 backdrop-blur-xl">
+      <p className="mb-0.5 text-[9px] font-bold tracking-[0.14em] text-primary uppercase">
+        Support
+      </p>
+      <p className="text-[15px] font-semibold text-foreground">{link.title}</p>
+      <p className="mt-1 text-[12px] leading-relaxed text-dim">
+        Any amount from $1 up
+      </p>
+      {!chargesEnabled ? (
+        <button
+          type="button"
+          disabled
+          className="mt-3 w-full rounded-xl border border-deck-card-brd bg-page/50 py-2.5 text-[13px] font-semibold text-dim"
+        >
+          Coming soon
+        </button>
+      ) : (
+        <div className="mt-3 space-y-2">
+          <div className="flex items-center gap-2">
+            <span className="text-[13px] text-dim">$</span>
+            <input
+              type="number"
+              min={1}
+              max={25000}
+              step={0.01}
+              value={amount}
+              onChange={(e) => setAmount(e.target.value)}
+              aria-label="Tip amount in dollars"
+              className="min-w-0 flex-1 rounded-xl border border-deck-card-brd bg-page/60 px-3 py-2 text-[16px] text-foreground outline-none focus:border-primary"
+            />
+          </div>
+          <button
+            type="button"
+            onClick={() => void checkout()}
+            disabled={loading}
+            className="w-full rounded-xl bg-primary py-2.5 text-[13px] font-semibold text-primary-foreground transition-transform active:scale-[0.98] disabled:opacity-60"
+          >
+            {loading ? "Loading…" : "Send support"}
+          </button>
+        </div>
+      )}
+    </div>
   );
 }
 
@@ -196,27 +238,38 @@ export function FixedPaymentLinkCard({
   }
 
   return (
-    <Card>
-      <CardHeader>
-        <p className="mb-1 text-[0.6875rem] font-semibold uppercase tracking-[0.14em] text-brand-accent-strong">
-          Support
+    <div className="flex items-center gap-3 rounded-[14px] border border-deck-card-brd bg-deck-card p-3 backdrop-blur-xl">
+      <div className="min-w-0 flex-1">
+        <p className="mb-0.5 text-[9px] font-bold tracking-[0.14em] text-primary uppercase">
+          Pay
         </p>
-        <CardTitle>{link.title}</CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-4">
-        {link.amount_cents && (
-          <p className="font-display text-2xl text-ink">{formatUsd(link.amount_cents)}</p>
-        )}
-        {!chargesEnabled ? (
-          <Button disabled className="w-full">
-            Coming soon
-          </Button>
-        ) : (
-          <Button onClick={checkout} disabled={loading} className="w-full">
-            {loading ? "Loading…" : "Pay now"}
-          </Button>
-        )}
-      </CardContent>
-    </Card>
+        <p className="truncate text-[14px] font-semibold text-foreground">
+          {link.title}
+        </p>
+        {link.amount_cents ? (
+          <p className="mt-0.5 text-[13px] font-bold text-foreground">
+            {formatUsd(link.amount_cents)}
+          </p>
+        ) : null}
+      </div>
+      {!chargesEnabled ? (
+        <button
+          type="button"
+          disabled
+          className="shrink-0 rounded-xl border border-deck-card-brd bg-page/50 px-3 py-2 text-[12px] font-semibold text-dim"
+        >
+          Soon
+        </button>
+      ) : (
+        <button
+          type="button"
+          onClick={() => void checkout()}
+          disabled={loading}
+          className="shrink-0 rounded-xl bg-primary px-3 py-2 text-[12px] font-semibold text-primary-foreground transition-transform active:scale-[0.98] disabled:opacity-60"
+        >
+          {loading ? "…" : "Pay"}
+        </button>
+      )}
+    </div>
   );
 }

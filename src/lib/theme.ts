@@ -7,8 +7,8 @@ export const ACCENT_PRESETS: Record<
   poppy: { label: "Poppy", accent: "#FF4433", accentStrong: "#C42E1F" },
   lime: { label: "Lime", accent: "#9AE600", accentStrong: "#4D7300" },
   cobalt: { label: "Cobalt", accent: "#2D5BFF", accentStrong: "#1A3DB8" },
-  grape: { label: "Grape", accent: "#8B5CF6", accentStrong: "#6D28D9" },
-  ink: { label: "Ink", accent: "#191512", accentStrong: "#191512" },
+  grape: { label: "Grape", accent: "#332D3B", accentStrong: "#1F1A24" },
+  ink: { label: "Ink", accent: "#1A1A1A", accentStrong: "#1A1A1A" },
 };
 
 export function resolveAccentPreset(theme: unknown): AccentPreset {
@@ -29,5 +29,9 @@ export function accentStyle(preset: AccentPreset): Record<string, string> {
   return {
     ["--brand-accent" as string]: accent,
     ["--brand-accent-strong" as string]: accentStrong,
+    // Keep deck chrome in sync when a creator picks an accent swatch
+    ["--accent" as string]: accent,
+    ["--primary" as string]: accent,
+    ["--ring" as string]: accent,
   };
 }

@@ -1,18 +1,33 @@
 import type { Metadata } from "next";
-import { Instrument_Serif, Space_Grotesk, UnifrakturMaguntia } from "next/font/google";
+import { UnifrakturMaguntia } from "next/font/google";
+import localFont from "next/font/local";
 import "./globals.css";
 
-const instrumentSerif = Instrument_Serif({
-  variable: "--font-instrument-serif",
-  subsets: ["latin"],
-  weight: "400",
-  style: ["normal", "italic"],
-});
-
-const spaceGrotesk = Space_Grotesk({
-  variable: "--font-space-grotesk",
-  subsets: ["latin"],
-  weight: ["400", "500", "600", "700"],
+const duckSans = localFont({
+  src: [
+    {
+      path: "./fonts/duck-sans/DuckSans-Regular.otf",
+      weight: "400",
+      style: "normal",
+    },
+    {
+      path: "./fonts/duck-sans/DuckSans-Medium.otf",
+      weight: "500",
+      style: "normal",
+    },
+    {
+      path: "./fonts/duck-sans/DuckSans-Semibold.otf",
+      weight: "600",
+      style: "normal",
+    },
+    {
+      path: "./fonts/duck-sans/DuckSans-Bold.otf",
+      weight: "700",
+      style: "normal",
+    },
+  ],
+  variable: "--font-duck-sans",
+  display: "swap",
 });
 
 const unifrakturMaguntia = UnifrakturMaguntia({
@@ -22,9 +37,9 @@ const unifrakturMaguntia = UnifrakturMaguntia({
 });
 
 export const metadata: Metadata = {
-  title: "deckk.me — your whole deck, dealt in one link",
+  title: "deckk.me | Everything you share. One clear page.",
   description:
-    "A living micro site for makers — events, shop, and links with hierarchy that actually helps visitors find what matters.",
+    "Turn flyers, products, and posts into a structured page with events, a shop, and one bio link. People find what they need without digging. Public beta soon.",
 };
 
 export default function RootLayout({
@@ -35,9 +50,11 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${instrumentSerif.variable} ${spaceGrotesk.variable} ${unifrakturMaguntia.variable} h-full`}
+      className={`${duckSans.variable} ${unifrakturMaguntia.variable} h-full`}
     >
-      <body className="min-h-full flex flex-col font-sans">{children}</body>
+      <body className={`min-h-full flex flex-col font-sans ${duckSans.className}`}>
+        {children}
+      </body>
     </html>
   );
 }

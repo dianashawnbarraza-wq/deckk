@@ -5,15 +5,25 @@ import {
   useCallback,
   useContext,
   useEffect,
+  useRef,
   useState,
   type ReactNode,
 } from "react";
-import { Moon, Sun } from "lucide-react";
+import { Moon, Sparkles, Sun } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { CopyToastProvider } from "@/components/shell/deck-copy-toast";
+import {
+  deckAppearance,
+  nextAppearance,
+  type Appearance,
+} from "@/lib/appearance";
+
+export { deckAppearance, type Appearance };
 
 const STORAGE_KEY = "deckk-theme";
 
 type ThemeContextValue = {
+  appearance: Appearance;
   dark: boolean;
   toggleTheme: () => void;
   ready: boolean;
@@ -29,20 +39,32 @@ export function usePhoneTheme() {
   return ctx;
 }
 
+function ThemeGlyph({ appearance }: { appearance: Appearance }) {
+  if (appearance === "dark") return <Sun className="size-4" strokeWidth={2} />;
+  if (appearance === "lilac") return <Sparkles className="size-4" strokeWidth={2} />;
+  return <Moon className="size-4" fill="currentColor" />;
+}
+
 export function ThemeToggleButton({ className }: { className?: string }) {
-  const { dark, toggleTheme } = usePhoneTheme();
+  const { appearance, toggleTheme } = usePhoneTheme();
+  const label =
+    appearance === "dark"
+      ? "Switch to light mode"
+      : appearance === "light"
+        ? "Switch to lilac mode"
+        : "Switch to dark mode";
   return (
     <button
       type="button"
       onClick={toggleTheme}
-      title={dark ? "Switch to light mode" : "Switch to dark mode"}
-      aria-label={dark ? "Switch to light mode" : "Switch to dark mode"}
+      title={label}
+      aria-label={label}
       className={cn(
         "flex size-9 items-center justify-center rounded-full border border-deck-card-brd bg-deck-card text-foreground backdrop-blur-md transition-colors",
         className
       )}
     >
-      {dark ? <Sun className="size-4" strokeWidth={2} /> : <Moon className="size-4" fill="currentColor" />}
+      <ThemeGlyph appearance={appearance} />
     </button>
   );
 }
@@ -52,92 +74,183 @@ interface PhoneShellProps {
   className?: string;
   /** Fill the viewport — used for landing gallery iframes. */
   embed?: boolean;
+  /**
+   * `phone` — device chrome (Studio preview / narrow phones).
+   * `responsive` — full-page public layout on desktop, phone chrome on small screens.
+   */
+  layout?: "phone" | "responsive";
+  /**
+   * Creator-chosen appearance for the public deck / Studio preview.
+   * When set (without visitor persistence), visitors cannot override it.
+   */
+  appearance?: Appearance;
+  /** Studio: persist appearance when the creator toggles. */
+  onAppearanceChange?: (next: Appearance) => void;
 }
 
-export function PhoneShell({ children, className, embed = false }: PhoneShellProps) {
-  const [dark, setDark] = useState(true);
+function parseStoredAppearance(raw: string | null): Appearance | null {
+  if (raw === "dark" || raw === "light" || raw === "lilac") return raw;
+  return null;
+}
+
+export function PhoneShell({
+  children,
+  className,
+  embed = false,
+  layout = "phone",
+  appearance: appearanceProp,
+  onAppearanceChange,
+}: PhoneShellProps) {
+  const controlled = appearanceProp !== undefined;
+  const [localAppearance, setLocalAppearance] = useState<Appearance>("dark");
   const [ready, setReady] = useState(false);
+  const cosmicRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    if (controlled) {
+      setReady(true);
+      return;
+    }
     try {
-      const stored = localStorage.getItem(STORAGE_KEY);
-      if (stored === "dark") setDark(true);
-      else if (stored === "light") setDark(false);
+      const stored = parseStoredAppearance(localStorage.getItem(STORAGE_KEY));
+      if (stored) setLocalAppearance(stored);
       else {
-        // Default to dark so new visitors (and reviews) see the dark look first
-        setDark(true);
+        setLocalAppearance("dark");
         localStorage.setItem(STORAGE_KEY, "dark");
       }
     } catch {
-      setDark(true);
+      setLocalAppearance("dark");
     }
     setReady(true);
-  }, []);
+  }, [controlled]);
+
+  useEffect(() => {
+    if (layout !== "responsive") return;
+
+    let frame = 0;
+    function syncCosmic(scrollTop: number, maxScroll: number) {
+      const el = cosmicRef.current;
+      if (!el) return;
+      const p = Math.min(1, Math.max(0, scrollTop / Math.max(1, maxScroll)));
+      el.style.setProperty("--deck-scroll", String(p));
+      el.style.setProperty("--deck-scroll-y", `${scrollTop}px`);
+    }
+
+    function onWindowScroll() {
+      cancelAnimationFrame(frame);
+      frame = requestAnimationFrame(() => {
+        const max =
+          document.documentElement.scrollHeight - window.innerHeight;
+        syncCosmic(window.scrollY, max);
+      });
+    }
+
+    function onDeckScroll(e: Event) {
+      const target = e.target as HTMLElement | null;
+      if (!target) return;
+      cancelAnimationFrame(frame);
+      frame = requestAnimationFrame(() => {
+        const max = target.scrollHeight - target.clientHeight;
+        syncCosmic(target.scrollTop, max);
+      });
+    }
+
+    onWindowScroll();
+    window.addEventListener("scroll", onWindowScroll, { passive: true });
+    const deck = document.querySelector("[data-deck-scroll]");
+    deck?.addEventListener("scroll", onDeckScroll, { passive: true });
+    return () => {
+      cancelAnimationFrame(frame);
+      window.removeEventListener("scroll", onWindowScroll);
+      deck?.removeEventListener("scroll", onDeckScroll);
+    };
+  }, [layout]);
+
+  const appearance = controlled ? appearanceProp! : localAppearance;
+  const dark = appearance === "dark";
 
   const toggleTheme = useCallback(() => {
-    setDark((prev) => {
-      const next = !prev;
-      try {
-        localStorage.setItem(STORAGE_KEY, next ? "dark" : "light");
-      } catch {
-        // ignore
-      }
-      return next;
-    });
-  }, []);
+    const next = nextAppearance(appearance);
+    if (onAppearanceChange) {
+      onAppearanceChange(next);
+      return;
+    }
+    if (controlled) return;
+    setLocalAppearance(next);
+    try {
+      localStorage.setItem(STORAGE_KEY, next);
+    } catch {
+      // ignore
+    }
+  }, [appearance, controlled, onAppearanceChange]);
 
   if (embed) {
+    const embedAppearance = controlled ? appearanceProp! : "dark";
+    const embedDark = embedAppearance === "dark";
     return (
-      <ThemeContext.Provider value={{ dark: true, toggleTheme, ready }}>
+      <ThemeContext.Provider
+        value={{ appearance: embedAppearance, dark: embedDark, toggleTheme, ready: true }}
+      >
         <div
-          data-theme="dark"
+          data-theme={embedAppearance}
           className={cn(
-            "dark relative h-dvh w-full overflow-hidden bg-page text-foreground",
+            "relative h-full min-h-0 w-full overflow-hidden bg-page text-foreground",
+            // Full-viewport embeds (e.g. /handle?embed=1) still fill the screen.
+            !className && "h-dvh",
+            embedDark && "dark",
             className
           )}
         >
-          {children}
+          {embedDark && <div className="deckk-purple-glow" aria-hidden />}
+          <div className="relative z-[1] h-full">
+            <CopyToastProvider>{children}</CopyToastProvider>
+          </div>
         </div>
       </ThemeContext.Provider>
     );
   }
 
   return (
-    <ThemeContext.Provider value={{ dark, toggleTheme, ready }}>
+    <ThemeContext.Provider value={{ appearance, dark, toggleTheme, ready }}>
       <div
-        data-theme={dark ? "dark" : "light"}
+        data-theme={appearance}
         className={cn(
-          "flex min-h-dvh items-center justify-center bg-backdrop p-3.5 transition-colors duration-500 sm:p-5",
+          "flex min-h-dvh justify-center overflow-x-hidden transition-colors duration-500",
+          layout === "responsive"
+            ? "items-stretch bg-page p-0"
+            : "items-center bg-backdrop p-3.5 sm:p-5",
           dark && "dark",
           className
         )}
       >
         <div
-          data-phone-frame
-          className="relative h-[868px] w-full max-w-phone max-h-[calc(100dvh-30px)] overflow-hidden rounded-[46px] border border-phone-brd bg-page text-foreground shadow-[0_50px_90px_-40px_var(--deck-shadow),0_10px_30px_-20px_var(--deck-shadow)] transition-colors duration-500"
+          data-phone-frame={layout === "phone" ? "" : undefined}
+          className={cn(
+            "relative w-full overflow-x-hidden bg-page text-foreground transition-colors duration-500",
+            layout === "responsive"
+              ? "min-h-dvh w-full max-w-none border-0 shadow-none overflow-y-visible"
+              : "h-[868px] max-h-[calc(100dvh-30px)] max-w-phone overflow-hidden rounded-[36px] border border-phone-brd shadow-[0_50px_90px_-40px_var(--deck-shadow),0_10px_30px_-20px_var(--deck-shadow)]"
+          )}
         >
-          <div
-            className="pointer-events-none absolute -left-10 -top-[60px] h-[260px] w-[260px] rounded-full opacity-50 blur-[30px]"
-            style={{
-              background: "radial-gradient(circle, var(--accent), transparent 70%)",
-              animation: "deckk-float 14s ease-in-out infinite",
-            }}
-          />
-          <div
-            className="pointer-events-none absolute -right-[70px] top-[220px] h-[240px] w-[240px] rounded-full opacity-40 blur-[34px]"
-            style={{
-              background: "radial-gradient(circle, #6a4c86, transparent 70%)",
-              animation: "deckk-float 18s ease-in-out infinite reverse",
-            }}
-          />
-          <div
-            className="pointer-events-none absolute -left-[50px] bottom-10 h-[230px] w-[230px] rounded-full opacity-35 blur-[34px]"
-            style={{
-              background: "radial-gradient(circle, var(--accent-2), transparent 70%)",
-              animation: "deckk-float 16s ease-in-out infinite",
-            }}
-          />
-          {children}
+          {dark && <div className="deckk-purple-glow" aria-hidden />}
+          {layout === "responsive" || appearance === "lilac" ? (
+            <div
+              ref={cosmicRef}
+              className={cn(
+                "deckk-cosmic pointer-events-none absolute inset-0 z-0 overflow-hidden",
+                appearance === "lilac" && "deckk-lilac-grain"
+              )}
+              aria-hidden
+            >
+              <div className="deckk-cosmic-nebula deckk-cosmic-nebula-a" />
+              <div className="deckk-cosmic-nebula deckk-cosmic-nebula-b" />
+              <div className="deckk-cosmic-nebula deckk-cosmic-nebula-c" />
+              <div className="deckk-cosmic-stars" />
+            </div>
+          ) : null}
+          <div className="relative z-[1] h-full">
+            <CopyToastProvider>{children}</CopyToastProvider>
+          </div>
         </div>
       </div>
     </ThemeContext.Provider>
