@@ -5,8 +5,14 @@ export type CardSource = "manual" | "extracted";
 export interface DeckTheme {
   accent?: string;
   dark?: boolean;
+  /** Public deck appearance. Prefer this over `dark` when present. */
+  appearance?: "dark" | "light" | "lilac";
   pronouns?: string;
   location?: string;
+  /** Set after first-run photo / bio / socials wizard. */
+  onboarding_complete?: boolean;
+  /** Ordered custom shop category chips (All is always implied). */
+  shopCategories?: { id: string; label: string }[];
 }
 
 export interface Deck {
@@ -54,6 +60,17 @@ export interface Card {
   collection_id: string | null;
   created_at: string;
   updated_at: string;
+  /** Directory / ticketing (optional until migration applied). */
+  city?: string | null;
+  directory_opt_in?: boolean;
+  ticket_price_cents?: number | null;
+  ticket_capacity?: number | null;
+  tickets_sold?: number;
+  ticketing_enabled?: boolean;
+  /** Public URL slug for /events/[slug] (optional until migration). */
+  slug?: string | null;
+  /** Co-hosts shown on the public event page (optional until migration). */
+  hosts?: { name: string; handle?: string | null; note?: string | null }[];
 }
 
 export type PublicTab = "home" | "events" | "shop" | "adult" | "listen" | "writing";

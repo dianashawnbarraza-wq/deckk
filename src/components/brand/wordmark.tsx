@@ -1,4 +1,5 @@
 import { cn } from "@/lib/utils";
+import { DeckWordmarkMark } from "@/components/brand/deck-wordmark-mark";
 
 export function Wordmark({
   className,
@@ -8,13 +9,8 @@ export function Wordmark({
   as?: "span" | "p" | "h1";
 }) {
   return (
-    <Tag
-      className={cn(
-        "font-display text-[1.75rem] italic leading-[1.02] tracking-tight text-ink",
-        className
-      )}
-    >
-      deckk
+    <Tag className={cn("inline-flex items-center text-ink", className)}>
+      <DeckWordmarkMark className="h-[1.1em] w-auto" />
     </Tag>
   );
 }

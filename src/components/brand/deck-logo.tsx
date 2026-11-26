@@ -1,27 +1,53 @@
-import { DeckLogoGraphic } from "@/components/brand/deck-logo-graphic";
 import { cn } from "@/lib/utils";
+import { DeckWordmarkMark } from "@/components/brand/deck-wordmark-mark";
+import { DeckMarkD } from "@/components/brand/deck-mark-d";
 
 interface DeckLogoProps {
   className?: string;
+  /** Visual height in px for the DECKK wordmark. */
   size?: number;
   animate?: boolean;
+  priority?: boolean;
+  /** Light mark for photo / dark headers. */
+  soft?: boolean;
+  /** Show only the bubbly D mark. */
+  markOnly?: boolean;
 }
 
-/** Compact card-stack brand mark. */
-export function DeckLogo({ className, size = 22, animate = false }: DeckLogoProps) {
-  const height = Math.round(size * 0.95);
+/** Bubbly DECKK wordmark — lilac balloons in light, white in dark, black on lilac theme. */
+export function DeckLogo({
+  className,
+  size = 28,
+  animate = false,
+  soft = false,
+  markOnly = false,
+}: DeckLogoProps) {
+  const height = size;
+  const width = markOnly
+    ? Math.round(size * 0.92)
+    : Math.round(size * (1511 / 415));
+
   return (
-    <svg
-      viewBox="0 0 26 24"
-      width={size}
-      height={height}
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-      className={cn("shrink-0 text-foreground", animate && "deck-logo-levitate", className)}
-      role="img"
-      aria-label="deckk"
+    <span
+      className={cn(
+        "deck-logo-glass inline-flex items-center",
+        animate ? "deck-logo-bounce" : null,
+        soft ? "text-white" : "text-[color:var(--logo)]",
+        className
+      )}
     >
-      <DeckLogoGraphic />
-    </svg>
+      {markOnly ? (
+        <DeckMarkD
+          className="shrink-0"
+          style={{ width, height }}
+          soft={soft}
+        />
+      ) : (
+        <DeckWordmarkMark
+          className="shrink-0"
+          style={{ width, height }}
+        />
+      )}
+    </span>
   );
 }

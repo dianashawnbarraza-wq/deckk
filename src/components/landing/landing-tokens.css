@@ -1,0 +1,131 @@
+/* Landing page tokens (scoped to [data-landing]). Does not change global theme defaults. */
+[data-landing] {
+  /* Cool lilac wash — less candy than hot bubblegum, still Deckk */
+  --landing-page: #e6dff4;
+  --landing-ink: #14131a;
+  /* Body muted on lilac ≈ 7:1+ (WCAG AA) */
+  --landing-muted: #3a3540;
+  --landing-faint: #5a5566;
+  --landing-surface: rgba(255, 255, 255, 0.7);
+  --landing-surface-strong: #ffffff;
+  --landing-border: rgba(26, 26, 26, 0.14);
+  --landing-black: #000000;
+  --landing-white: #ffffff;
+  --landing-phone: #0c0f14;
+  --landing-phone-ink: #f5f2ea;
+
+  --landing-space-1: 0.25rem;
+  --landing-space-2: 0.5rem;
+  --landing-space-3: 0.75rem;
+  --landing-space-4: 1rem;
+  --landing-space-5: 1.5rem;
+  --landing-space-6: 2rem;
+  --landing-space-7: 3rem;
+  --landing-space-8: 4.5rem;
+  --landing-space-9: 6rem;
+
+  --landing-radius-sm: 0.625rem;
+  --landing-radius-md: 0.875rem;
+  --landing-radius-lg: 1.25rem;
+  --landing-radius-xl: 1.75rem;
+  --landing-radius-pill: 999px;
+
+  --landing-h1: clamp(2.5rem, 6vw, 4.25rem);
+  --landing-h2: clamp(1.75rem, 3.2vw, 2.5rem);
+  --landing-body: 1.0625rem;
+  --landing-small: 0.8125rem;
+  --landing-eyebrow: 0.6875rem;
+
+  --landing-max: 72rem;
+  --landing-phone-w: min(100%, 22.5rem);
+  --landing-phone-aspect: 390 / 760;
+
+  --landing-ease: cubic-bezier(0.16, 1, 0.3, 1);
+  --landing-focus: 0 0 0 3px var(--landing-page), 0 0 0 5px var(--landing-black);
+}
+
+[data-landing] {
+  background: var(--landing-page);
+  color: var(--landing-ink);
+}
+
+[data-landing] .landing-muted {
+  color: var(--landing-muted);
+}
+
+[data-landing] .landing-eyebrow {
+  font-size: var(--landing-eyebrow);
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--landing-faint);
+}
+
+[data-landing] a:focus-visible,
+[data-landing] button:focus-visible {
+  outline: none;
+  box-shadow: var(--landing-focus);
+}
+
+[data-landing] .landing-cta:focus-visible {
+  box-shadow: var(--landing-focus);
+}
+
+@keyframes landing-marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+@keyframes landing-input-in {
+  from {
+    opacity: 0;
+    transform: translateY(-28%) scale(0.92);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes landing-card-in {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes landing-fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+[data-landing] .landing-marquee-track {
+  animation: landing-marquee 32s linear infinite;
+}
+
+[data-landing] .landing-marquee:hover .landing-marquee-track,
+[data-landing] .landing-marquee:focus-within .landing-marquee-track {
+  animation-play-state: paused;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-landing] .landing-marquee-track {
+    animation: none;
+  }
+
+  [data-landing] .landing-anim {
+    animation: none !important;
+  }
+}

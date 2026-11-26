@@ -3,33 +3,15 @@ import { cardsInBucket, isFeaturedItem } from "@/lib/card-taxonomy";
 
 const MS_DAY = 86_400_000;
 const FRESH_ITEM_DAYS = 14;
-const EVENT_URGENT_DAYS = 7;
-const EVENT_SOON_DAYS = 30;
 const PAST_VISIBLE_DAYS = 30;
-
-function urgencyBoost(card: Card, now: Date): number {
-  if (card.type !== "event" && card.type !== "announcement") return 0;
-  const start = card.date_start ? new Date(card.date_start).getTime() : null;
-  const end = card.date_end ? new Date(card.date_end).getTime() : start;
-  if (end == null) return 0;
-  if (end < now.getTime()) return -100;
-  if (start == null) return 10;
-  const daysUntil = (start - now.getTime()) / MS_DAY;
-  if (daysUntil <= EVENT_URGENT_DAYS) return 100;
-  if (daysUntil <= EVENT_SOON_DAYS) return 50;
-  return 10;
-}
-
-function recencyScore(card: Card, now: Date): number {
-  const created = new Date(card.created_at).getTime();
-  const ageDays = (now.getTime() - created) / MS_DAY;
-  return Math.max(0, 30 - ageDays);
-}
 
 function isPast(card: Card, now: Date): boolean {
   const end = card.date_end ?? card.date_start;
   if (!end) return false;
-  return new Date(end).getTime() < now.getTime();
+  // Calendar-day past: still "upcoming" through the end date's local day.
+  const startOfToday = new Date(now);
+  startOfToday.setHours(0, 0, 0, 0);
+  return new Date(end).getTime() < startOfToday.getTime();
 }
 
 function isFreshItem(card: Card, now: Date): boolean {
@@ -56,6 +38,7 @@ export interface RankedCards {
   adultLinks: Card[];
   listenLinks: Card[];
   writingLinks: Card[];
+  shopLinks: Card[];
   evergreen: Card[];
   past: Card[];
 }
@@ -64,31 +47,36 @@ export interface RankedCards {
 export function rankCards(cards: Card[], now: Date = new Date()): RankedCards {
   const live = cards.filter((c) => c.status === "live" && !isHiddenPast(c, now));
   const pinned = live.find((c) => c.pinned) ?? null;
-  const withoutPinned = pinned ? live.filter((c) => c.id !== pinned.id) : live;
+  // Keep pinned cards in event/item buckets so they still appear on Home + tabs.
+  // `pinned` is only used for spotlight / calendar landing.
 
-  const timeRanked = withoutPinned
+  const timeRanked = live
     .filter((c) => c.type === "event" || c.type === "announcement")
     .sort((a, b) => {
-      const scoreA = urgencyBoost(a, now) + recencyScore(a, now);
-      const scoreB = urgencyBoost(b, now) + recencyScore(b, now);
-      if (scoreB !== scoreA) return scoreB - scoreA;
+      const aUndated = !a.date_start && !a.date_end;
+      const bUndated = !b.date_start && !b.date_end;
+      if (aUndated !== bUndated) return aUndated ? 1 : -1;
+      const aT = new Date(a.date_start ?? a.date_end ?? 0).getTime();
+      const bT = new Date(b.date_start ?? b.date_end ?? 0).getTime();
+      if (aT !== bT) return aT - bT;
       return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
     });
 
-  const freshItems = withoutPinned
+  const freshItems = live
     .filter((c) => isFreshItem(c, now))
     .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
 
-  const featuredItems = withoutPinned
+  const featuredItems = live
     .filter((c) => isFeaturedItem(c))
     .sort((a, b) => (a.position ?? 999) - (b.position ?? 999))
     .slice(0, 4);
 
-  const socialLinks = cardsInBucket(withoutPinned, "social");
-  const supportLinks = cardsInBucket(withoutPinned, "support");
-  const adultLinks = cardsInBucket(withoutPinned, "adult");
-  const listenLinks = cardsInBucket(withoutPinned, "listen");
-  const writingLinks = cardsInBucket(withoutPinned, "writing");
+  const socialLinks = cardsInBucket(live, "social");
+  const supportLinks = cardsInBucket(live, "support");
+  const adultLinks = cardsInBucket(live, "adult");
+  const listenLinks = cardsInBucket(live, "listen");
+  const writingLinks = cardsInBucket(live, "writing");
+  const shopLinks = cardsInBucket(live, "shop");
 
   const reservedLinkIds = new Set([
     ...socialLinks,
@@ -96,12 +84,13 @@ export function rankCards(cards: Card[], now: Date = new Date()): RankedCards {
     ...adultLinks,
     ...listenLinks,
     ...writingLinks,
+    ...shopLinks,
   ].map((c) => c.id));
   const featuredIds = new Set(featuredItems.map((c) => c.id));
   const freshIds = new Set(freshItems.map((c) => c.id));
   const timeIds = new Set(timeRanked.map((c) => c.id));
 
-  const evergreen = withoutPinned
+  const evergreen = live
     .filter(
       (c) =>
         !timeIds.has(c.id) &&
@@ -130,6 +119,7 @@ export function rankCards(cards: Card[], now: Date = new Date()): RankedCards {
     adultLinks,
     listenLinks,
     writingLinks,
+    shopLinks,
     evergreen,
     past,
   };
@@ -145,13 +135,20 @@ export function cardsForTab(ranked: RankedCards, tab: PublicTab): Card[] {
     return [...pinnedEvent, ...ranked.happeningSoon, ...ranked.past];
   }
   if (tab === "shop") {
-    return [
-      ...ranked.featuredItems,
-      ...ranked.freshItems.filter((c) => !ranked.featuredItems.some((f) => f.id === c.id)),
-      ...ranked.evergreen.filter(
-        (c) => c.type === "item" && !ranked.featuredItems.some((f) => f.id === c.id)
-      ),
+    const featuredIds = new Set(ranked.featuredItems.map((f) => f.id));
+    const items = [
+      ...ranked.freshItems.filter((c) => !featuredIds.has(c.id)),
+      ...ranked.evergreen.filter((c) => c.type === "item" && !featuredIds.has(c.id)),
     ];
+    const shopExtras = ranked.shopLinks.filter((c) => !featuredIds.has(c.id));
+    const seen = new Set<string>();
+    const out: Card[] = [];
+    for (const c of [...ranked.featuredItems, ...items, ...shopExtras]) {
+      if (seen.has(c.id)) continue;
+      seen.add(c.id);
+      out.push(c);
+    }
+    return out;
   }
   if (tab === "adult") return ranked.adultLinks;
   if (tab === "listen") return ranked.listenLinks;
@@ -174,31 +171,56 @@ export function cardsForTab(ranked: RankedCards, tab: PublicTab): Card[] {
   return out;
 }
 
+/** Cards to preview on Home Featured shop (featured first, then fill). */
+export function homeShopPreview(ranked: RankedCards, limit = 4): Card[] {
+  const seen = new Set<string>();
+  const out: Card[] = [];
+  for (const c of [
+    ...ranked.featuredItems,
+    ...ranked.freshItems,
+    ...ranked.shopLinks,
+    ...ranked.evergreen.filter((card) => card.type === "item"),
+  ]) {
+    if (seen.has(c.id)) continue;
+    seen.add(c.id);
+    out.push(c);
+    if (out.length >= limit) break;
+  }
+  return out;
+}
+
 /**
- * Next chronological upcoming event/announcement (still happening or not yet started).
- * Used for Home "Next up" and Events calendar landing date.
+ * Upcoming events/announcements in chronological order
+ * (still happening or not yet started).
  */
-export function getNextUpcomingEvent(
+export function getNextUpcomingEvents(
   cards: Card[],
+  limit = 2,
   now: Date = new Date()
-): Card | null {
+): Card[] {
   const startOfToday = new Date(now);
   startOfToday.setHours(0, 0, 0, 0);
 
-  const upcoming = cards
+  return cards
     .filter((c) => {
       if (c.status !== "live") return false;
       if (c.type !== "event" && c.type !== "announcement") return false;
       const end = c.date_end ?? c.date_start;
       if (!end) return false;
-      // Still on or after start of today, OR end is still in the future
       return new Date(end).getTime() >= startOfToday.getTime();
     })
     .sort((a, b) => {
       const aT = new Date(a.date_start ?? a.date_end ?? 0).getTime();
       const bT = new Date(b.date_start ?? b.date_end ?? 0).getTime();
       return aT - bT;
-    });
+    })
+    .slice(0, Math.max(0, limit));
+}
 
-  return upcoming[0] ?? null;
+/** First upcoming event — Events calendar landing date. */
+export function getNextUpcomingEvent(
+  cards: Card[],
+  now: Date = new Date()
+): Card | null {
+  return getNextUpcomingEvents(cards, 1, now)[0] ?? null;
 }

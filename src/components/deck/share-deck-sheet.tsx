@@ -4,19 +4,26 @@ import { useEffect, useId, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { Check, Copy, Share, X } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { secondaryButton } from "@/lib/secondary-surface";
 
 interface ShareDeckSheetProps {
   shareUrl: string;
   title: string;
-  /** Icon-only round trigger (header) vs outline button. */
+  /** Optional flyer / preview image used as share thumbnail. */
+  imageUrl?: string | null;
+  /** Icon-only round trigger (header) vs labeled button. */
   trigger?: "icon" | "button";
+  /** Label when trigger is "button" (defaults to Share icon only if empty). */
+  label?: string;
   className?: string;
 }
 
 export function ShareDeckSheet({
   shareUrl,
   title,
+  imageUrl = null,
   trigger = "icon",
+  label,
   className,
 }: ShareDeckSheetProps) {
   const [open, setOpen] = useState(false);
@@ -29,7 +36,9 @@ export function ShareDeckSheet({
   const triggerRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
-    setCanNativeShare(typeof navigator !== "undefined" && typeof navigator.share === "function");
+    setCanNativeShare(
+      typeof navigator !== "undefined" && typeof navigator.share === "function"
+    );
   }, []);
 
   useEffect(() => {
@@ -77,7 +86,30 @@ export function ShareDeckSheet({
 
   async function nativeShare() {
     try {
-      await navigator.share({ url: shareUrl, title });
+      const data: ShareData = { url: shareUrl, title, text: title };
+      if (imageUrl && typeof navigator.canShare === "function") {
+        try {
+          const res = await fetch(imageUrl);
+          const blob = await res.blob();
+          const ext = blob.type.includes("png")
+            ? "png"
+            : blob.type.includes("webp")
+              ? "webp"
+              : "jpg";
+          const file = new File([blob], `flyer.${ext}`, {
+            type: blob.type || "image/jpeg",
+          });
+          const withFile: ShareData = { ...data, files: [file] };
+          if (navigator.canShare(withFile)) {
+            await navigator.share(withFile);
+            setOpen(false);
+            return;
+          }
+        } catch {
+          // Fall through to link-only share
+        }
+      }
+      await navigator.share(data);
       setOpen(false);
     } catch (e) {
       if (e instanceof Error && e.name === "AbortError") return;
@@ -89,7 +121,7 @@ export function ShareDeckSheet({
     open && frame
       ? createPortal(
           <div
-            className="absolute inset-0 z-50 flex items-end justify-center bg-black/45 px-4 pb-24 pt-10 backdrop-blur-[2px]"
+            className="fixed inset-0 z-50 flex items-end justify-center bg-black/45 px-4 pb-24 pt-10 backdrop-blur-[2px] sm:items-center sm:pb-10"
             role="presentation"
             onClick={(e) => {
               if (e.target === e.currentTarget) setOpen(false);
@@ -124,10 +156,25 @@ export function ShareDeckSheet({
                 </button>
               </div>
 
+              {imageUrl ? (
+                <div className="mb-3 overflow-hidden rounded-[16px] border border-deck-card-brd">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={imageUrl}
+                    alt=""
+                    className="aspect-[4/5] max-h-44 w-full object-cover"
+                  />
+                </div>
+              ) : null}
+
               <div className="mx-auto flex size-[200px] items-center justify-center rounded-[16px] border border-deck-card-brd bg-white p-3">
                 {qrDataUrl ? (
                   // eslint-disable-next-line @next/next/no-img-element
-                  <img src={qrDataUrl} alt={`QR code for ${shareUrl}`} className="size-full" />
+                  <img
+                    src={qrDataUrl}
+                    alt={`QR code for ${shareUrl}`}
+                    className="size-full"
+                  />
                 ) : (
                   <span className="text-[12px] text-dim">Generating QR…</span>
                 )}
@@ -143,7 +190,11 @@ export function ShareDeckSheet({
                   onClick={() => void copyLink()}
                   className="flex w-full items-center justify-center gap-2 rounded-xl bg-primary py-3 text-[13px] font-semibold text-primary-foreground transition-transform active:scale-[0.98]"
                 >
-                  {copied ? <Check className="size-4" /> : <Copy className="size-4" />}
+                  {copied ? (
+                    <Check className="size-4" />
+                  ) : (
+                    <Copy className="size-4" />
+                  )}
                   {copied ? "Link copied" : "Copy link"}
                 </button>
                 {canNativeShare && (
@@ -171,22 +222,27 @@ export function ShareDeckSheet({
         onClick={() => {
           const root =
             triggerRef.current?.closest("[data-phone-frame]") ??
-            document.querySelector("[data-phone-frame]");
+            document.querySelector("[data-phone-frame]") ??
+            document.body;
           setFrame(root);
           setOpen(true);
         }}
-        title="Share this deckk"
-        aria-label="Share this deckk"
-        aria-haspopup="dialog"
-        aria-expanded={open}
+        aria-label={label || "Share"}
         className={cn(
           trigger === "icon"
-            ? "flex size-9 items-center justify-center rounded-full border border-deck-card-brd bg-deck-card text-foreground backdrop-blur-md transition-colors"
-            : "inline-flex items-center justify-center rounded-full border border-deck-card-brd bg-deck-card px-3 py-1.5 text-xs font-semibold text-foreground",
+            ? cn(secondaryButton, "size-9")
+            : cn(secondaryButton, "h-9 gap-2 px-3 text-[13px]"),
           className
         )}
       >
-        <Share className="size-4" strokeWidth={2.25} />
+        {trigger === "button" && label ? (
+          <>
+            <Share className="size-4" strokeWidth={2.25} />
+            {label}
+          </>
+        ) : (
+          <Share className="size-4" strokeWidth={2.25} />
+        )}
       </button>
       {sheet}
     </>

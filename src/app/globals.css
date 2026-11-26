@@ -1,12 +1,15 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
+/* Landing splash tokens + motion (scoped to [data-landing] only) */
+@import "../components/landing/landing-tokens.css";
+@import "../components/landing/landing-patterns.css";
 
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
-  --font-sans: var(--font-space-grotesk);
-  --font-display: var(--font-instrument-serif);
+  --font-sans: var(--font-duck-sans);
+  --font-display: var(--font-duck-sans);
   --font-heading: var(--font-display);
   --font-mono: var(--font-geist-mono);
 
@@ -20,6 +23,9 @@
   --color-dim: var(--dim);
   --color-faint: var(--faint);
   --color-accent-2: var(--accent-2);
+  --color-accent-soft: var(--accent-soft);
+  --color-secondary-stroke: var(--secondary-stroke);
+  --color-success: var(--success);
   --color-phone-brd: var(--phone-brd);
   --color-deck-shadow: var(--deck-shadow);
 
@@ -66,21 +72,26 @@
 }
 
 :root {
-  /* Deckk 3.0 — from design prototype */
-  --backdrop: #ded5c4;
-  --page: #ede5d5;
-  --text: #1b1813;
-  --dim: rgba(27, 24, 19, 0.58);
-  --faint: rgba(27, 24, 19, 0.34);
-  --glass: rgba(250, 246, 238, 0.62);
-  --glass-strong: rgba(250, 246, 238, 0.82);
-  --deck-card: rgba(255, 255, 255, 0.5);
-  --deck-card-brd: rgba(27, 24, 19, 0.1);
-  --deck-nav: rgba(250, 246, 238, 0.66);
-  --accent: #7c3aed;
-  --accent-2: #b8894a;
-  --phone-brd: rgba(27, 24, 19, 0.16);
-  --deck-shadow: rgba(27, 24, 19, 0.22);
+  /* Light — Wispr-adjacent: cool off-white, charcoal, soft lavender */
+  --backdrop: #f3f2f5;
+  --page: #f9f8fa;
+  --text: #1a1a1a;
+  --dim: rgba(26, 26, 26, 0.58);
+  --faint: rgba(26, 26, 26, 0.38);
+  --glass: rgba(255, 255, 255, 0.78);
+  --glass-strong: rgba(255, 255, 255, 0.94);
+  --deck-card: #f1f0f3;
+  --deck-card-brd: rgba(26, 26, 26, 0.08);
+  --deck-nav: rgba(255, 255, 255, 0.9);
+  /* Primary actions: deep plum-charcoal (not bright violet) */
+  --accent: #332d3b;
+  /* Soft lavender wash + warm gold highlight */
+  --accent-soft: #e6dff4;
+  --accent-2: #c4a35a;
+  --secondary-stroke: rgba(51, 45, 59, 0.55);
+  --phone-brd: rgba(26, 26, 26, 0.1);
+  --deck-shadow: rgba(26, 26, 26, 0.1);
+  --success: #7dc28d;
 
   /* shadcn semantic mapping */
   --background: var(--backdrop);
@@ -90,36 +101,181 @@
   --popover: var(--glass-strong);
   --popover-foreground: var(--text);
   --primary: var(--accent);
-  --primary-foreground: #fff;
-  --secondary: var(--page);
+  --primary-foreground: #ffffff;
+  --secondary: var(--accent-soft);
   --secondary-foreground: var(--text);
-  --muted: var(--page);
+  --muted: var(--deck-card);
   --muted-foreground: var(--dim);
-  --accent-color: var(--page);
+  --accent-color: var(--accent-soft);
   --accent-foreground: var(--text);
   --destructive: #b3261e;
   --border: var(--deck-card-brd);
   --input: var(--deck-card-brd);
   --ring: var(--accent);
   --radius: 1rem;
+  --logo: #c4a0f0;
+}
+
+/* Wispr lilac wash — black primary CTAs, underlined text links */
+[data-theme="lilac"] {
+  --backdrop: #e6dff4;
+  --page: #e6dff4;
+  --text: #14131a;
+  --dim: rgba(26, 26, 26, 0.58);
+  --faint: rgba(26, 26, 26, 0.4);
+  --glass: rgba(255, 255, 255, 0.62);
+  --glass-strong: rgba(255, 255, 255, 0.82);
+  --deck-card: rgba(255, 255, 255, 0.55);
+  --deck-card-brd: rgba(26, 26, 26, 0.12);
+  --deck-nav: rgba(255, 255, 255, 0.72);
+  --accent: #000000;
+  --accent-soft: #ffffff;
+  --accent-2: #c4a35a;
+  --secondary-stroke: rgba(0, 0, 0, 0.22);
+  --phone-brd: rgba(26, 26, 26, 0.12);
+  --deck-shadow: rgba(51, 45, 59, 0.16);
+  --success: #7dc28d;
+  --logo: #000000;
+
+  --background: var(--backdrop);
+  --foreground: var(--text);
+  --card: var(--deck-card);
+  --card-foreground: var(--text);
+  --popover: var(--glass-strong);
+  --popover-foreground: var(--text);
+  --primary: #000000;
+  --primary-foreground: #ffffff;
+  --secondary: #ffffff;
+  --secondary-foreground: #1a1a1a;
+  --muted: rgba(255, 255, 255, 0.45);
+  --muted-foreground: var(--dim);
+  --accent-color: #ffffff;
+  --accent-foreground: #1a1a1a;
+  --destructive: #b3261e;
+  --border: var(--deck-card-brd);
+  --input: var(--deck-card-brd);
+  --ring: #000000;
+}
+
+[data-theme="lilac"] a:not([class*="rounded"]):not([class*="bg-"]):not([role="button"]) {
+  text-decoration: underline;
+  text-underline-offset: 0.18em;
+  text-decoration-thickness: 1px;
+}
+
+[data-theme="lilac"] a.underline-offset-2,
+[data-theme="lilac"] a.underline-offset-4 {
+  text-decoration-line: underline;
+}
+
+[data-theme="lilac"] .deckk-cosmic-nebula-a {
+  background: radial-gradient(
+    circle,
+    color-mix(in srgb, #ffffff 70%, #c4a0f0) 0%,
+    transparent 72%
+  );
+  opacity: calc(0.45 + var(--deck-scroll) * 0.12);
+}
+[data-theme="lilac"] .deckk-cosmic-nebula-b {
+  background: radial-gradient(
+    circle,
+    color-mix(in srgb, #c4a0f0 55%, transparent) 0%,
+    transparent 74%
+  );
+  opacity: calc(0.32 + var(--deck-scroll) * 0.14);
+}
+[data-theme="lilac"] .deckk-cosmic-nebula-c {
+  background: radial-gradient(
+    ellipse at center,
+    color-mix(in srgb, #ffffff 55%, #b8a0d8) 0%,
+    transparent 76%
+  );
+  opacity: calc(0.28 + var(--deck-scroll) * 0.1);
+}
+
+[data-theme="lilac"] .deckk-cosmic-stars {
+  opacity: calc(0.08 + var(--deck-scroll) * 0.06);
+  mix-blend-mode: soft-light;
+}
+
+/* Frosted floating dock on lilac */
+[data-theme="lilac"] .deckk-dock {
+  border-color: rgba(255, 255, 255, 0.7);
+  background: rgba(255, 255, 255, 0.58);
+  box-shadow:
+    0 18px 48px -20px rgba(51, 45, 59, 0.35),
+    inset 0 1px 0 rgba(255, 255, 255, 0.85);
+}
+
+/* Soft paper grain on lilac page wash */
+[data-theme="lilac"] .deckk-lilac-grain::before {
+  content: "";
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  opacity: 0.22;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.55'/%3E%3C/svg%3E");
+  mix-blend-mode: soft-light;
+}
+
+/* Lilac public deck: solid header wash + thick glassy rule under identity */
+[data-theme="lilac"] [data-deck-identity] {
+  background: var(--page);
+  border-bottom-color: transparent;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
+[data-theme="lilac"] [data-deck-glass-rule] {
+  display: block;
+}
+
+[data-deck-glass-rule] {
+  display: none;
+  padding-block: 16px;
+}
+
+[data-deck-glass-rule] > span {
+  display: block;
+  height: 12px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.55);
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.62) 0%,
+    rgba(255, 255, 255, 0.28) 55%,
+    rgba(255, 255, 255, 0.42) 100%
+  );
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.75),
+    0 8px 24px -16px rgba(51, 45, 59, 0.35);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
 }
 
 .dark {
-  --backdrop: #090807;
-  --page: #131110;
+  /* Instagram-adjacent near-black so handoff from IG feels seamless */
+  --backdrop: #0c0f14;
+  --page: #0c0f14;
   --text: #ffffff;
   --dim: rgba(255, 255, 255, 0.62);
   --faint: rgba(255, 255, 255, 0.4);
-  --glass: rgba(32, 29, 25, 0.5);
-  --glass-strong: rgba(32, 29, 25, 0.8);
-  --deck-card: rgba(255, 255, 255, 0.06);
-  --deck-card-brd: rgba(255, 255, 255, 0.13);
-  --deck-nav: rgba(26, 23, 20, 0.55);
+  /* Frosted glass over #0c0f14 — white wash + hairline edges (not muddy cool grey) */
+  --glass: rgba(255, 255, 255, 0.06);
+  --glass-strong: rgba(255, 255, 255, 0.1);
+  --deck-card: rgba(255, 255, 255, 0.07);
+  --deck-card-brd: rgba(255, 255, 255, 0.1);
+  --deck-nav: rgba(255, 255, 255, 0.08);
   /* Electric violet — cooler/bluer than magenta, AA+ for links on dark */
   --accent: #b967ff;
+  --accent-soft: rgba(185, 103, 255, 0.16);
   --accent-2: #cba25a;
-  --phone-brd: rgba(255, 255, 255, 0.13);
+  --secondary-stroke: rgba(255, 255, 255, 0.18);
+  --phone-brd: rgba(255, 255, 255, 0.12);
   --deck-shadow: rgba(0, 0, 0, 0.55);
+  --success: #7dc28d;
+  --logo: #ffffff;
 
   /* Keep semantic text tokens white inside the phone shell */
   --background: var(--backdrop);
@@ -181,7 +337,7 @@
 
 @layer utilities {
   .font-display {
-    font-family: var(--font-display), ui-serif, Georgia, serif;
+    font-family: var(--font-display), ui-sans-serif, system-ui, sans-serif;
   }
   .font-gothic {
     font-family: var(--font-gothic), "UnifrakturMaguntia", "UnifrakturCook", "Old English Text MT", serif;
@@ -250,10 +406,382 @@
   }
 }
 
+@keyframes deckk-composer-glow {
+  0%,
+  100% {
+    border-color: rgba(255, 255, 255, 0.28);
+    box-shadow:
+      0 0 0 0.5px rgba(255, 255, 255, 0.12),
+      0 0 10px rgba(255, 255, 255, 0.08),
+      0 6px 18px var(--deck-shadow);
+  }
+  50% {
+    border-color: rgba(255, 255, 255, 0.48);
+    box-shadow:
+      0 0 0 0.5px rgba(255, 255, 255, 0.22),
+      0 0 14px rgba(255, 255, 255, 0.16),
+      0 8px 20px var(--deck-shadow);
+  }
+}
+
+.deckk-composer-glow {
+  animation: deckk-composer-glow 3.2s ease-in-out infinite;
+}
+
+.deckk-composer-glow:focus-within,
+.deckk-composer-glow:active {
+  animation: none;
+  border-color: var(--accent);
+  box-shadow:
+    0 0 0 1px color-mix(in srgb, var(--accent) 55%, transparent),
+    0 0 0 3px color-mix(in srgb, var(--accent) 18%, transparent),
+    0 8px 20px var(--deck-shadow);
+}
+
+@keyframes deckk-caret-blink {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0;
+  }
+}
+
+.deckk-composer-caret {
+  display: inline-block;
+  width: 2px;
+  height: 1.05em;
+  flex-shrink: 0;
+  margin-top: 0.18em;
+  border-radius: 1px;
+  background: currentColor;
+  animation: deckk-caret-blink 1.05s step-end infinite;
+}
+
+@keyframes deckk-studio-swap {
+  0%,
+  42% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  50%,
+  92% {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes deckk-studio-swap-b {
+  0%,
+  42% {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  50%,
+  92% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+}
+
+.deckk-studio-label-a {
+  animation: deckk-studio-swap 4.2s ease-in-out infinite;
+}
+
+.deckk-studio-label-b {
+  animation: deckk-studio-swap-b 4.2s ease-in-out infinite;
+}
+
+/* Soft violet wash over near-black page (Instagram-handoff dark) */
+.deckk-purple-glow {
+  pointer-events: none;
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: min(52%, 420px);
+  z-index: 0;
+  background:
+    radial-gradient(
+      ellipse 130% 90% at 50% -15%,
+      color-mix(in srgb, var(--accent) 32%, transparent) 0%,
+      color-mix(in srgb, var(--accent) 12%, transparent) 42%,
+      transparent 72%
+    ),
+    linear-gradient(
+      to bottom,
+      color-mix(in srgb, var(--accent) 10%, transparent) 0%,
+      transparent 100%
+    );
+}
+
+/* Desktop public deck: subtle scroll-linked cosmic wash */
+.deckk-cosmic {
+  --deck-scroll: 0;
+  --deck-scroll-y: 0px;
+}
+
+.deckk-cosmic-nebula {
+  position: absolute;
+  border-radius: 9999px;
+  filter: blur(64px);
+  will-change: transform, opacity;
+  transition: opacity 0.45s ease;
+}
+
+.deckk-cosmic-nebula-a {
+  left: -14%;
+  top: -10%;
+  width: min(56vw, 600px);
+  height: min(56vw, 600px);
+  opacity: calc(0.16 + var(--deck-scroll) * 0.1);
+  background: radial-gradient(
+    circle,
+    color-mix(in srgb, var(--accent) 55%, transparent) 0%,
+    transparent 72%
+  );
+  transform: translate3d(
+    calc(var(--deck-scroll) * -18px),
+    calc(var(--deck-scroll-y) * -0.08),
+    0
+  );
+}
+
+.deckk-cosmic-nebula-b {
+  right: -12%;
+  top: 22%;
+  width: min(48vw, 500px);
+  height: min(48vw, 500px);
+  opacity: calc(0.1 + var(--deck-scroll) * 0.12);
+  background: radial-gradient(
+    circle,
+    color-mix(in srgb, var(--accent) 28%, #a78bfa) 0%,
+    transparent 74%
+  );
+  transform: translate3d(
+    calc(var(--deck-scroll) * 22px),
+    calc(var(--deck-scroll-y) * -0.12),
+    0
+  );
+}
+
+.deckk-cosmic-nebula-c {
+  left: 30%;
+  top: 55%;
+  width: min(62vw, 680px);
+  height: min(42vw, 440px);
+  opacity: calc(0.06 + var(--deck-scroll) * 0.1);
+  background: radial-gradient(
+    ellipse at center,
+    color-mix(in srgb, var(--accent) 22%, #67e8f9) 0%,
+    transparent 76%
+  );
+  transform: translate3d(
+    calc(var(--deck-scroll) * 10px),
+    calc(var(--deck-scroll-y) * -0.16),
+    0
+  );
+}
+
+.deckk-cosmic-stars {
+  position: absolute;
+  inset: -20% 0 0;
+  opacity: calc(0.06 + var(--deck-scroll) * 0.1);
+  background-image:
+    radial-gradient(1px 1px at 12% 18%, rgba(255, 255, 255, 0.35), transparent),
+    radial-gradient(1px 1px at 28% 42%, rgba(255, 255, 255, 0.22), transparent),
+    radial-gradient(1px 1px at 46% 12%, rgba(255, 255, 255, 0.28), transparent),
+    radial-gradient(1px 1px at 63% 36%, rgba(255, 255, 255, 0.18), transparent),
+    radial-gradient(1px 1px at 78% 22%, rgba(255, 255, 255, 0.26), transparent),
+    radial-gradient(1px 1px at 88% 58%, rgba(255, 255, 255, 0.16), transparent),
+    radial-gradient(1px 1px at 18% 68%, rgba(255, 255, 255, 0.14), transparent),
+    radial-gradient(1px 1px at 54% 74%, rgba(255, 255, 255, 0.2), transparent);
+  transform: translate3d(0, calc(var(--deck-scroll-y) * -0.04), 0);
+  mix-blend-mode: screen;
+}
+
+:not(.dark) .deckk-cosmic-nebula-a {
+  opacity: calc(0.1 + var(--deck-scroll) * 0.06);
+}
+:not(.dark) .deckk-cosmic-nebula-b {
+  opacity: calc(0.07 + var(--deck-scroll) * 0.06);
+}
+:not(.dark) .deckk-cosmic-nebula-c {
+  opacity: calc(0.05 + var(--deck-scroll) * 0.05);
+}
+:not(.dark) .deckk-cosmic-stars {
+  opacity: calc(0.02 + var(--deck-scroll) * 0.04);
+  mix-blend-mode: multiply;
+}
+
+.deckk-reveal {
+  opacity: 0;
+  transform: translateY(18px) scale(0.985);
+  transition:
+    opacity 0.75s cubic-bezier(0.22, 1, 0.36, 1) var(--deck-reveal-delay, 0ms),
+    transform 0.75s cubic-bezier(0.22, 1, 0.36, 1) var(--deck-reveal-delay, 0ms);
+  will-change: opacity, transform;
+}
+
+.deckk-reveal-in {
+  opacity: 1;
+  transform: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .deckk-cosmic-nebula,
+  .deckk-cosmic-stars {
+    animation: none !important;
+    transform: none !important;
+  }
+
+  .deckk-reveal {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+}
+
+/* Public deck entrance: bio block expands open (no avatar swipe) */
+.deckk-ig-entry [data-ig-detail] h1 {
+  opacity: 0.88;
+  transform: translateY(4px);
+  transition:
+    opacity 0.4s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.deckk-ig-entry [data-ig-bio-expand] {
+  display: grid;
+  grid-template-rows: 0fr;
+  opacity: 0;
+  transition:
+    grid-template-rows 0.58s cubic-bezier(0.22, 1, 0.36, 1),
+    opacity 0.45s cubic-bezier(0.22, 1, 0.36, 1) 0.06s;
+}
+
+.deckk-ig-entry [data-ig-bio-inner] {
+  overflow: hidden;
+  min-height: 0;
+}
+
+.deckk-ig-entry-done [data-ig-detail] h1 {
+  opacity: 1;
+  transform: none;
+}
+
+.deckk-ig-entry-done [data-ig-bio-expand] {
+  grid-template-rows: 1fr;
+  opacity: 1;
+}
+
+/* Mobile sticky identity: scroll-linked collapse (set --deck-collapse 0→1) */
+@media (max-width: 1023px) {
+  [data-deck-identity] {
+    --deck-collapse: 0;
+  }
+
+  /* Studio / non-scroll contexts that start collapsed */
+  [data-deck-identity][data-collapsed="true"]:not([style*="--deck-collapse"]) {
+    --deck-collapse: 1;
+  }
+
+  [data-deck-identity] [data-ig-avatar] {
+    width: calc(84px - 46px * var(--deck-collapse, 0));
+    height: calc(84px - 46px * var(--deck-collapse, 0));
+    transition:
+      border-width 0.3s cubic-bezier(0.22, 1, 0.36, 1),
+      box-shadow 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  [data-deck-identity] [data-ig-title] {
+    font-size: calc(44px - 22px * var(--deck-collapse, 0));
+    line-height: calc(1.08 + 0.12 * var(--deck-collapse, 0));
+  }
+
+  [data-deck-identity] [data-ig-eyebrow] {
+    max-height: calc(32px * (1 - var(--deck-collapse, 0)));
+    margin-bottom: calc(0.5rem * (1 - var(--deck-collapse, 0)));
+    opacity: calc(1 - var(--deck-collapse, 0) * 1.4);
+    overflow: hidden;
+  }
+
+  [data-deck-identity] .deckk-ig-bio-collapse {
+    display: grid;
+    grid-template-rows: 1fr;
+    max-height: calc(240px * (1 - var(--deck-collapse, 0)));
+    opacity: calc(1 - var(--deck-collapse, 0) * 1.35);
+    overflow: hidden;
+    transform: translate3d(0, calc(var(--deck-collapse, 0) * -6px), 0);
+    will-change: opacity, max-height, transform;
+  }
+
+  [data-deck-identity] .deckk-ig-bio-collapse [data-ig-bio-inner] {
+    min-height: 0;
+    overflow: hidden;
+  }
+
+  [data-deck-identity][data-collapsed="true"] .deckk-ig-bio-collapse {
+    max-height: 0;
+    opacity: 0;
+    transform: translate3d(0, -8px, 0);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    [data-deck-identity] [data-ig-avatar],
+    [data-deck-identity] [data-ig-title],
+    [data-deck-identity] [data-ig-eyebrow],
+    [data-deck-identity] .deckk-ig-bio-collapse {
+      transition: none !important;
+    }
+  }
+}
+
+@media (min-width: 1024px) {
+  [data-deck-identity] {
+    --deck-collapse: 0;
+  }
+}
+
+.deckk-ig-content-delay.deckk-fade-up {
+  animation-delay: 0.32s;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .deckk-fade-up,
-  .deckk-pop {
+  .deckk-pop,
+  .deckk-composer-glow,
+  .deckk-composer-caret,
+  .deckk-studio-label-a,
+  .deckk-studio-label-b {
     animation: none;
+  }
+
+  .deckk-composer-caret {
+    opacity: 1;
+  }
+
+  .deckk-studio-label-b {
+    opacity: 0;
+  }
+
+  .deckk-ig-entry [data-ig-detail] h1,
+  .deckk-ig-entry [data-ig-bio-expand] {
+    transform: none;
+    opacity: 1;
+    transition: none;
+    grid-template-rows: 1fr;
+  }
+
+  .deckk-ig-content-delay.deckk-fade-up {
+    animation-delay: 0s;
   }
 }
 
@@ -336,3 +864,38 @@
     opacity: 0.55;
   }
 }
+
+/* —— Butch Brunch event page only (pancakes; no plaid) —— */
+.butch-brunch-flake {
+  animation-name: butch-pancake-fall;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+  will-change: transform;
+}
+
+@keyframes butch-pancake-fall {
+  0% {
+    transform: translate3d(0, -12vh, 0) rotate(0deg);
+  }
+  100% {
+    transform: translate3d(var(--butch-drift, 20px), 115vh, 0)
+      rotate(var(--butch-spin, 220deg));
+  }
+}
+
+.butch-brunch-page {
+  position: relative;
+}
+
+.butch-brunch-page > *:not(.butch-brunch-scene) {
+  position: relative;
+  z-index: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .butch-brunch-flake {
+    animation: none;
+    opacity: 0 !important;
+  }
+}
+

@@ -1,94 +1,59 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import Link from "next/link";
-import { DeckLogo } from "@/components/brand/deck-logo";
-import { DeckWordmark } from "@/components/brand/deck-wordmark";
-import { DemoDeckGallery } from "@/components/landing/demo-deck-gallery";
-import { cn } from "@/lib/utils";
-
-const ROLES = ["creators", "artists", "organizers", "anyone"] as const;
+import { LandingNav } from "@/components/landing/landing-nav";
+import { LandingHeroVisual } from "@/components/landing/landing-hero-visual";
+import { LandingHowItWorks } from "@/components/landing/landing-how-it-works";
+import { LandingForReaders } from "@/components/landing/landing-for-readers";
+import { LandingAudienceMarquee } from "@/components/landing/landing-audience-marquee";
+import { LandingExamples } from "@/components/landing/landing-examples";
+import { LandingCtaFooter } from "@/components/landing/landing-cta-footer";
+import { LandingAtmosphere } from "@/components/landing/landing-atmosphere";
+import { LandingWordReveal } from "@/components/landing/landing-word-reveal";
+import { JoinBetaButton } from "@/components/landing/join-beta-button";
+import { ScrollReveal } from "@/components/deck/scroll-reveal";
 
 export function LandingHero() {
-  const [roleIndex, setRoleIndex] = useState(0);
-  const [visible, setVisible] = useState(true);
-
-  useEffect(() => {
-    const id = window.setInterval(() => {
-      setVisible(false);
-      window.setTimeout(() => {
-        setRoleIndex((i) => (i + 1) % ROLES.length);
-        setVisible(true);
-      }, 280);
-    }, 2600);
-    return () => window.clearInterval(id);
-  }, []);
-
   return (
-    <div className="dark min-h-dvh bg-backdrop text-foreground" data-theme="dark">
-      <main className="relative mx-auto flex min-h-dvh max-w-6xl flex-col justify-center overflow-hidden px-5 py-14 lg:flex-row lg:items-center lg:gap-12 lg:px-8">
-        <div
-          aria-hidden
-          className="pointer-events-none absolute -left-24 top-10 size-[300px] rounded-full opacity-45 blur-[52px]"
-          style={{
-            background: "radial-gradient(circle, var(--accent), transparent 70%)",
-          }}
-        />
-        <div
-          aria-hidden
-          className="pointer-events-none absolute -right-16 bottom-10 size-[260px] rounded-full opacity-30 blur-[48px]"
-          style={{
-            background: "radial-gradient(circle, var(--accent-2), transparent 70%)",
-          }}
-        />
+    <div data-theme="lilac" data-landing className="min-h-dvh font-sans">
+      <LandingNav />
 
-        <div className="relative z-[1] flex-1 pb-10 lg:pb-0">
-          <Link href="/" className="inline-flex items-center gap-2" aria-label="deckk.me home">
-            <DeckLogo size={36} />
-            <span className="text-[2rem] leading-none sm:text-[2.35rem]">
-              <DeckWordmark />
-            </span>
-          </Link>
+      <main>
+        <section className="relative overflow-hidden">
+          <LandingAtmosphere />
+          <div className="relative z-[1] mx-auto grid w-full max-w-[var(--landing-max)] items-center gap-10 px-5 py-12 lg:grid-cols-2 lg:gap-12 lg:px-8 lg:py-16">
+            <div className="min-w-0">
+              <h1 className="max-w-xl font-display text-[length:var(--landing-h1)] font-medium leading-[1.05] tracking-tight text-[var(--landing-ink)]">
+                <LandingWordReveal
+                  text="Everything you share. One clear page."
+                  as="span"
+                />
+              </h1>
+              <p className="landing-muted mt-5 max-w-lg text-[length:var(--landing-body)] leading-relaxed">
+                Most bio links are just a list. Deckk turns flyers, products,
+                and posts into a structured page. Events show dates and
+                details. Products live in a shop. You share one link on
+                Instagram, in email, anywhere. People find tickets, buy what
+                they need, and move on.
+              </p>
+              <div className="mt-8">
+                <JoinBetaButton size="lg" />
+              </div>
+              <p className="landing-muted mt-3 text-[length:var(--landing-small)]">
+                Public beta opens soon. Join the list today.
+              </p>
+            </div>
 
-          <h1 className="mt-10 max-w-xl font-display text-[2.4rem] leading-[1.05] tracking-tight text-foreground sm:text-[3.15rem]">
-            Made for{" "}
-            <span
-              className={cn(
-                "inline-block text-primary transition-all duration-300 ease-out",
-                visible ? "translate-y-0 opacity-100" : "translate-y-1.5 opacity-0"
-              )}
-            >
-              {ROLES[roleIndex]}
-            </span>
-            <span className="mt-1 block text-foreground">with something worth sharing.</span>
-          </h1>
-
-          <p className="mt-5 max-w-md text-[1.05rem] leading-relaxed text-dim">
-            Build your Deckk and let it organize your links for you so what you want to
-            promote can be found.
-          </p>
-
-          <div className="mt-10 flex flex-wrap items-center gap-3">
-            <Link
-              href="/get-started"
-              className="inline-flex h-12 items-center justify-center rounded-full bg-primary px-7 text-[15px] font-semibold text-white shadow-[0_12px_28px_-12px_var(--accent)] transition hover:opacity-90"
-            >
-              Get started
-            </Link>
-            <Link
-              href="/login"
-              className="inline-flex h-12 items-center justify-center rounded-full border border-deck-card-brd bg-deck-card px-6 text-[15px] font-semibold text-foreground transition hover:opacity-90"
-            >
-              Login
-            </Link>
+            <ScrollReveal className="relative flex min-w-0 justify-center lg:justify-end">
+              <LandingHeroVisual />
+            </ScrollReveal>
           </div>
+        </section>
 
-          <p className="mt-5 text-[13px] text-dim">No cost, just build.</p>
-        </div>
-
-        <div className="relative z-[1] flex flex-1 justify-center lg:justify-end">
-          <DemoDeckGallery />
-        </div>
+        <LandingHowItWorks />
+        <LandingForReaders />
+        <LandingAudienceMarquee />
+        <LandingExamples />
+        <LandingCtaFooter />
       </main>
     </div>
   );
